@@ -8,9 +8,8 @@ import java.util.Date;
 @Table(name = "posts")
 public class Post {
 
-    public enum MediaType {
-        IMAGE, VIDEO
-    }
+    public enum MediaType {IMAGE, VIDEO}
+    public enum State {ACTIVE, BLOCKED, HIDDEN}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +30,10 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private MediaType mediaType;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     private String title;
 
     private String text;
@@ -38,7 +41,8 @@ public class Post {
     @NotNull
     private Date created;
 
-    private Post(){}
+    private Post() {
+    }
 
     public static Post create(Space space, User user, String mediaUrl, MediaType mediaType, String title, String text) {
         Post post = new Post();
@@ -48,6 +52,7 @@ public class Post {
         post.mediaType = mediaType;
         post.title = title;
         post.text = text;
+        post.state = State.ACTIVE;
         post.created = new Date();
         return post;
     }

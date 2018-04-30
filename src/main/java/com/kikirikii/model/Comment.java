@@ -8,6 +8,8 @@ import java.util.Date;
 @Table(name = "comments")
 public class Comment {
 
+    public enum State {ACTIVE, BLOCKED, HIDDEN}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -22,6 +24,10 @@ public class Comment {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     private String text;
 
     @NotNull
@@ -34,6 +40,7 @@ public class Comment {
         comment.post = post;
         comment.user = user;
         comment.text = text;
+        comment.state = State.ACTIVE;
         comment.created = new Date();
         return comment;
     }

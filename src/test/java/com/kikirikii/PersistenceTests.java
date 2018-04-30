@@ -1,13 +1,7 @@
 package com.kikirikii;
 
-import com.kikirikii.db.CommentRepository;
-import com.kikirikii.db.PostRepository;
-import com.kikirikii.db.SpaceRepository;
-import com.kikirikii.db.UserRepository;
-import com.kikirikii.model.Comment;
-import com.kikirikii.model.Post;
-import com.kikirikii.model.Space;
-import com.kikirikii.model.User;
+import com.kikirikii.db.*;
+import com.kikirikii.model.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @RunWith(SpringRunner.class)
@@ -40,38 +35,67 @@ public class PersistenceTests {
     @Autowired
     private CommentRepository commentRepository;
 
-    //    @Test
+    @Autowired
+    private FriendRepository friendRepository;
+
+    @Autowired
+    private FollowerRepository followerRepository;
+
+//    @Test
     public void createUsers() {
         userRepository.save(User.create("amaru.kusku@gmail.com", "Amaru", "password"));
         userRepository.save(User.create("julia.jobs@gmail.com", "Julia", "password"));
+        userRepository.save(User.create("marc.shell@gmail.com", "Marc", "password"));
+        userRepository.save(User.create("peter.hummel@gmail.com", "Peter", "password"));
+        userRepository.save(User.create("anita.huebsch@gmail.com", "Anita", "password"));
+        userRepository.save(User.create("heidi.angeles@gmail.com", "Heidi", "password"));
 
         List<User> users = StreamSupport.stream(userRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-        Assert.assertEquals(2L, users.size());
+        Assert.assertEquals(6L, users.size());
     }
 
-    //    @Test
+//    @Test
     public void createSpaces() {
-        spaceRepository.save(Space.create(userRepository.findByName("Amaru"),
+
+        User amaru = userRepository.findByName("Amaru");
+        User julia = userRepository.findByName("Julia");
+
+        spaceRepository.save(Space.create(amaru,
                 "Amaru's Space",
                 "This is a place for Amaru and friends",
                 Space.Type.HOME));
-        spaceRepository.save(Space.create(userRepository.findByName("Amaru"),
+        spaceRepository.save(Space.create(amaru,
                 "Amaru's Global Space",
                 "This is a place for Amaru, friends and followers",
                 Space.Type.GLOBAL));
-        spaceRepository.save(Space.create(userRepository.findByName("Julia"),
+        spaceRepository.save(Space.create(amaru,
+                "Some Amaru's Space",
+                "This is a place for Amaru, friends and followers",
+                Space.Type.GENERIC));
+        spaceRepository.save(Space.create(julia,
                 "Julia's Space",
                 "This is a place for Julia and friends",
                 Space.Type.HOME));
-        spaceRepository.save(Space.create(userRepository.findByName("Julia"),
+        spaceRepository.save(Space.create(julia,
                 "Julia's Global Space",
                 "This is a place for Julia, friends and followers",
                 Space.Type.GLOBAL));
+        spaceRepository.save(Space.create(julia,
+                "Some Julia's Space",
+                "This is a place for Julia, friends and followers",
+                Space.Type.GENERIC));
 
-        List<Space> spaces = StreamSupport.stream(spaceRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        Assert.assertEquals(2L, spaces.size());
+//        List<Space> spaces = StreamSupport.stream(spaceRepository.findAll().spliterator(), false)
+//                .collect(Collectors.toList());
+//        Assert.assertEquals(4L, spaces.size());
+
+        Stream<Space> amaru_spaces = spaceRepository.findAllByUserId(amaru.getId());
+        Assert.assertEquals(1, amaru_spaces.count());
+
+        Stream<Space> julia_spaces = spaceRepository.findAllByUserId(amaru.getId());
+        Assert.assertEquals(1, julia_spaces.count());
+
     }
 
 
@@ -90,9 +114,9 @@ public class PersistenceTests {
         postRepository.save(Post.create(home.get(), user, "urlpath-to-pic-2.jpg", Post.MediaType.IMAGE,
                 "More Picture Title", "This is some more great sample with emoticons :wimp:"));
 
-        spaceRepository.findAllPostsById(home.get().getId()).forEach(post -> logger.info(post.getText()));
-        long count = spaceRepository.findAllPostsById(home.get().getId()).count();
-        Assert.assertEquals(3, count);
+        postRepository.findAllBySpaceId(home.get().getId()).forEach(post -> logger.info(post.getText()));
+        Stream<Post> posts = postRepository.findAllBySpaceId(home.get().getId());
+        Assert.assertEquals(3, posts.count());
 
     }
 
@@ -111,10 +135,41 @@ public class PersistenceTests {
         commentRepository.save(Comment.create(post, user, "This is comment three"));
         commentRepository.save(Comment.create(post, user, "This is comment four"));
 
-        postRepository.findAllCommentsById(post.getId()).forEach(comment -> logger.info(comment.getText()));
-        long count = postRepository.findAllCommentsById(post.getId()).count();
+        commentRepository.findAllByPostId(post.getId()).forEach(comment -> logger.info(comment.getText()));
+        Stream<Comment> comments = commentRepository.findAllByPostId(post.getId());
 
-        Assert.assertEquals(4, count);
+        Assert.assertEquals(4, comments.count());
     }
 
+    @Test
+    @Transactional
+    public void createFriends() {
+        User amaru = userRepository.findByName("Amaru");
+        User julia = userRepository.findByName("Julia");
+        User marc = userRepository.findByName("Marc");
+        User peter = userRepository.findByName("Peter");
+
+        friendRepository.save(Friend.create(amaru, julia));
+        friendRepository.save(Friend.create(amaru, marc));
+        friendRepository.save(Friend.create(amaru, peter));
+
+        Stream<Friend> friends = friendRepository.findAllByUserId(amaru.getId());
+        Assert.assertEquals(3, friends.count());
+    }
+
+    @Test
+    @Transactional
+    public void createFollowers() {
+        User amaru = userRepository.findByName("Amaru");
+        User julia = userRepository.findByName("Julia");
+        User marc = userRepository.findByName("Marc");
+        User peter = userRepository.findByName("Peter");
+
+        followerRepository.save(Follower.create(amaru, julia));
+        followerRepository.save(Follower.create(amaru, marc));
+        followerRepository.save(Follower.create(amaru, peter));
+
+        Stream<Follower> followers = followerRepository.findAllByUserId(amaru.getId());
+        Assert.assertEquals(3, followers.count());
+    }
 }

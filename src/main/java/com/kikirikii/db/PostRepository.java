@@ -1,6 +1,5 @@
 package com.kikirikii.db;
 
-import com.kikirikii.model.Comment;
 import com.kikirikii.model.Post;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -10,6 +9,6 @@ import java.util.stream.Stream;
 
 public interface PostRepository extends CrudRepository<Post, Long> {
 
-    @Query("select c from Comment c where c.post.id = :postId order by created desc")
-    Stream<Comment> findAllCommentsById(@Param("postId") Long postId);
+    @Query("select p from Post p where p.space.id = :spaceId order by created desc")
+    Stream<Post> findAllBySpaceId(@Param("spaceId") Long spaceId);
 }

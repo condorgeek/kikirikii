@@ -7,7 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public interface UserRepository extends CrudRepository<User, String> {
     User findByName(String name);
@@ -18,6 +17,4 @@ public interface UserRepository extends CrudRepository<User, String> {
     @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL'")
     Optional<Space> findGlobalSpace(@Param("userId") String userId);
 
-    @Query("select s from Space s where s.user.id = :userId and s.type not in ('GLOBAL', 'HOME')")
-    Stream<Space> findAllSpacesById(@Param("userId") String userId);
 }

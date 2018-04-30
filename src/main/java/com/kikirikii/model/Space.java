@@ -8,9 +8,7 @@ import java.util.Date;
 @Table(name = "spaces")
 public class Space {
 
-    public enum Type {
-        GLOBAL, HOME, EVENT, SHOP, GROUP
-    }
+    public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, GROUP}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +30,8 @@ public class Space {
     @NotNull
     private Date created;
 
-    private Space(){}
+    private Space() {
+    }
 
     public static Space create(User user, String name, String description, Type type) {
         Space space = new Space();
