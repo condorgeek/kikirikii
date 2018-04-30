@@ -41,6 +41,9 @@ public class PersistenceTests {
     @Autowired
     private FollowerRepository followerRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
 //    @Test
     public void createUsers() {
         userRepository.save(User.create("amaru.kusku@gmail.com", "Amaru", "password"));
@@ -171,5 +174,27 @@ public class PersistenceTests {
 
         Stream<Follower> followers = followerRepository.findAllByUserId(amaru.getId());
         Assert.assertEquals(3, followers.count());
+    }
+
+    @Test
+    @Transactional
+    public void createLikes() {
+
+        User jack = userRepository.save(User.create("jack.london@gmail.com", "Jack", "password"));
+        User julia = userRepository.save(User.create("julia.black@gmail.com", "Julia", "password"));
+        User richard = userRepository.save(User.create("richard.loewe@gmail.com", "Richard", "password"));
+
+        Space home = spaceRepository.save(Space.create(jack,
+                "Jack's Space",
+                "This is a place for Jack and friends",
+                Space.Type.HOME));
+
+        Post post = postRepository.save(Post.create(home, jack, "urlpath-to-video.mp4", Post.MediaType.VIDEO,
+                "Video Title Again", "This is a great sample with emoticons :wimp:"));
+
+        likeRepository.save(Like.create(post, julia, Like.Type.HAPPY));
+        likeRepository.save(Like.create(post, richard, Like.Type.SURPRISED));
+
+        Stream<Like> likes = likeRepository.findAllByPostId(post.getId());
     }
 }
