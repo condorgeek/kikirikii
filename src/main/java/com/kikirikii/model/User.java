@@ -1,13 +1,13 @@
 package com.kikirikii.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    public enum State {ACTIVE, BLOCKED, DELETED}
     @Id
     private String id;
 
@@ -17,13 +17,25 @@ public class User {
     @NotNull
     private String password;
 
+    private String thumbnail;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     private User(){}
 
-    public static User create(String email, String name, String password) {
+    public static User of(String email, String name, String password) {
+        return of(email, name, password, null);
+    }
+
+    public static User of(String email, String name, String password, String thumbnail) {
         User user = new User();
         user.id = email;
         user.name = name;
+        user.state = State.ACTIVE;
         user.password = password;
+        user.thumbnail = thumbnail;
         return user;
     }
 
@@ -37,6 +49,22 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public String getPassword() {

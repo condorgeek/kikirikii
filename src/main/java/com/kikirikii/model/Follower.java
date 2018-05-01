@@ -31,7 +31,7 @@ public class Follower {
 
     private Follower(){}
 
-    public static Follower create(User user, User surrogate) {
+    public static Follower of(User user, User surrogate) {
         Follower follower = new Follower();
         follower.user = user;
         follower.surrogate = surrogate;

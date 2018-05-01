@@ -31,7 +31,7 @@ public class Like {
 
     private Like() {}
 
-    public static Like create(Post post, User user, Type type) {
+    public static Like of(Post post, User user, Type type) {
         Like like = new Like();
         like.post = post;
         like.user = user;

@@ -33,7 +33,7 @@ public class Space {
     private Space() {
     }
 
-    public static Space create(User user, String name, String description, Type type) {
+    public static Space of(User user, String name, String description, Type type) {
         Space space = new Space();
         space.user = user;
         space.name = name;

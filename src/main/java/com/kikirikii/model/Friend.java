@@ -31,7 +31,7 @@ public class Friend {
 
     private Friend(){}
 
-    public static Friend create(User user, User surrogate) {
+    public static Friend of(User user, User surrogate) {
         Friend friend = new Friend();
         friend.user = user;
         friend.surrogate = surrogate;

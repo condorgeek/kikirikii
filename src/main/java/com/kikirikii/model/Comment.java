@@ -28,6 +28,7 @@ public class Comment {
     @Enumerated(EnumType.STRING)
     private State state;
 
+    @Column(columnDefinition = "text", length=10485760)
     private String text;
 
     @NotNull
@@ -35,7 +36,7 @@ public class Comment {
 
     private Comment(){}
 
-    public static Comment create(Post post, User user, String text) {
+    public static Comment of(Post post, User user, String text) {
         Comment comment = new Comment();
         comment.post = post;
         comment.user = user;

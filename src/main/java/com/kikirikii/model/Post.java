@@ -3,12 +3,12 @@ package com.kikirikii.model;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
 public class Post {
-
-    public enum MediaType {IMAGE, VIDEO}
     public enum State {ACTIVE, BLOCKED, HIDDEN}
 
     @Id
@@ -25,10 +25,8 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String mediaUrl;
-
-    @Enumerated(EnumType.STRING)
-    private MediaType mediaType;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Media> media = new HashSet<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -36,6 +34,7 @@ public class Post {
 
     private String title;
 
+    @Column(columnDefinition = "text", length=10485760)
     private String text;
 
     @NotNull
@@ -44,17 +43,31 @@ public class Post {
     private Post() {
     }
 
-    public static Post create(Space space, User user, String mediaUrl, MediaType mediaType, String title, String text) {
+    public static Post of(Space space, User user, String title, String text) {
         Post post = new Post();
         post.space = space;
         post.user = user;
-        post.mediaUrl = mediaUrl;
-        post.mediaType = mediaType;
         post.title = title;
         post.text = text;
         post.state = State.ACTIVE;
         post.created = new Date();
         return post;
+    }
+
+    public Post addMedia(Media media) {
+        this.media.add(media);
+        media.setPost(this);
+        return this;
+    }
+
+    public Post removeMedia(Media media) {
+        this.media.remove(media);
+        media.setPost(null);
+        return this;
+    }
+
+    public Set<Media> getMedia() {
+        return media;
     }
 
     public long getId() {
@@ -77,22 +90,6 @@ public class Post {
         this.user = user;
     }
 
-    public String getMediaUrl() {
-        return mediaUrl;
-    }
-
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
-    }
-
-    public MediaType getMediaType() {
-        return mediaType;
-    }
-
-    public void setMediaType(MediaType mediaType) {
-        this.mediaType = mediaType;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -107,6 +104,14 @@ public class Post {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public Date getCreated() {
