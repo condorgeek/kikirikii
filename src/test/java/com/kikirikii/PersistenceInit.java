@@ -183,7 +183,6 @@ public class PersistenceInit {
             int index = (int) Math.floor((Math.random() * users.size() + 1) - 1);
             return users.get(index);
         }
-
     }
 
     static class Loader {
@@ -203,7 +202,6 @@ public class PersistenceInit {
             }
             return data;
         }
-
     }
 
     Function<String, Media.Type> mediatype = (url) -> {
