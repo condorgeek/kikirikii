@@ -28,6 +28,10 @@ public class Media {
 
     private Media() {}
 
+    public static Media of(String url, Type type) {
+        return Media.of(null, url, type);
+    }
+
     public static Media of(Post post, String url, Type type) {
         Media media = new Media();
         media.post = post;
