@@ -55,13 +55,13 @@ public class Comment {
 
     public Comment addLike(CommentLike like) {
         this.likes.add(like);
-        like.setPost(this);
+        like.setComment(this);
         return this;
     }
 
     public Comment removeLike(CommentLike like) {
         this.likes.remove(like);
-        like.setPost(null);
+        like.setComment(null);
         return this;
     }
 

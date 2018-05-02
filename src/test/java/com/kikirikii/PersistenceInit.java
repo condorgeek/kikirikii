@@ -44,6 +44,9 @@ public class PersistenceInit {
     @Autowired
     private LikeRepository likeRepository;
 
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
+
     @Test
     public void init() {
         logger.info("Init database with test data");
@@ -117,7 +120,13 @@ public class PersistenceInit {
             for(int i = 0; i < count; i++) {
                 likeRepository.save(Like.of(post, helper.randomUser(), helper.randomLike()));
             }
+        });
 
+        commentRepository.findAll().forEach(comment -> {
+            int count = (int) Math.floor(Math.random() * 5 + 1);
+            for(int i = 0; i < count; i++) {
+                commentLikeRepository.save(CommentLike.of(comment, helper.randomUser(), helper.randomCommentLike()));
+            }
         });
     }
 
@@ -203,6 +212,11 @@ public class PersistenceInit {
         public  Like.Type randomLike() {
             int index = (int) Math.floor((Math.random() * Like.Type.values().length + 1) - 1);
             return Like.Type.values()[index];
+        }
+
+        public  CommentLike.Type randomCommentLike() {
+            int index = (int) Math.floor((Math.random() * CommentLike.Type.values().length + 1) - 1);
+            return CommentLike.Type.values()[index];
         }
     }
 

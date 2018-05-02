@@ -52,7 +52,7 @@ public class CommentLike {
         return comment;
     }
 
-    public void setPost(Comment comment) {
+    public void setComment(Comment comment) {
         this.comment = comment;
     }
 
