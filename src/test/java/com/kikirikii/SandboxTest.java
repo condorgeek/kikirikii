@@ -1,8 +1,13 @@
 package com.kikirikii;
 
+import com.kikirikii.model.Post;
 import org.junit.Test;
 import sun.jvm.hotspot.oops.Array;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -33,4 +38,16 @@ public class SandboxTest {
         });
 
     }
+
+//    @Test
+    public void parsePosts() {
+        List<String> postlist = PersistenceInit.Loader.load("postlist.txt");
+
+        postlist.forEach(line -> {
+            String[] values = line.split("\\| ");
+            logger.info(values[0] + " ::: " + values[1]);
+
+        });
+    }
+
 }

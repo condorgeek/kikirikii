@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -44,156 +43,158 @@ public class PersistenceTests {
     @Autowired
     private LikeRepository likeRepository;
 
-    //    @Test
+    @Test
+    @Transactional
     public void createUsers() {
-        userRepository.save(User.of("amaru.kusku@gmail.com", "Amaru", "password"));
-        userRepository.save(User.of("julia.jobs@gmail.com", "Julia", "password"));
-        userRepository.save(User.of("marc.shell@gmail.com", "Marc", "password"));
-        userRepository.save(User.of("peter.hummel@gmail.com", "Peter", "password"));
-        userRepository.save(User.of("anita.huebsch@gmail.com", "Anita", "password"));
-        userRepository.save(User.of("heidi.angeles@gmail.com", "Heidi", "password"));
+        userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        userRepository.save(User.of("marga.barcelona@testmail.com", "Barcelona", "password"));
+        userRepository.save(User.of("ronny.helsinki@testmail.com", "Helsinki", "password"));
+        userRepository.save(User.of("hans.munich@testmail.com", "Munich", "password"));
+        userRepository.save(User.of("maria.hamburg@testmail.com", "Hamburg", "password"));
+        userRepository.save(User.of("luisa.brighton@testmail.com", "Brighton", "password"));
 
-        List<User> users = StreamSupport.stream(userRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        Assert.assertEquals(6L, users.size());
+        User user = userRepository.findByName("London");
+        Assert.assertEquals("jack.london@testmail.com", user.getId());
+
+        user = userRepository.findByName("Helsinki");
+        Assert.assertEquals("ronny.helsinki@testmail.com", user.getId());
+
+        user = userRepository.findByName("Brighton");
+        Assert.assertEquals("luisa.brighton@testmail.com", user.getId());
     }
 
-    //    @Test
+    @Test
+    @Transactional
     public void createSpaces() {
 
-        User amaru = userRepository.findByName("Amaru");
-        User julia = userRepository.findByName("Julia");
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        User lapaz = userRepository.save(User.of("marga.lapaz@testmail.com", "Lapaz", "password"));
 
-        spaceRepository.save(Space.of(amaru,
-                "Amaru's Space",
-                "This is a place for Amaru and friends",
+        spaceRepository.save(Space.of(london,
+                "London's Space",
+                "This is a place for London and friends",
                 Space.Type.HOME));
-        spaceRepository.save(Space.of(amaru,
-                "Amaru's Global Space",
-                "This is a place for Amaru, friends and followers",
+        spaceRepository.save(Space.of(london,
+                "London's Global Space",
+                "This is a place for London, friends and followers",
                 Space.Type.GLOBAL));
-        spaceRepository.save(Space.of(amaru,
-                "Some Amaru's Space",
-                "This is a place for Amaru, friends and followers",
+        spaceRepository.save(Space.of(london,
+                "Some London's Space",
+                "This is a place for London, friends and followers",
                 Space.Type.GENERIC));
-        spaceRepository.save(Space.of(julia,
-                "Julia's Space",
-                "This is a place for Julia and friends",
+        spaceRepository.save(Space.of(lapaz,
+                "Marga's Space",
+                "This is a place for Marga and friends",
                 Space.Type.HOME));
-        spaceRepository.save(Space.of(julia,
-                "Julia's Global Space",
-                "This is a place for Julia, friends and followers",
+        spaceRepository.save(Space.of(lapaz,
+                "Marga's Global Space",
+                "This is a place for Marga, friends and followers",
                 Space.Type.GLOBAL));
-        spaceRepository.save(Space.of(julia,
-                "Some Julia's Space",
-                "This is a place for Julia, friends and followers",
+        spaceRepository.save(Space.of(lapaz,
+                "Some Marga's Space",
+                "This is a place for Marga, friends and followers",
                 Space.Type.GENERIC));
 
-//        List<Space> spaces = StreamSupport.stream(spaceRepository.findAll().spliterator(), false)
-//                .collect(Collectors.toList());
-//        Assert.assertEquals(4L, spaces.size());
+        Stream<Space> spaces = spaceRepository.findAllByUserId(london.getId());
+        Assert.assertEquals(1, spaces.count());
 
-        Stream<Space> amaru_spaces = spaceRepository.findAllByUserId(amaru.getId());
-        Assert.assertEquals(1, amaru_spaces.count());
+        Optional<Space> home = spaceRepository.findHomeSpace(london.getId());
+        Assert.assertTrue(home.isPresent());
 
-        Stream<Space> julia_spaces = spaceRepository.findAllByUserId(amaru.getId());
-        Assert.assertEquals(1, julia_spaces.count());
+        spaces = spaceRepository.findAllByUserId(lapaz.getId());
+        Assert.assertEquals(1, spaces.count());
 
+        Optional<Space> global = spaceRepository.findGlobalSpace(lapaz.getId());
+        Assert.assertTrue(global.isPresent());
     }
 
     @Test
     @Transactional
     public void createPostsWithMedia() {
 
-        User user = userRepository.findByName("Amaru");
-        Optional<Space> home = spaceRepository.findHomeSpace(user.getId());
-        Assert.assertTrue(home.isPresent());
+        User user = userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        Space home = spaceRepository.save(Space.of(user,
+                "London's Space",
+                "This is a place for London and friends",
+                Space.Type.HOME));
 
-        Post p1 = postRepository.save(Post.of(home.get(), user,
-                "Picture Title", "This is a great sample with emoticons :wimp:"));
-        p1.addMedia(Media.of(p1, "http://somehost/somepic.jpg", Media.Type.PICTURE))
-                .addMedia(Media.of(p1, "http://somehost/somevid.mp4", Media.Type.VIDEO))
-                .addMedia(Media.of(p1, "http://somehost/otherpic.jpg", Media.Type.PICTURE));
+        postRepository.save(Post.of(home, user, "Picture Title", "This is a great sample with emoticons :heart:")
+                .addMedia(Media.of("http://somehost/somepic.jpg", Media.Type.PICTURE))
+                .addMedia(Media.of("http://somehost/somevid.mp4", Media.Type.VIDEO))
+                .addMedia(Media.of("http://somehost/otherpic.jpg", Media.Type.PICTURE)));
 
-        Post p2 = postRepository.save(Post.of(home.get(), user,
-                "Video Title", "This is another great sample with emoticons :lol:"));
-        p2.addMedia(Media.of(p1, "http://somehost/somepic.jpg", Media.Type.PICTURE));
+        postRepository.save(Post.of(home, user,
+                "Video Title", "This is another great sample with emoticons :heart::heart:")
+                .addMedia(Media.of("http://somehost/somepic.jpg", Media.Type.PICTURE)));
 
-        Post p3 = postRepository.save(Post.of(home.get(), user,
-                "More Picture Title", "This is some more great sample with emoticons :wimp:"));
-        Media media = Media.of(p3, "http://somehost/othervid.jpg", Media.Type.VIDEO);
+        Media media = Media.of("http://somehost/othervid.jpg", Media.Type.VIDEO);
+        Post post = postRepository.save(Post.of(home, user,
+                "More Picture Title", ":heart_eyes::heart_eyes: This is some more great sample with emoticons")
+                .addMedia(media)
+                .addMedia(Media.of("http://somehost/somepic.jpg", Media.Type.PICTURE))
+                .addMedia(Media.of("http://somehost/somevid.mp4", Media.Type.VIDEO))
+                .addMedia(Media.of("http://somehost/otherpic.jpg", Media.Type.PICTURE))
+                .addMedia(Media.of("http://somehost/anotherpic.jpg", Media.Type.PICTURE)));
 
-        p3.addMedia(media);
-        p3.addMedia(Media.of(p3, "http://somehost/somepic.jpg", Media.Type.PICTURE))
-                .addMedia(Media.of(p3, "http://somehost/somevid.mp4", Media.Type.VIDEO))
-                .addMedia(Media.of(p3, "http://somehost/otherpic.jpg", Media.Type.PICTURE))
-                .addMedia(Media.of(p3, "http://somehost/anotherpic.jpg", Media.Type.PICTURE));
+        Assert.assertEquals(5, post.getMedia().size());
 
-        postRepository.findAllBySpaceId(home.get().getId()).forEach(post -> {
-            logger.info(post.getText() + " count=" + post.getMedia().size());
-        });
-        Assert.assertEquals(3, p1.getMedia().size());
-        Assert.assertEquals(1, p2.getMedia().size());
-        Assert.assertEquals(5, p3.getMedia().size());
+        List<Post> posts = postRepository.findAllBySpaceId(home.getId()).collect(Collectors.toList());
+        Assert.assertEquals(3, posts.size());
 
-        p3.removeMedia(media);
-        Assert.assertEquals(4, p3.getMedia().size());
-
-        Stream<Post> posts = postRepository.findAllBySpaceId(home.get().getId());
-        Assert.assertEquals(3, posts.count());
-
+        post = postRepository.save(post.removeMedia(media));
+        Assert.assertEquals(4, post.getMedia().size());
     }
 
     @Test
     @Transactional
     public void createComments() {
-        User user = userRepository.findByName("Amaru");
-        Optional<Space> home = spaceRepository.findHomeSpace(user.getId());
-        Assert.assertTrue(home.isPresent());
+        User user = userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        Space home = spaceRepository.save(Space.of(user,
+                "London's Space",
+                "This is a place for London and friends",
+                Space.Type.HOME));
 
-        Post post = postRepository.save(Post.of(home.get(), user,
+        Post post = postRepository.save(Post.of(home, user,
                 "Video Title Again", "This is a great sample with emoticons :wimp:"));
 
-        commentRepository.save(Comment.of(post, user, "This is comment one"));
-        commentRepository.save(Comment.of(post, user, "This is comment two"));
+        commentRepository.save(Comment.of(post, user, ":heart:This is comment one"));
+        commentRepository.save(Comment.of(post, user, "This is comment two:heart:"));
         commentRepository.save(Comment.of(post, user, "This is comment three"));
         commentRepository.save(Comment.of(post, user, "This is comment four"));
 
-        commentRepository.findAllByPostId(post.getId()).forEach(comment -> logger.info(comment.getText()));
         Stream<Comment> comments = commentRepository.findAllByPostId(post.getId());
-
         Assert.assertEquals(4, comments.count());
     }
 
     @Test
     @Transactional
     public void createFriends() {
-        User amaru = userRepository.findByName("Amaru");
-        User julia = userRepository.findByName("Julia");
-        User marc = userRepository.findByName("Marc");
-        User peter = userRepository.findByName("Peter");
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "password"));
+        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "password"));
+        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "password"));
 
-        friendRepository.save(Friend.of(amaru, julia));
-        friendRepository.save(Friend.of(amaru, marc));
-        friendRepository.save(Friend.of(amaru, peter));
+        friendRepository.save(Friend.of(london, paris));
+        friendRepository.save(Friend.of(london, madrid));
+        friendRepository.save(Friend.of(london, moscu));
 
-        Stream<Friend> friends = friendRepository.findAllByUserId(amaru.getId());
+        Stream<Friend> friends = friendRepository.findAllByUserId(london.getId());
         Assert.assertEquals(3, friends.count());
     }
 
     @Test
     @Transactional
     public void createFollowers() {
-        User amaru = userRepository.findByName("Amaru");
-        User julia = userRepository.findByName("Julia");
-        User marc = userRepository.findByName("Marc");
-        User peter = userRepository.findByName("Peter");
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "password"));
+        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "password"));
+        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "password"));
 
-        followerRepository.save(Follower.of(amaru, julia));
-        followerRepository.save(Follower.of(amaru, marc));
-        followerRepository.save(Follower.of(amaru, peter));
+        followerRepository.save(Follower.of(london, paris));
+        followerRepository.save(Follower.of(london, madrid));
+        followerRepository.save(Follower.of(london, moscu));
 
-        Stream<Follower> followers = followerRepository.findAllByUserId(amaru.getId());
+        Stream<Follower> followers = followerRepository.findAllByUserId(london.getId());
         Assert.assertEquals(3, followers.count());
     }
 
@@ -201,21 +202,22 @@ public class PersistenceTests {
     @Transactional
     public void createLikes() {
 
-        User jack = userRepository.save(User.of("jack.london@gmail.com", "Jack", "password"));
-        User julia = userRepository.save(User.of("julia.black@gmail.com", "Julia", "password"));
-        User richard = userRepository.save(User.of("richard.loewe@gmail.com", "Richard", "password"));
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "password"));
+        User barcelona = userRepository.save(User.of("julia.barcelona@testmail.com", "Barcelona", "password"));
+        User munich = userRepository.save(User.of("john.munich@testmail.com", "Munich", "password"));
 
-        Space home = spaceRepository.save(Space.of(jack,
+        Space home = spaceRepository.save(Space.of(london,
                 "Jack's Space",
                 "This is a place for Jack and friends",
                 Space.Type.HOME));
 
-        Post post = postRepository.save(Post.of(home, jack,
+        Post post = postRepository.save(Post.of(home, london,
                 "Video Title Again", "This is a great sample with emoticons :wimp:"));
 
-        likeRepository.save(Like.of(post, julia, Like.Type.HAPPY));
-        likeRepository.save(Like.of(post, richard, Like.Type.SURPRISED));
+        likeRepository.save(PostLike.of(post, barcelona, PostLike.Type.HAPPY));
+        likeRepository.save(PostLike.of(post, munich, PostLike.Type.SURPRISED));
 
-        Stream<Like> likes = likeRepository.findAllByPostId(post.getId());
+        Stream<PostLike> likes = likeRepository.findAllByPostId(post.getId());
+        Assert.assertEquals(2, likes.count());
     }
 }

@@ -5,17 +5,17 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name = "likes")
-public class Like {
+@Table(name = "comment_likes")
+public class CommentLike {
 
-    public enum Type {HAPPY, ANGER, SAD, SCARED, SURPRISED, DISGUSTED}
+    public enum Type {HAPPY, ANGRY, SAD, SCARED, SURPRISED, DISGUSTED}
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "comment_id")
     private Post post;
 
     @OneToOne
@@ -29,10 +29,10 @@ public class Like {
     @NotNull
     private Date created;
 
-    private Like() {}
+    private CommentLike() {}
 
-    public static Like of(Post post, User user, Type type) {
-        Like like = new Like();
+    public static CommentLike of(Post post, User user, Type type) {
+        CommentLike like = new CommentLike();
         like.post = post;
         like.user = user;
         like.type = type;
