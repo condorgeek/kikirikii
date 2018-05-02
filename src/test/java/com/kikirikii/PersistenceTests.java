@@ -1,6 +1,6 @@
 package com.kikirikii;
 
-import com.kikirikii.db.*;
+import com.kikirikii.repos.*;
 import com.kikirikii.model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -214,10 +214,10 @@ public class PersistenceTests {
         Post post = postRepository.save(Post.of(home, london,
                 "Video Title Again", "This is a great sample with emoticons :wimp:"));
 
-        likeRepository.save(PostLike.of(post, barcelona, PostLike.Type.HAPPY));
-        likeRepository.save(PostLike.of(post, munich, PostLike.Type.SURPRISED));
+        likeRepository.save(Like.of(post, barcelona, Like.Type.HAPPY));
+        likeRepository.save(Like.of(post, munich, Like.Type.SURPRISED));
 
-        Stream<PostLike> likes = likeRepository.findAllByPostId(post.getId());
+        Stream<Like> likes = likeRepository.findAllByPostId(post.getId());
         Assert.assertEquals(2, likes.count());
     }
 }

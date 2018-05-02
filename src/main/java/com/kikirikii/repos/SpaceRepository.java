@@ -1,4 +1,4 @@
-package com.kikirikii.db;
+package com.kikirikii.repos;
 
 import com.kikirikii.model.Space;
 import org.springframework.data.jpa.repository.Query;

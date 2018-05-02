@@ -28,6 +28,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Media> media = new HashSet<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Like> likes = new HashSet<>();
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private State state;
@@ -64,6 +67,22 @@ public class Post {
         this.media.remove(media);
         media.setPost(null);
         return this;
+    }
+
+    public Post addLike(Like like) {
+        this.likes.add(like);
+        like.setPost(this);
+        return this;
+    }
+
+    public Post removeLike(Like like) {
+        this.likes.remove(like);
+        like.setPost(null);
+        return this;
+    }
+
+    public Set<Like> getLikes() {
+        return likes;
     }
 
     public Set<Media> getMedia() {

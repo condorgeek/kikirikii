@@ -1,8 +1,12 @@
 package com.kikirikii.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "comments")
@@ -14,7 +18,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
@@ -23,6 +27,9 @@ public class Comment {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CommentLike> likes = new HashSet<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -44,6 +51,22 @@ public class Comment {
         comment.state = State.ACTIVE;
         comment.created = new Date();
         return comment;
+    }
+
+    public Comment addLike(CommentLike like) {
+        this.likes.add(like);
+        like.setPost(this);
+        return this;
+    }
+
+    public Comment removeLike(CommentLike like) {
+        this.likes.remove(like);
+        like.setPost(null);
+        return this;
+    }
+
+    public Set<CommentLike> getLikes() {
+        return likes;
     }
 
     public long getId() {

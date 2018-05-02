@@ -1,4 +1,4 @@
-package com.kikirikii.db;
+package com.kikirikii.repos;
 
 import com.kikirikii.model.Post;
 import org.springframework.data.jpa.repository.Query;

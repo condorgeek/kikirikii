@@ -1,12 +1,14 @@
 package com.kikirikii.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
 @Table(name = "post_likes")
-public class PostLike {
+public class Like {
 
     public enum Type {HAPPY, ANGRY, SAD, SCARED, SURPRISED, DISGUSTED}
 
@@ -14,6 +16,7 @@ public class PostLike {
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
@@ -29,10 +32,10 @@ public class PostLike {
     @NotNull
     private Date created;
 
-    private PostLike() {}
+    private Like() {}
 
-    public static PostLike of(Post post, User user, Type type) {
-        PostLike like = new PostLike();
+    public static Like of(Post post, User user, Type type) {
+        Like like = new Like();
         like.post = post;
         like.user = user;
         like.type = type;

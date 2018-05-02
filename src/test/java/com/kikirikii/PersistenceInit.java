@@ -1,6 +1,6 @@
 package com.kikirikii;
 
-import com.kikirikii.db.*;
+import com.kikirikii.repos.*;
 import com.kikirikii.model.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,9 +49,9 @@ public class PersistenceInit {
         logger.info("Init database with test data");
 
         createUsersAndSpaces();
-        createFriendsForUser("Amaru", new String[]{"Julia", "Marc", "Peter", "Anita"});
-        createFollowersForUser("Amaru", new String[]{"Ana", "Heidi", "Jack", "Beate", "Thomas"});
-        createPostsAndMediaForUser("Amaru");
+        createFriendsForUser("amaru", new String[]{"julia", "marc", "peter", "anita"});
+        createFollowersForUser("amaru", new String[]{"ana", "heidi", "jack", "beate", "thomas"});
+        createPostsAndMediaForUser("amaru");
         createCommentsAndLikesForPosts();
     }
 
@@ -112,6 +112,12 @@ public class PersistenceInit {
             for (int i = 0; i < count; i++) {
                 commentRepository.save(Comment.of(post, helper.randomUser(), helper.randomComment()));
             }
+
+            count = (int) Math.floor(Math.random() * 20 + 1);
+            for(int i = 0; i < count; i++) {
+                likeRepository.save(Like.of(post, helper.randomUser(), helper.randomLike()));
+            }
+
         });
     }
 
@@ -192,6 +198,11 @@ public class PersistenceInit {
         public User randomUser() {
             int index = (int) Math.floor((Math.random() * users.size() + 1) - 1);
             return users.get(index);
+        }
+
+        public  Like.Type randomLike() {
+            int index = (int) Math.floor((Math.random() * Like.Type.values().length + 1) - 1);
+            return Like.Type.values()[index];
         }
     }
 
