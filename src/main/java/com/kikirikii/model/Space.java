@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "spaces")
 public class Space {
 
-    public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, GROUP}
+    public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, DATING, GROUP}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

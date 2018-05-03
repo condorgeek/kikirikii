@@ -22,6 +22,7 @@ public class User {
 
     private String thumbnail;
 
+    @JsonIgnore
     @NotNull
     @Enumerated(EnumType.STRING)
     private State state;

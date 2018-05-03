@@ -1,5 +1,7 @@
 package com.kikirikii.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -22,6 +24,7 @@ public class Follower {
     @JoinColumn(name = "surrogate_id")
     private User surrogate;
 
+    @JsonIgnore
     @NotNull
     @Enumerated(EnumType.STRING)
     private State state;
