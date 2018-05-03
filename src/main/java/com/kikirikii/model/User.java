@@ -1,6 +1,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.security.PasswordCrypt;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,6 +16,9 @@ public class User {
 
     @NotNull
     private String name;
+
+    @JsonIgnore
+    private String salt;
 
     @JsonIgnore
     @NotNull
@@ -38,8 +42,9 @@ public class User {
         user.id = email;
         user.name = name;
         user.state = State.ACTIVE;
-        user.password = password;
         user.thumbnail = thumbnail;
+        user.salt = PasswordCrypt.getSalt(64);
+        user.password = PasswordCrypt.encrypt(password, user.salt);
         return user;
     }
 
@@ -71,11 +76,11 @@ public class User {
         this.state = state;
     }
 
-    public String getPassword() {
-        return password;
+    public Boolean verifyPassword(String password) {
+        return PasswordCrypt.verify(password, this.password, salt);
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = PasswordCrypt.encrypt(password, salt);
     }
 }
