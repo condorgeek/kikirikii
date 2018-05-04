@@ -74,13 +74,14 @@ public class PersistenceTests {
         Assert.assertTrue(user.verifyPassword("newpassword"));
 
         UserData userData = userDataRepository.save(UserData.of(user, LocalDate.of(1989, 06, 18),
-                Address.of("Victoria Street", "1A", "3th Floor", "C-12-999", "London", "UK"),
-                "077-1234568"));
+                "077-1234568", Address.of("Victoria Street", "1A",
+                        "3th Floor", "C-12-999", "London", "UK")
+                ));
         Assert.assertEquals("Victoria Street", userData.getAddress().getStreet());
 
-        london.setUserData(UserData.of(LocalDate.of(1976, 03, 22),
-                Address.of("Ginger Road", "08", "Royal Docks", "C-12-111", "London", "UK"),
-                "010-1111111"));
+        london.setUserData(UserData.of(LocalDate.of(1976, 03, 22), "010-1111111",
+                Address.of("Ginger Road", "08", "Royal Docks", "C-12-111", "London", "UK")
+                ));
         london = userRepository.save(london);
         Assert.assertEquals("Ginger Road", london.getUserData().getAddress().getStreet());
     }

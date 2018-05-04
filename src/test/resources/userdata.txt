@@ -1,0 +1,10 @@
+1972-11-01, 077-1234568, Ginger Road, 08, Royal Docks, C-12-111, London, UK
+1966-01-21, +44-077123456, Victoria Street, 11A, 3rd. Floor, C-481FF, London, UK
+2001-01-23, +49-12345678, Schönestr, 08, Erster Stock, links, 80444, Munich, DE
+2004-03-12, +21-89186378, Calle Alegre, 111, Mezzanine, Barrio Lindo, Guatemala, GU
+1996-08-11, 077-65343532, Camino Largo, 3, , CF-0777, Mexico City, MX
+1980-11-29, 88-67545463, Old Street, 91, , LA-11111, Los Angeles, CA, US
+1977-06-24, 66-263626262, Melusinenstr, 234, Westend, 60001, Hamburg, DE
+1960-11-01, 00-567282929,  Alte Allee, 234, Bornheim, 60666, Frankfurt, DE
+2009-01-07, 234-7272727, Las Espinas, 24B-1, Molinera, B-24252, Barcelona, ES
+1999-12-20, 99--27272727, Le Rue, 11, , P-34-566, Paris, FR

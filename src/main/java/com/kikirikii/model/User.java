@@ -83,9 +83,10 @@ public class User {
         return userData;
     }
 
-    public void setUserData(UserData userData) {
+    public User setUserData(UserData userData) {
         userData.setUser(this);
         this.userData = userData;
+        return this;
     }
 
     public Boolean verifyPassword(String password) {

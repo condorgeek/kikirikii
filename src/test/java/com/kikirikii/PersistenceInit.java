@@ -11,6 +11,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +65,7 @@ public class PersistenceInit {
 
         helper.getUserList().forEach(u -> {
             try {
-                userRepository.save(helper.parseUser(u));
+                userRepository.save(helper.parseUser(u).setUserData(helper.randomUserData()));
             } catch (Exception e) {
             }
         });
@@ -117,25 +119,26 @@ public class PersistenceInit {
             }
 
             count = (int) Math.floor(Math.random() * 20 + 1);
-            for(int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
                 likeRepository.save(Like.of(post, helper.randomUser(), helper.randomLike()));
             }
         });
 
         commentRepository.findAll().forEach(comment -> {
             int count = (int) Math.floor(Math.random() * 5 + 1);
-            for(int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
                 commentLikeRepository.save(CommentLike.of(comment, helper.randomUser(), helper.randomCommentLike()));
             }
         });
     }
 
-
     class UserHelper {
         private List<String> userlist;
+        private List<String> userdata;
 
         public UserHelper() {
             userlist = Loader.load("userlist.txt");
+            userdata = Loader.load("userdata.txt");
         }
 
         public List<String> getUserList() {
@@ -147,6 +150,19 @@ public class PersistenceInit {
                 String[] values = data.split(", ");
                 return User.of(values[0], values[1], values[2], values[3]);
 
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new NoSuchFieldError("Invalid user format");
+            }
+        }
+
+        public UserData randomUserData() {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            int index = (int) Math.floor((Math.random() * userdata.size() + 1) - 1);
+            try {
+                String[] values = userdata.get(index).split(", ");
+               return  UserData.of(LocalDate.parse(values[0], formatter), values[1],
+                        Address.of(values[2], values[3], values[4], values[5], values[6], values[7]));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new NoSuchFieldError("Invalid user format");
@@ -209,12 +225,12 @@ public class PersistenceInit {
             return users.get(index);
         }
 
-        public  Like.Type randomLike() {
+        public Like.Type randomLike() {
             int index = (int) Math.floor((Math.random() * Like.Type.values().length + 1) - 1);
             return Like.Type.values()[index];
         }
 
-        public  CommentLike.Type randomCommentLike() {
+        public CommentLike.Type randomCommentLike() {
             int index = (int) Math.floor((Math.random() * CommentLike.Type.values().length + 1) - 1);
             return CommentLike.Type.values()[index];
         }

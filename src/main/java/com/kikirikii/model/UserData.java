@@ -1,5 +1,7 @@
 package com.kikirikii.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -16,6 +18,7 @@ public class UserData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -41,11 +44,11 @@ public class UserData {
     private UserData() {
     }
 
-    public static UserData of(LocalDate birthday, Address address, String telNumber) {
-        return of(null, birthday, address, telNumber);
+    public static UserData of(LocalDate birthday, String telNumber, Address address) {
+        return of(null, birthday, telNumber, address);
     }
 
-    public static UserData of(User user, LocalDate birthday, Address address, String telNumber) {
+    public static UserData of(User user, LocalDate birthday, String telNumber, Address address) {
         UserData userData = new UserData();
         userData.user = user;
         userData.birthday = birthday;
