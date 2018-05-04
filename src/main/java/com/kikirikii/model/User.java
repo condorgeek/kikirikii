@@ -26,6 +26,9 @@ public class User {
 
     private String thumbnail;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private UserData userData;
+
     @JsonIgnore
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -74,6 +77,15 @@ public class User {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public UserData getUserData() {
+        return userData;
+    }
+
+    public void setUserData(UserData userData) {
+        userData.setUser(this);
+        this.userData = userData;
     }
 
     public Boolean verifyPassword(String password) {

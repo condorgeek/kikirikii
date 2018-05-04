@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -24,6 +25,9 @@ public class PersistenceTests {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserDataRepository userDataRepository;
 
     @Autowired
     private SpaceRepository spaceRepository;
@@ -53,14 +57,32 @@ public class PersistenceTests {
         userRepository.save(User.of("maria.hamburg@testmail.com", "Hamburg", "password"));
         userRepository.save(User.of("luisa.brighton@testmail.com", "Brighton", "password"));
 
-        User user = userRepository.findByName("London");
-        Assert.assertEquals("jack.london@testmail.com", user.getId());
+        User london = userRepository.findByName("London");
+        Assert.assertEquals("jack.london@testmail.com", london.getId());
+        Assert.assertTrue(london.verifyPassword("password"));
 
-        user = userRepository.findByName("Helsinki");
+        User user = userRepository.findByName("Helsinki");
         Assert.assertEquals("ronny.helsinki@testmail.com", user.getId());
+        Assert.assertTrue(user.verifyPassword("password"));
 
         user = userRepository.findByName("Brighton");
         Assert.assertEquals("luisa.brighton@testmail.com", user.getId());
+        Assert.assertTrue(user.verifyPassword("password"));
+
+        user.setPassword("newpassword");
+        user = userRepository.save(user);
+        Assert.assertTrue(user.verifyPassword("newpassword"));
+
+        UserData userData = userDataRepository.save(UserData.of(user, LocalDate.of(1989, 06, 18),
+                Address.of("Victoria Street", "1A", "3th Floor", "C-12-999", "London", "UK"),
+                "077-1234568"));
+        Assert.assertEquals("Victoria Street", userData.getAddress().getStreet());
+
+        london.setUserData(UserData.of(LocalDate.of(1976, 03, 22),
+                Address.of("Ginger Road", "08", "Royal Docks", "C-12-111", "London", "UK"),
+                "010-1111111"));
+        london = userRepository.save(london);
+        Assert.assertEquals("Ginger Road", london.getUserData().getAddress().getStreet());
     }
 
     @Test

@@ -8,11 +8,15 @@ import java.time.LocalDate;
 @Table(name = "user_data")
 public class UserData {
 
+    public enum Marital {SINGLE, ENGAGED, MARRIED, DIVORCED, COMPLICATED}
+
+    public enum Interest {MEN, WOMEN, BOTH, NONE}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -23,7 +27,23 @@ public class UserData {
 
     private String telNumber;
 
-    private UserData() {}
+    @Column(columnDefinition = "text", length = 10485760)
+    private String aboutYou;
+
+    private String religion;
+
+    private String politics;
+
+    private Marital marital;
+
+    private Interest interest;
+
+    private UserData() {
+    }
+
+    public static UserData of(LocalDate birthday, Address address, String telNumber) {
+        return of(null, birthday, address, telNumber);
+    }
 
     public static UserData of(User user, LocalDate birthday, Address address, String telNumber) {
         UserData userData = new UserData();
@@ -31,6 +51,8 @@ public class UserData {
         userData.birthday = birthday;
         userData.address = address;
         userData.telNumber = telNumber;
+        userData.marital = Marital.SINGLE;
+        userData.interest = Interest.NONE;
         return userData;
     }
 
@@ -70,4 +92,43 @@ public class UserData {
         this.telNumber = telNumber;
     }
 
+    public String getAboutYou() {
+        return aboutYou;
+    }
+
+    public void setAboutYou(String aboutYou) {
+        this.aboutYou = aboutYou;
+    }
+
+    public Marital getMarital() {
+        return marital;
+    }
+
+    public void setMarital(Marital marital) {
+        this.marital = marital;
+    }
+
+    public Interest getInterest() {
+        return interest;
+    }
+
+    public void setInterest(Interest interest) {
+        this.interest = interest;
+    }
+
+    public String getReligion() {
+        return religion;
+    }
+
+    public void setReligion(String religion) {
+        this.religion = religion;
+    }
+
+    public String getPolitics() {
+        return politics;
+    }
+
+    public void setPolitics(String politics) {
+        this.politics = politics;
+    }
 }
