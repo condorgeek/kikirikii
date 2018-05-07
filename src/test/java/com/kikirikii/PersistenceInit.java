@@ -1,7 +1,7 @@
 package com.kikirikii;
 
-import com.kikirikii.repos.*;
 import com.kikirikii.model.*;
+import com.kikirikii.repos.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RunWith(SpringRunner.class)
@@ -54,9 +55,9 @@ public class PersistenceInit {
         logger.info("Init database with test data");
 
         createUsersAndSpaces();
-        createFriendsForUser("amaru", new String[]{"julia", "marc", "peter", "anita"});
-        createFollowersForUser("amaru", new String[]{"ana", "heidi", "jack", "beate", "thomas"});
-        createPostsAndMediaForUser("amaru");
+        createFriendsForUser("amaru.london", new String[]{"julia.jobs", "marc.shell", "peter.hummel", "anita.huebsch"});
+        createFollowersForUser("amaru.london", new String[]{"ana.kern", "heidi.angeles", "jack.north", "beate.schulz", "thomas.earl"});
+        createPostsAndMediaForUser("amaru.london");
         createCommentsAndLikesForPosts();
     }
 
@@ -83,30 +84,46 @@ public class PersistenceInit {
     }
 
     void createFriendsForUser(String username, String[] friends) {
-        User user = userRepository.findByName(username);
+        Optional<User> user = userRepository.findByName(username);
         Stream.of(friends).forEach(friend -> {
-            friendRepository.save(Friend.of(user, userRepository.findByName(friend)));
+            friendRepository.save(Friend.of(user.get(), userRepository.findByName(friend).get()));
         });
     }
 
     void createFollowersForUser(String username, String[] followers) {
-        User user = userRepository.findByName(username);
+        Optional<User> user = userRepository.findByName(username);
         Stream.of(followers).forEach(follower -> {
-            followerRepository.save(Follower.of(user, userRepository.findByName(follower)));
+            followerRepository.save(Follower.of(user.get(), userRepository.findByName(follower).get()));
         });
     }
 
     void createPostsAndMediaForUser(String username) {
-        User user = userRepository.findByName(username);
-        Optional<Space> global = spaceRepository.findGlobalSpace(user.getId());
-
+        Optional<User> user = userRepository.findByName(username);
         MediaHelper media = new MediaHelper();
-        PostHelper postHelper = new PostHelper(global.get(), user);
 
-        postHelper.postlist.forEach(postdata -> {
-            Post post = postHelper.parsePost(postdata);
+        List<User> users = friendRepository.findAsListByUserId(user.get().getId()).stream()
+                .map(f -> f.getSurrogate()).collect(Collectors.toList());
+        users.addAll(followerRepository.findAsListByUserId(user.get().getId()).stream()
+                .map(f -> f.getSurrogate()).collect(Collectors.toList()));
+
+        Optional<Space> global = spaceRepository.findGlobalSpace(user.get().getId());
+        PostHelper globalHelper = new PostHelper(global.get(), user.get());
+
+        globalHelper.postlist.forEach(postdata -> {
+            int index = (int) Math.floor((Math.random() * users.size() + 1) - 1);
+
+            Post post = globalHelper.parsePost(postdata, users.get(index));
             postRepository.save(post.addMedia(media.randomMedia()));
         });
+
+        Optional<Space> home = spaceRepository.findHomeSpace(user.get().getId());
+        PostHelper homeHelper = new PostHelper(home.get(), user.get());
+
+        homeHelper.postlist.forEach(postdata -> {
+            Post post = homeHelper.parsePost(postdata);
+            postRepository.save(post.addMedia(media.randomMedia()));
+        });
+
     }
 
     void createCommentsAndLikesForPosts() {
@@ -148,7 +165,8 @@ public class PersistenceInit {
         public User parseUser(String data) throws NoSuchFieldError {
             try {
                 String[] values = data.split(", ");
-                return User.of(values[0], values[1], values[2], values[3]);
+                String userid = (values[1] + "." + values[2]).toLowerCase();
+                return User.of(values[0], userid, values[1], values[2], values[3], values[4]);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -182,6 +200,10 @@ public class PersistenceInit {
         }
 
         public Post parsePost(String data) throws NoSuchFieldError {
+            return parsePost(data, user);
+        }
+
+        public Post parsePost(String data, User user) throws NoSuchFieldError {
             try {
                 String[] values = data.split("\\| ");
                 return Post.of(space, user, values[0], values[1]);

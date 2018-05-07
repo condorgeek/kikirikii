@@ -1,8 +1,8 @@
 package com.kikirikii.services;
 
-import com.kikirikii.model.Post;
-import com.kikirikii.model.Space;
-import com.kikirikii.model.User;
+import com.kikirikii.model.*;
+import com.kikirikii.repos.FollowerRepository;
+import com.kikirikii.repos.FriendRepository;
 import com.kikirikii.repos.PostRepository;
 import com.kikirikii.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +25,40 @@ public class UserService {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private FriendRepository friendRepository;
+
+    @Autowired
+    private FollowerRepository followerRepository;
+
     public UserService() {
         logger.info("Initialized");
     }
 
     public User getUser(String name) {
-        return userRepository.findByName(name);
+
+        Optional<User> user = userRepository.findByName(name);
+        assert user.isPresent() : "Invalid User Id " + name;
+
+        return user.get();
+    }
+
+    public Post addPost(Space space, User user, String title, String text) {
+        return postRepository.save(Post.of(space, user, title, text));
+    }
+
+    public Space getHomeSpace(String name) {
+        Optional<Space> home = userRepository.findHomeSpaceByName(name);
+        assert home.isPresent() : "Invalid user name or user has no home space " + name;
+
+        return home.get();
+    }
+
+    public Space getGlobalSpace(String name) {
+        Optional<Space> global = userRepository.findGlobalSpaceByName(name);
+        assert global.isPresent() : "Invalid user name or user has no global space " + name;
+
+        return global.get();
     }
 
     public List<Post> getUserGlobalPosts(User user) {
@@ -43,5 +71,13 @@ public class UserService {
         Optional<Space> home = userRepository.findHomeSpace(user.getId());
         List<Post> posts = postRepository.findAllBySpaceId(home.get().getId()).collect(Collectors.toList());
         return posts;
+    }
+
+    public List<Friend> getUserFriends(User user) {
+        return friendRepository.findAllByUserId(user.getId()).collect(Collectors.toList());
+    }
+
+    public List<Follower> getUserFollowers(User user) {
+        return followerRepository.findAllByUserId(user.getId()).collect(Collectors.toList());
     }
 }

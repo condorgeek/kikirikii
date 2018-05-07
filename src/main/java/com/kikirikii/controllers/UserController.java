@@ -1,13 +1,12 @@
 package com.kikirikii.controllers;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.Post;
+import com.kikirikii.model.Space;
 import com.kikirikii.model.User;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +27,45 @@ public class UserController {
     List<Post> getUserHomePosts(@PathVariable String userName) {
         User user = userService.getUser(userName);
         return userService.getUserHomePosts(user);
+    }
+
+    @RequestMapping(value = "/posts/home", method = RequestMethod.POST)
+    public Post addHomePost(@PathVariable String userName, @RequestBody AddPost addPost) {
+        User user = userService.getUser(userName);
+        Space space = userService.getHomeSpace(userName);
+
+        return userService.addPost(space, user, addPost.title, addPost.text);
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class AddPost {
+        private String title;
+        private String text;
+        private String mediaUrl;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getMediaUrl() {
+            return mediaUrl;
+        }
+
+        public void setMediaUrl(String mediaUrl) {
+            this.mediaUrl = mediaUrl;
+        }
     }
 
 }

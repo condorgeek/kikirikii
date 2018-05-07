@@ -12,10 +12,22 @@ public class User {
 
     public enum State {ACTIVE, BLOCKED, DELETED}
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @NotNull
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @NotNull
+    @Column(name = "name", unique = true)
     private String name;
+
+    @NotNull
+    private String firstname;
+
+    @NotNull
+    private String lastname;
 
     @JsonIgnore
     private String salt;
@@ -36,14 +48,16 @@ public class User {
 
     private User(){}
 
-    public static User of(String email, String name, String password) {
-        return of(email, name, password, null);
+    public static User of(String email, String userid, String firstname, String lastname, String password) {
+        return of(email, userid, firstname, lastname, password, null);
     }
 
-    public static User of(String email, String name, String password, String thumbnail) {
+    public static User of(String email, String userid, String firstname, String lastname, String password, String thumbnail) {
         User user = new User();
-        user.id = email;
-        user.name = name;
+        user.email = email;
+        user.name = userid.toLowerCase();
+        user.firstname = firstname;
+        user.lastname = lastname;
         user.state = State.ACTIVE;
         user.thumbnail = thumbnail;
         user.salt = PasswordCrypt.getSalt(64);
@@ -51,7 +65,7 @@ public class User {
         return user;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -77,6 +91,30 @@ public class User {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public UserData getUserData() {
