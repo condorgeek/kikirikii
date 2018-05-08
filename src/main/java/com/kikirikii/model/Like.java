@@ -34,6 +34,10 @@ public class Like {
 
     private Like() {}
 
+    public static Like of(User user, Type type) {
+        return of(null, user, type);
+    }
+
     public static Like of(Post post, User user, Type type) {
         Like like = new Like();
         like.post = post;

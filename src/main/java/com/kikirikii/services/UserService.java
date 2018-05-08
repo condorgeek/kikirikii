@@ -73,11 +73,22 @@ public class UserService {
         return posts;
     }
 
-    public List<Friend> getUserFriends(User user) {
-        return friendRepository.findAllByUserId(user.getId()).collect(Collectors.toList());
+    public Post getPostById(Long postId) {
+        Optional<Post> post = postRepository.findById(postId);
+        assert post.isPresent() : "Invalid postId " + postId;
+
+        return post.get();
     }
 
-    public List<Follower> getUserFollowers(User user) {
-        return followerRepository.findAllByUserId(user.getId()).collect(Collectors.toList());
+    public List<User> getUserFriends(User user) {
+        return friendRepository.findAllByUserId(user.getId())
+                .map(f -> f.getSurrogate())
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getUserFollowers(User user) {
+        return followerRepository.findAllByUserId(user.getId())
+                .map(f -> f.getSurrogate())
+                .collect(Collectors.toList());
     }
 }

@@ -5,7 +5,6 @@ import com.kikirikii.repos.CommentRepository;
 import com.kikirikii.repos.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -37,11 +36,11 @@ public class PostService {
         return commentRepository.save(Comment.of(getPost(postId), user, text));
     }
 
-    public List<Like> getLikesByPostId(Long postId) {
-        return null;
+    public Post addLike(User user, Long postId, Like.Type type) {
+        Post post = getPost(postId);
+        post.addLike(Like.of(user, type));
+
+        return postRepository.save(post);
     }
 
-    public List<CommentLike> getLikesByCommentId(Long commentId) {
-        return null;
-    }
 }
