@@ -10,7 +10,9 @@ import java.util.Date;
 @Table(name = "post_likes")
 public class Like {
 
-    public enum Type {HAPPY, ANGRY, SAD, SCARED, SURPRISED, DISGUSTED}
+    public enum BasicType {HAPPY, ANGRY, SAD, SCARED, SURPRISED, DISGUSTED}
+
+    public enum Type {LIKE, LOVE, HAHA, WOW, SAD, ANGRY};
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)

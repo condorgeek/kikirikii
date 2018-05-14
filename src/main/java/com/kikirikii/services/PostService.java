@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,11 +38,11 @@ public class PostService {
         return commentRepository.save(Comment.of(getPost(postId), user, text));
     }
 
-    public Post addLike(User user, Long postId, Like.Type type) {
+    public List<Like> addLike(User user, Long postId, Like.Type type) {
         Post post = getPost(postId);
         post.addLike(Like.of(user, type));
 
-        return postRepository.save(post);
+        return new ArrayList<>(postRepository.save(post).getLikes());
     }
 
 }

@@ -3,7 +3,6 @@ package com.kikirikii.controllers;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.Comment;
 import com.kikirikii.model.Like;
-import com.kikirikii.model.Post;
 import com.kikirikii.model.User;
 import com.kikirikii.services.PostService;
 import com.kikirikii.services.UserService;
@@ -15,7 +14,8 @@ import javax.persistence.Enumerated;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.1.100:3000"})
+@CrossOrigin(origins = {"*"})
 @RequestMapping("/user/{userName}")
 public class PostController {
 
@@ -37,7 +37,7 @@ public class PostController {
     }
 
     @RequestMapping(value = "/likes/{postId}", method = RequestMethod.POST)
-    public Post addLike(@PathVariable String userName, @PathVariable Long postId, @RequestBody AddLike addLike) {
+    public List<Like> addLike(@PathVariable String userName, @PathVariable Long postId, @RequestBody AddLike addLike) {
         User user = userService.getUser(addLike.getUsername());
         return postService.addLike(user, postId, addLike.getType());
     }
