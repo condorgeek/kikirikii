@@ -1,9 +1,7 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kikirikii.model.Comment;
-import com.kikirikii.model.Like;
-import com.kikirikii.model.User;
+import com.kikirikii.model.*;
 import com.kikirikii.services.PostService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +37,22 @@ public class PostController {
     @RequestMapping(value = "/likes/{postId}", method = RequestMethod.POST)
     public List<Like> addLike(@PathVariable String userName, @PathVariable Long postId, @RequestBody AddLike addLike) {
         User user = userService.getUser(addLike.getUsername());
-        return postService.addLike(user, postId, addLike.getType());
+
+        return postService.addLike(user, postId, addLike.getReaction());
+    }
+
+    @RequestMapping(value = "/commentlikes/{commentId}", method =  RequestMethod.POST)
+    public List<CommentLike> addCommentLike(@PathVariable String userName, @PathVariable Long commentId, @RequestBody AddLike addCommentLike) {
+        User user = userService.getUser(addCommentLike.getUsername());
+
+        return postService.addCommentLike(user, commentId, addCommentLike.getReaction());
     }
 
     static class AddLike {
         private String username;
 
         @Enumerated(EnumType.STRING)
-        private Like.Type type;
+        private LikeReaction reaction;
 
         public String getUsername() {
             return username;
@@ -56,12 +62,12 @@ public class PostController {
             this.username = username;
         }
 
-        public Like.Type getType() {
-            return type;
+        public LikeReaction getReaction() {
+            return reaction;
         }
 
-        public void setType(Like.Type type) {
-            this.type = type;
+        public void setReaction(LikeReaction reaction) {
+            this.reaction = reaction;
         }
     }
 

@@ -137,14 +137,14 @@ public class PersistenceInit {
 
             count = (int) Math.floor(Math.random() * 20 + 1);
             for (int i = 0; i < count; i++) {
-                likeRepository.save(Like.of(post, helper.randomUser(), helper.randomLike()));
+                likeRepository.save(Like.of(post, helper.randomUser(), helper.randomReaction()));
             }
         });
 
         commentRepository.findAll().forEach(comment -> {
             int count = (int) Math.floor(Math.random() * 5 + 1);
             for (int i = 0; i < count; i++) {
-                commentLikeRepository.save(CommentLike.of(comment, helper.randomUser(), helper.randomCommentLike()));
+                commentLikeRepository.save(CommentLike.of(comment, helper.randomUser(), helper.randomReaction()));
             }
         });
     }
@@ -247,15 +247,11 @@ public class PersistenceInit {
             return users.get(index);
         }
 
-        public Like.Type randomLike() {
-            int index = (int) Math.floor((Math.random() * Like.Type.values().length + 1) - 1);
-            return Like.Type.values()[index];
+        public LikeReaction randomReaction() {
+            int index = (int) Math.floor((Math.random() * LikeReaction.values().length + 1) - 1);
+            return LikeReaction.values()[index];
         }
 
-        public CommentLike.Type randomCommentLike() {
-            int index = (int) Math.floor((Math.random() * CommentLike.Type.values().length + 1) - 1);
-            return CommentLike.Type.values()[index];
-        }
     }
 
     static class Loader {
@@ -278,7 +274,7 @@ public class PersistenceInit {
     }
 
     Function<String, Media.Type> mediatype = (url) -> {
-//        return url.matches("(http|https)://(.)+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? Media.Type.PICTURE : Media.Type.VIDEO;
+//        return url.matches("(http|https)://(.)+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? Media.LikeReaction.PICTURE : Media.LikeReaction.VIDEO;
         return url.matches(".+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? Media.Type.PICTURE : Media.Type.VIDEO;
     };
 

@@ -10,10 +10,6 @@ import java.util.Date;
 @Table(name = "post_likes")
 public class Like {
 
-    public enum BasicType {HAPPY, ANGRY, SAD, SCARED, SURPRISED, DISGUSTED}
-
-    public enum Type {LIKE, LOVE, HAHA, WOW, SAD, ANGRY};
-
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
@@ -29,22 +25,22 @@ public class Like {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private Type type;
+    private LikeReaction reaction;
 
     @NotNull
     private Date created;
 
     private Like() {}
 
-    public static Like of(User user, Type type) {
+    public static Like of(User user, LikeReaction type) {
         return of(null, user, type);
     }
 
-    public static Like of(Post post, User user, Type type) {
+    public static Like of(Post post, User user, LikeReaction reaction) {
         Like like = new Like();
         like.post = post;
         like.user = user;
-        like.type = type;
+        like.reaction = reaction;
         like.created = new Date();
         return like;
     }
@@ -69,12 +65,12 @@ public class Like {
         this.user = user;
     }
 
-    public Type getType() {
-        return type;
+    public LikeReaction getReaction() {
+        return reaction;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setReaction(LikeReaction reaction) {
+        this.reaction = reaction;
     }
 
     public Date getCreated() {
