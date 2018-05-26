@@ -2,7 +2,6 @@ package com.kikirikii;
 
 import com.kikirikii.model.Post;
 import org.junit.Test;
-import sun.jvm.hotspot.oops.Array;
 
 import java.io.BufferedReader;
 import java.io.File;
