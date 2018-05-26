@@ -1,6 +1,7 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kikirikii.model.Media;
 import com.kikirikii.model.Post;
 import com.kikirikii.model.Space;
 import com.kikirikii.model.User;
@@ -8,7 +9,11 @@ import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 //@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.1.100:3000"})
@@ -42,7 +47,7 @@ public class UserController {
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(userName);
 
-        return userService.addPost(space, user, addPost.title, addPost.text);
+        return userService.addPost(space, user, addPost.title, addPost.text, toSet.apply(addPost.media));
     }
 
     @RequestMapping(value = "/posts/global", method = RequestMethod.POST)
@@ -50,7 +55,7 @@ public class UserController {
         User user = userService.getUser(userName);
         Space space = userService.getGlobalSpace(userName);
 
-        return userService.addPost(space, user, addPost.title, addPost.text);
+        return userService.addPost(space, user, addPost.title, addPost.text, toSet.apply(addPost.media));
     }
 
     @RequestMapping(value = "/friends", method = RequestMethod.GET)
@@ -71,7 +76,7 @@ public class UserController {
     static class AddPost {
         private String title;
         private String text;
-        private String mediaUrl;
+        private AddMedia[] media;
 
         public String getTitle() {
             return title;
@@ -89,13 +94,39 @@ public class UserController {
             this.text = text;
         }
 
-        public String getMediaUrl() {
-            return mediaUrl;
+        public AddMedia[] getMedia() {
+            return media;
         }
 
-        public void setMediaUrl(String mediaUrl) {
-            this.mediaUrl = mediaUrl;
+        public void setMedia(AddMedia[] media) {
+            this.media = media;
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class AddMedia {
+        private String url;
+        private Media.Type type;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public Media.Type getType() {
+            return type;
+        }
+
+        public void setType(Media.Type type) {
+            this.type = type;
+        }
+    }
+
+    private Function<AddMedia[], Set<Media>> toSet = media ->
+            (media != null && media.length > 0) ? Arrays.stream(media)
+                            .map(entry -> Media.of(entry.url, entry.type))
+                            .collect(Collectors.toSet()) : null;
 }

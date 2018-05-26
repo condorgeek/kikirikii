@@ -40,7 +40,7 @@ public class Post {
 
     private String title;
 
-    @Column(columnDefinition = "text", length=10485760)
+    @Column(columnDefinition = "text", length = 10485760)
     private String text;
 
     @NotNull
@@ -50,11 +50,16 @@ public class Post {
     }
 
     public static Post of(Space space, User user, String title, String text) {
+        return of(space, user, title, text, null);
+    }
+
+    public static Post of(Space space, User user, String title, String text, Set<Media> media) {
         Post post = new Post();
         post.space = space;
         post.user = user;
         post.title = title;
         post.text = text;
+        post.media = (media == null) ? new HashSet<>() : media;
         post.state = State.ACTIVE;
         post.created = new Date();
         return post;
@@ -90,6 +95,10 @@ public class Post {
 
     public Set<Media> getMedia() {
         return media;
+    }
+
+    public void setMedia(Set<Media> media) {
+        this.media = media;
     }
 
     public long getId() {

@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "media")
 public class Media {
 
-    public enum Type {PICTURE, VIDEO}
+    public enum Type {PICTURE, VIDEO, SOUND}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

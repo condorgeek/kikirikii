@@ -9,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -43,8 +42,8 @@ public class UserService {
         return user.get();
     }
 
-    public Post addPost(Space space, User user, String title, String text) {
-        return postRepository.save(Post.of(space, user, title, text));
+    public Post addPost(Space space, User user, String title, String text, Set<Media> media) {
+        return postRepository.save(Post.of(space, user, title, text, media));
     }
 
     public Space getHomeSpace(String name) {

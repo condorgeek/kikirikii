@@ -15,6 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @NotNull
     @Column(name = "email", unique = true)
     private String email;
@@ -38,6 +39,7 @@ public class User {
 
     private String thumbnail;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     private UserData userData;
 
