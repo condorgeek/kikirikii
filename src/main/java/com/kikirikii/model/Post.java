@@ -62,6 +62,8 @@ public class Post {
         post.media = (media == null) ? new HashSet<>() : media;
         post.state = State.ACTIVE;
         post.created = new Date();
+
+        post.media.forEach(m->m.setPost(post));
         return post;
     }
 
