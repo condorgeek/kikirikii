@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @RunWith(SpringRunner.class)
@@ -121,7 +122,15 @@ public class PersistenceInit {
 
         homeHelper.postlist.forEach(postdata -> {
             Post post = homeHelper.parsePost(postdata);
-            postRepository.save(post.addMedia(media.randomMedia()));
+
+            int mediatype = (int) Math.floor((Math.random() * 100 + 1) - 1);
+            if (mediatype % 2 == 0) {
+                postRepository.save(post.addMedia(media.randomMedia()));
+            } else {
+                int end = (int) Math.floor((Math.random() * 5 + 1) + 1);
+                IntStream.range(1, end).forEach(i -> post.addMedia(media.randomImage()));
+                postRepository.save(post);
+            }
         });
 
     }
@@ -217,14 +226,21 @@ public class PersistenceInit {
 
     class MediaHelper {
         private List<String> medialist;
+        private List<String> imagelist;
 
         public MediaHelper() {
             medialist = Loader.load("medialist.txt");
+            imagelist = Loader.load("imagelist.txt");
         }
 
         public Media randomMedia() {
             int index = (int) Math.floor((Math.random() * medialist.size() + 1) - 1);
             return Media.of(medialist.get(index), mediatype.apply(medialist.get(index)));
+        }
+
+        public Media randomImage() {
+            int index = (int) Math.floor((Math.random() * imagelist.size() + 1) - 1);
+            return Media.of(imagelist.get(index), Media.Type.PICTURE);
         }
     }
 
