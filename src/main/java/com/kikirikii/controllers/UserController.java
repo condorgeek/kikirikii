@@ -76,7 +76,7 @@ public class UserController {
     static class AddPost {
         private String title;
         private String text;
-        private AddMedia[] media;
+        private Media[] media;
 
         public String getTitle() {
             return title;
@@ -94,11 +94,11 @@ public class UserController {
             this.text = text;
         }
 
-        public AddMedia[] getMedia() {
+        public Media[] getMedia() {
             return media;
         }
 
-        public void setMedia(AddMedia[] media) {
+        public void setMedia(Media[] media) {
             this.media = media;
         }
     }
@@ -125,8 +125,11 @@ public class UserController {
         }
     }
 
-    private Function<AddMedia[], Set<Media>> toSet = media ->
+    private Function<AddMedia[], Set<Media>> toMediaSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media)
                             .map(entry -> Media.of(entry.url, entry.type))
                             .collect(Collectors.toSet()) : null;
+
+    private Function<Media[], Set<Media>> toSet = media ->
+            (media != null && media.length > 0) ? Arrays.stream(media).collect(Collectors.toSet()) : null;
 }
