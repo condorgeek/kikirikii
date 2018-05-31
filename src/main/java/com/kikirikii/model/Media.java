@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "media")
 public class Media {
 
-    public enum Type {PICTURE, VIDEO, SOUND}
+    public enum Type {PICTURE, VIDEO, SOUND, YOUTUBE, VIMEO, SOUNDCLOUD, SPOTTIFY}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,9 @@ public class Media {
     private String url;
 
     private String thumbnail;
+
+    @JsonIgnore
+    private String username;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -79,4 +82,11 @@ public class Media {
         this.type = type;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
