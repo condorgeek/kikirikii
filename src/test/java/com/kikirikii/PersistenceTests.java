@@ -61,9 +61,15 @@ public class PersistenceTests {
         Assert.assertEquals("jack.london@testmail.com", london.getEmail());
         Assert.assertTrue(london.verifyPassword("password"));
 
+        london.addRole(Role.of(Role.Type.ADMIN));
+        london.addRole(Role.of(Role.Type.SUPERUSER));
+        london = userRepository.save(london);
+        Assert.assertEquals(3, london.getRoles().size());
+
         User user = findByName("helsinki");
         Assert.assertEquals("ronny.helsinki@testmail.com", user.getEmail());
         Assert.assertTrue(user.verifyPassword("password"));
+//        Assert.assertEquals("ROLE_USER", user.getRoles().get(0).getAuthority());
 
         user = findByName("brighton");
         Assert.assertEquals("luisa.brighton@testmail.com", user.getEmail());
@@ -87,7 +93,7 @@ public class PersistenceTests {
     }
 
     private User findByName(String name) {
-        Optional<User> user = userRepository.findByName(name);
+        Optional<User> user = userRepository.findByUsername(name);
         Assert.assertTrue(user.isPresent());
         return user.get();
     }

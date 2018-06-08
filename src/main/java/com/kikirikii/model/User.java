@@ -5,12 +5,15 @@ import com.kikirikii.security.PasswordCrypt;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class User {
 
     public enum State {ACTIVE, BLOCKED, DELETED}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -21,8 +24,8 @@ public class User {
     private String email;
 
     @NotNull
-    @Column(name = "name", unique = true)
-    private String name;
+    @Column(name = "username", unique = true)
+    private String username;
 
     @NotNull
     private String firstname;
@@ -44,6 +47,10 @@ public class User {
     private UserData userData;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<Role> roles = new HashSet<>();
+
+    @JsonIgnore
     @NotNull
     @Enumerated(EnumType.STRING)
     private State state;
@@ -54,14 +61,15 @@ public class User {
         return of(email, userid, firstname, lastname, password, null);
     }
 
-    public static User of(String email, String userid, String firstname, String lastname, String password, String thumbnail) {
+    public static User of(String email, String username, String firstname, String lastname, String password, String thumbnail) {
         User user = new User();
         user.email = email;
-        user.name = userid.toLowerCase();
+        user.username = username.toLowerCase();
         user.firstname = firstname;
         user.lastname = lastname;
         user.state = State.ACTIVE;
         user.thumbnail = thumbnail;
+        user.addRole(Role.of(Role.Type.USER));
         user.salt = PasswordCrypt.getSalt(64);
         user.password = PasswordCrypt.encrypt(password, user.salt);
         return user;
@@ -71,12 +79,12 @@ public class User {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public State getState() {
@@ -129,6 +137,26 @@ public class User {
         return this;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public User addRole(Role role) {
+        this.roles.add(role);
+        role.setUser(this);
+        return this;
+    }
+
+    public User removeRole(Role role) {
+        this.roles.remove(role);
+        role.setUser(null);
+        return this;
+    }
+
     public Boolean verifyPassword(String password) {
         return PasswordCrypt.verify(password, this.password, salt);
     }
@@ -136,4 +164,6 @@ public class User {
     public void setPassword(String password) {
         this.password = PasswordCrypt.encrypt(password, salt);
     }
+
+
 }

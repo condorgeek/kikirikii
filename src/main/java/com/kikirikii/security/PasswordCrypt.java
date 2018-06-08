@@ -32,7 +32,7 @@ public class PasswordCrypt {
 
     public static boolean verify(String providedPassword, String securedPassword, String salt) {
         String newSecure = encrypt(providedPassword, salt);
-        return  newSecure.equalsIgnoreCase(securedPassword);
+        return newSecure.equalsIgnoreCase(securedPassword);
     }
 
     private static byte[] hash(char[] password, byte[] salt) {

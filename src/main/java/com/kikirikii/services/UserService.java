@@ -34,12 +34,16 @@ public class UserService {
         logger.info("Initialized");
     }
 
-    public User getUser(String name) {
+    public User getUser(String username) {
 
-        Optional<User> user = userRepository.findByName(name);
-        assert user.isPresent() : "Invalid User Id " + name;
+        Optional<User> user = userRepository.findByUsername(username);
+        assert user.isPresent() : "Invalid username " + username;
 
         return user.get();
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public Post addPost(Space space, User user, String title, String text, Set<Media> media) {

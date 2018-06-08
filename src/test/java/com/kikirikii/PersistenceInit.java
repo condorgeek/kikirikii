@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * README: uncomment init test and run manually to initialize the database
+ */
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class PersistenceInit {
@@ -51,6 +55,9 @@ public class PersistenceInit {
     @Autowired
     private CommentLikeRepository commentLikeRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Test
     public void init() {
         logger.info("Init database with test data");
@@ -60,6 +67,14 @@ public class PersistenceInit {
         createFollowersForUser("amaru.london", new String[]{"ana.kern", "heidi.angeles", "jack.north", "beate.schulz", "thomas.earl"});
         createPostsAndMediaForUser("amaru.london");
         createCommentsAndLikesForPosts();
+        createSuperUsers(new String[] {"amaru.london", "julia.jobs"});
+    }
+
+    void createSuperUsers(String[] users) {
+        Stream.of(users).forEach(username -> {
+            Optional<User> o = userRepository.findByUsername(username);
+            o.ifPresent(user -> roleRepository.save(Role.of(user, Role.Type.SUPERUSER)));
+        });
     }
 
     void createUsersAndSpaces() {
@@ -74,32 +89,32 @@ public class PersistenceInit {
 
         userRepository.findAll().forEach(user -> {
             spaceRepository.save(Space.of(user,
-                    user.getName() + "'s Space",
+                    user.getUsername() + "'s Space",
                     "This is a personal place for me and friends",
                     Space.Type.HOME));
             spaceRepository.save(Space.of(user,
-                    user.getName() + "'s Global Space",
+                    user.getUsername() + "'s Global Space",
                     "This is a place for me, friends and followers",
                     Space.Type.GLOBAL));
         });
     }
 
     void createFriendsForUser(String username, String[] friends) {
-        Optional<User> user = userRepository.findByName(username);
+        Optional<User> user = userRepository.findByUsername(username);
         Stream.of(friends).forEach(friend -> {
-            friendRepository.save(Friend.of(user.get(), userRepository.findByName(friend).get()));
+            friendRepository.save(Friend.of(user.get(), userRepository.findByUsername(friend).get()));
         });
     }
 
     void createFollowersForUser(String username, String[] followers) {
-        Optional<User> user = userRepository.findByName(username);
+        Optional<User> user = userRepository.findByUsername(username);
         Stream.of(followers).forEach(follower -> {
-            followerRepository.save(Follower.of(user.get(), userRepository.findByName(follower).get()));
+            followerRepository.save(Follower.of(user.get(), userRepository.findByUsername(follower).get()));
         });
     }
 
     void createPostsAndMediaForUser(String username) {
-        Optional<User> user = userRepository.findByName(username);
+        Optional<User> user = userRepository.findByUsername(username);
         MediaHelper media = new MediaHelper();
 
         List<User> users = friendRepository.findAsListByUserId(user.get().getId()).stream()

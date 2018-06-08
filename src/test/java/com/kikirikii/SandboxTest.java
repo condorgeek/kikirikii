@@ -1,12 +1,5 @@
 package com.kikirikii;
 
-import com.kikirikii.model.Post;
-import org.junit.Test;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
