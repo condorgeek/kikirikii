@@ -1,3 +1,7 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
+
 package com.kikirikii.security.authorization;
 
 import com.kikirikii.security.configuration.WebSecurityConfig;
@@ -18,20 +22,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * Performs validation of provided JWT Token.
- * 
- * @author vladimir.stankovic
- *
- * Aug 5, 2016
- */
-public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
+public class JwtAuthorizationFilter extends AbstractAuthenticationProcessingFilter {
     private final AuthenticationFailureHandler failureHandler;
     private final TokenExtractor tokenExtractor;
     
     @Autowired
-    public JwtTokenAuthenticationProcessingFilter(AuthenticationFailureHandler failureHandler,
-            TokenExtractor tokenExtractor, RequestMatcher matcher) {
+    public JwtAuthorizationFilter(AuthenticationFailureHandler failureHandler,
+                                  TokenExtractor tokenExtractor, RequestMatcher matcher) {
         super(matcher);
         this.failureHandler = failureHandler;
         this.tokenExtractor = tokenExtractor;
@@ -42,7 +39,7 @@ public class JwtTokenAuthenticationProcessingFilter extends AbstractAuthenticati
             throws AuthenticationException, IOException, ServletException {
         String tokenPayload = request.getHeader(WebSecurityConfig.AUTHENTICATION_HEADER_NAME);
         RawAccessJwtToken token = new RawAccessJwtToken(tokenExtractor.extract(tokenPayload));
-        return getAuthenticationManager().authenticate(new JwtAuthenticationToken(token));
+        return getAuthenticationManager().authenticate(new JwtAuthorizationToken(token));
     }
 
     @Override

@@ -1,3 +1,7 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
+
 package com.kikirikii.security.authorization;
 
 import com.kikirikii.security.configuration.SecurityProperties;
@@ -16,21 +20,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * An {@link AuthenticationProvider} implementation that will use provided
- * instance of JwtToken to perform authentication.
- * 
- * @author vladimir.stankovic
- *
- * Aug 5, 2016
- */
 @Component
 @SuppressWarnings("unchecked")
-public class JwtAuthenticationProvider implements AuthenticationProvider {
+public class JwtAuthorizationProvider implements AuthenticationProvider {
     private final SecurityProperties securitySettings;
     
     @Autowired
-    public JwtAuthenticationProvider(SecurityProperties securitySettings) {
+    public JwtAuthorizationProvider(SecurityProperties securitySettings) {
         this.securitySettings = securitySettings;
     }
 
@@ -47,11 +43,11 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         
         UserContext context = UserContext.create(subject, authorities);
         
-        return new JwtAuthenticationToken(context, context.getAuthorities());
+        return new JwtAuthorizationToken(context, context.getAuthorities());
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return (JwtAuthenticationToken.class.isAssignableFrom(authentication));
+        return (JwtAuthorizationToken.class.isAssignableFrom(authentication));
     }
 }

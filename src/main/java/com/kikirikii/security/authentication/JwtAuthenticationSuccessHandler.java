@@ -1,3 +1,6 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
 package com.kikirikii.security.authentication;
 
 import java.io.IOException;
@@ -22,20 +25,13 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * AjaxAwareAuthenticationSuccessHandler
- *
- * @author vladimir.stankovic
- * <p>
- * Aug 3, 2016
- */
 @Component
-public class AjaxAwareAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class JwtAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final ObjectMapper mapper;
     private final JwtTokenFactory tokenFactory;
 
     @Autowired
-    public AjaxAwareAuthenticationSuccessHandler(final ObjectMapper mapper, final JwtTokenFactory tokenFactory) {
+    public JwtAuthenticationSuccessHandler(final ObjectMapper mapper, final JwtTokenFactory tokenFactory) {
         this.mapper = mapper;
         this.tokenFactory = tokenFactory;
     }

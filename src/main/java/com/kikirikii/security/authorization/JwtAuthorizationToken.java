@@ -1,3 +1,7 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
+
 package com.kikirikii.security.authorization;
 
 import com.kikirikii.security.model.UserContext;
@@ -7,27 +11,19 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-/**
- * An {@link org.springframework.security.core.Authentication} implementation
- * that is designed for simple presentation of JwtToken.
- *
- * @author vladimir.stankovic
- * <p>
- * May 23, 2016
- */
-public class JwtAuthenticationToken extends AbstractAuthenticationToken {
+public class JwtAuthorizationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = 2877954820905567501L;
 
     private RawAccessJwtToken rawAccessToken;
     private UserContext userContext;
 
-    public JwtAuthenticationToken(RawAccessJwtToken unsafeToken) {
+    public JwtAuthorizationToken(RawAccessJwtToken unsafeToken) {
         super(null);
         this.rawAccessToken = unsafeToken;
         this.setAuthenticated(false);
     }
 
-    public JwtAuthenticationToken(UserContext userContext, Collection<? extends GrantedAuthority> authorities) {
+    public JwtAuthorizationToken(UserContext userContext, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.eraseCredentials();
         this.userContext = userContext;

@@ -1,3 +1,6 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
 package com.kikirikii.security.authentication;
 
 import java.util.List;
@@ -21,14 +24,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class AjaxAuthenticationProvider implements AuthenticationProvider {
-    private final BCryptPasswordEncoder encoder;
+public class JwtAuthenticationProvider implements AuthenticationProvider {
     private final UserService userService;
 
     @Autowired
-    public AjaxAuthenticationProvider(final UserService userService, final BCryptPasswordEncoder encoder) {
+    public JwtAuthenticationProvider(final UserService userService) {
         this.userService = userService;
-        this.encoder = encoder;
     }
 
     @Override

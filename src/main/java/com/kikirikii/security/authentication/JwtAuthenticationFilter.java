@@ -1,11 +1,12 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
 package com.kikirikii.security.authentication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.exceptions.AuthMethodNotSupportedException;
-import com.kikirikii.security.util.WebUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,23 +23,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.function.Function;
 
-/**
- * AjaxLoginProcessingFilter
- *
- * @author vladimir.stankovic
- * <p>
- * Aug 3, 2016
- */
-public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingFilter {
-    private static Logger logger = LoggerFactory.getLogger(AjaxLoginProcessingFilter.class);
+
+public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+    private static Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final AuthenticationSuccessHandler successHandler;
     private final AuthenticationFailureHandler failureHandler;
 
     private final ObjectMapper objectMapper;
 
-    public AjaxLoginProcessingFilter(String defaultProcessUrl, AuthenticationSuccessHandler successHandler,
-                                     AuthenticationFailureHandler failureHandler, ObjectMapper mapper) {
+    public JwtAuthenticationFilter(String defaultProcessUrl, AuthenticationSuccessHandler successHandler,
+                                   AuthenticationFailureHandler failureHandler, ObjectMapper mapper) {
         super(defaultProcessUrl);
         this.successHandler = successHandler;
         this.failureHandler = failureHandler;
@@ -48,20 +43,18 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
-        if (!HttpMethod.POST.name().equals(request.getMethod()) || !WebUtil.isAjax(request)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authentication method not supported. Request method: " + request.getMethod());
-            }
+
+        if (!"POST".equals(request.getMethod()) || !isAjax.apply(request)) {
             throw new AuthMethodNotSupportedException("Authentication method not supported");
         }
 
-        LoginRequest loginRequest = objectMapper.readValue(request.getReader(), LoginRequest.class);
+        UsernamePassword login = objectMapper.readValue(request.getReader(), UsernamePassword.class);
 
-        if (isBlank.apply(loginRequest.getUsername()) || isBlank.apply(loginRequest.getPassword())) {
+        if (isBlank.apply(login.getUsername()) || isBlank.apply(login.getPassword())) {
             throw new AuthenticationServiceException("Username or Password not provided");
         }
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword());
 
         return this.getAuthenticationManager().authenticate(token);
     }
@@ -80,4 +73,28 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     }
 
     static private Function<String, Boolean> isBlank = s -> s == null || s.length() == 0;
+    static private Function<HttpServletRequest, Boolean> isAjax = request -> "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+
+
+    static class UsernamePassword {
+        private String username;
+        private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
 }
+

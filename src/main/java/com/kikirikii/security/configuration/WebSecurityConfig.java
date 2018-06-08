@@ -5,11 +5,10 @@
 package com.kikirikii.security.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kikirikii.security.authentication.AjaxAuthenticationProvider;
-import com.kikirikii.security.authentication.AjaxLoginProcessingFilter;
-import com.kikirikii.security.authorization.JwtAuthenticationProvider;
-import com.kikirikii.security.authorization.JwtTokenAuthenticationProcessingFilter;
-import com.kikirikii.security.controller.RestAuthenticationEntryPoint;
+import com.kikirikii.security.authentication.JwtAuthenticationProvider;
+import com.kikirikii.security.authentication.JwtAuthenticationFilter;
+import com.kikirikii.security.authorization.JwtAuthorizationProvider;
+import com.kikirikii.security.authorization.JwtAuthorizationFilter;
 import com.kikirikii.security.util.TokenExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -33,18 +32,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String AUTHENTICATION_URL = "/public/login";
     public static final String REFRESH_TOKEN_URL = "/public/token";
-    public static final String API_ROOT_URL = "/user/**";
+    public static final String SECURE_ROOT_URL = "/user/**";
 
     @Autowired
-    private RestAuthenticationEntryPoint authenticationEntryPoint;
+    private DefaultEntryPoint defaultEntryPoint;
+
     @Autowired
     private AuthenticationSuccessHandler successHandler;
+
     @Autowired
     private AuthenticationFailureHandler failureHandler;
-    @Autowired
-    private AjaxAuthenticationProvider ajaxAuthenticationProvider;
+
     @Autowired
     private JwtAuthenticationProvider jwtAuthenticationProvider;
+
+    @Autowired
+    private JwtAuthorizationProvider jwtAuthorizationProvider;
 
     @Autowired
     private TokenExtractor tokenExtractor;
@@ -55,16 +58,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private ObjectMapper objectMapper;
 
-    protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter(String loginEntryPoint) throws Exception {
-        AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(loginEntryPoint, successHandler, failureHandler, objectMapper);
+    protected JwtAuthenticationFilter buildJwtAuthenticationFilter(String loginEntryPoint) throws Exception {
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(loginEntryPoint, successHandler, failureHandler, objectMapper);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
 
-    protected JwtTokenAuthenticationProcessingFilter buildJwtTokenAuthenticationProcessingFilter(List<String> pathsToSkip, String pattern) throws Exception {
+    protected JwtAuthorizationFilter buildJwtAuthorizationFilter(List<String> pathsToSkip, String pattern) throws Exception {
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, pattern);
-        JwtTokenAuthenticationProcessingFilter filter
-                = new JwtTokenAuthenticationProcessingFilter(failureHandler, tokenExtractor, matcher);
+        JwtAuthorizationFilter filter
+                = new JwtAuthorizationFilter(failureHandler, tokenExtractor, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -77,8 +80,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(ajaxAuthenticationProvider);
         auth.authenticationProvider(jwtAuthenticationProvider);
+        auth.authenticationProvider(jwtAuthorizationProvider);
     }
 
     @Override
@@ -92,7 +95,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable() // We don't need CSRF for JWT based authentication
                 .exceptionHandling()
-                .authenticationEntryPoint(this.authenticationEntryPoint)
+                .authenticationEntryPoint(this.defaultEntryPoint)
 
                 .and()
                 .sessionManagement()
@@ -104,11 +107,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers(API_ROOT_URL).authenticated() // Protected API End-points
+                .antMatchers(SECURE_ROOT_URL).authenticated() // Protected API End-points
                 .and()
-                .addFilterBefore(new CustomCorsFilter(API_ROOT_URL), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(buildAjaxLoginProcessingFilter(AUTHENTICATION_URL), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(permitAllEndpointList,
-                        API_ROOT_URL), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new CustomCorsFilter(SECURE_ROOT_URL), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(buildJwtAuthenticationFilter(AUTHENTICATION_URL), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(buildJwtAuthorizationFilter(permitAllEndpointList,
+                        SECURE_ROOT_URL), UsernamePasswordAuthenticationFilter.class);
     }
 }

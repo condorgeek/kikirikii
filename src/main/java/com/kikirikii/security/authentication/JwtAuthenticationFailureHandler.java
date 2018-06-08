@@ -1,3 +1,7 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
+
 package com.kikirikii.security.authentication;
 
 import java.io.IOException;
@@ -20,17 +24,12 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * @author vladimir.stankovic
- * <p>
- * Aug 3, 2016
- */
 @Component
-public class AjaxAwareAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler {
     private final ObjectMapper mapper;
 
     @Autowired
-    public AjaxAwareAuthenticationFailureHandler(ObjectMapper mapper) {
+    public JwtAuthenticationFailureHandler(ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
