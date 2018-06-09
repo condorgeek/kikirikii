@@ -1,3 +1,6 @@
+/*
+ * based on http://www.svlada.com/jwt-token-authentication-with-spring-boot/
+ */
 package com.kikirikii.security.configuration;
 
 import org.springframework.web.cors.CorsConfiguration;

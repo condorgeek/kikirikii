@@ -5,15 +5,12 @@ import com.kikirikii.model.User;
 import com.kikirikii.security.configuration.SecurityProperties;
 import com.kikirikii.security.configuration.WebSecurityConfig;
 import com.kikirikii.security.model.UserContext;
+import com.kikirikii.security.token.BearerJwtToken;
 import com.kikirikii.security.token.JwtToken;
 import com.kikirikii.security.token.JwtTokenFactory;
-import com.kikirikii.security.token.RawAccessJwtToken;
 import com.kikirikii.security.token.RefreshToken;
-import com.kikirikii.security.util.TokenExtractor;
-import com.kikirikii.security.util.TokenVerifier;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,17 +38,14 @@ public class RefreshTokenController {
     @Autowired
     private UserService userService;
     @Autowired
-    private TokenVerifier tokenVerifier;
-    @Autowired
-    @Qualifier("jwtHeaderTokenExtractor") private TokenExtractor tokenExtractor;
-    
+    private JtiTokenVerifier tokenVerifier;
+
     @RequestMapping(value="/token", method=RequestMethod.GET, produces={ MediaType.APPLICATION_JSON_VALUE })
     public @ResponseBody
     JwtToken refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String tokenPayload = tokenExtractor.extract(request.getHeader(WebSecurityConfig.AUTHENTICATION_HEADER_NAME));
-        
-        RawAccessJwtToken rawToken = new RawAccessJwtToken(tokenPayload);
-        RefreshToken refreshToken = RefreshToken.create(rawToken, securitySettings.getTokenSigningKey()).orElseThrow(() -> new InvalidTokenException());
+
+        BearerJwtToken bearerToken = new BearerJwtToken(request.getHeader(WebSecurityConfig.AUTHENTICATION_HEADER_NAME));
+        RefreshToken refreshToken = RefreshToken.create(bearerToken, securitySettings.getTokenSigningKey()).orElseThrow(() -> new InvalidTokenException());
 
         String jti = refreshToken.getJti();
         if (!tokenVerifier.verify(jti)) {
@@ -72,4 +66,5 @@ public class RefreshTokenController {
 
         return tokenFactory.createAccessJwtToken(userContext);
     }
+
 }

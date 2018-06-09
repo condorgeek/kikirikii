@@ -6,7 +6,7 @@ package com.kikirikii.security.authorization;
 
 import com.kikirikii.security.configuration.SecurityProperties;
 import com.kikirikii.security.model.UserContext;
-import com.kikirikii.security.token.RawAccessJwtToken;
+import com.kikirikii.security.token.BearerJwtToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class JwtAuthorizationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        RawAccessJwtToken rawAccessToken = (RawAccessJwtToken) authentication.getCredentials();
+        BearerJwtToken rawAccessToken = (BearerJwtToken) authentication.getCredentials();
 
         Jws<Claims> jwsClaims = rawAccessToken.parseClaims(securitySettings.getTokenSigningKey());
         String subject = jwsClaims.getBody().getSubject();

@@ -5,8 +5,7 @@
 package com.kikirikii.security.authorization;
 
 import com.kikirikii.security.configuration.WebSecurityConfig;
-import com.kikirikii.security.token.RawAccessJwtToken;
-import com.kikirikii.security.util.TokenExtractor;
+import com.kikirikii.security.token.BearerJwtToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,21 +23,17 @@ import java.io.IOException;
 
 public class JwtAuthorizationFilter extends AbstractAuthenticationProcessingFilter {
     private final AuthenticationFailureHandler failureHandler;
-    private final TokenExtractor tokenExtractor;
-    
+
     @Autowired
-    public JwtAuthorizationFilter(AuthenticationFailureHandler failureHandler,
-                                  TokenExtractor tokenExtractor, RequestMatcher matcher) {
+    public JwtAuthorizationFilter(AuthenticationFailureHandler failureHandler, RequestMatcher matcher) {
         super(matcher);
         this.failureHandler = failureHandler;
-        this.tokenExtractor = tokenExtractor;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
-        String tokenPayload = request.getHeader(WebSecurityConfig.AUTHENTICATION_HEADER_NAME);
-        RawAccessJwtToken token = new RawAccessJwtToken(tokenExtractor.extract(tokenPayload));
+        BearerJwtToken token = new BearerJwtToken(request.getHeader(WebSecurityConfig.AUTHENTICATION_HEADER_NAME));
         return getAuthenticationManager().authenticate(new JwtAuthorizationToken(token));
     }
 

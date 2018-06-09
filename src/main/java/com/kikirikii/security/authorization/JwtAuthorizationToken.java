@@ -5,7 +5,7 @@
 package com.kikirikii.security.authorization;
 
 import com.kikirikii.security.model.UserContext;
-import com.kikirikii.security.token.RawAccessJwtToken;
+import com.kikirikii.security.token.BearerJwtToken;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -14,12 +14,12 @@ import java.util.Collection;
 public class JwtAuthorizationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = 2877954820905567501L;
 
-    private RawAccessJwtToken rawAccessToken;
+    private BearerJwtToken bearerToken;
     private UserContext userContext;
 
-    public JwtAuthorizationToken(RawAccessJwtToken unsafeToken) {
+    public JwtAuthorizationToken(BearerJwtToken unsafeToken) {
         super(null);
-        this.rawAccessToken = unsafeToken;
+        this.bearerToken = unsafeToken;
         this.setAuthenticated(false);
     }
 
@@ -41,7 +41,7 @@ public class JwtAuthorizationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return rawAccessToken;
+        return bearerToken;
     }
 
     @Override
@@ -52,6 +52,6 @@ public class JwtAuthorizationToken extends AbstractAuthenticationToken {
     @Override
     public void eraseCredentials() {
         super.eraseCredentials();
-        this.rawAccessToken = null;
+        this.bearerToken = null;
     }
 }

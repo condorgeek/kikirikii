@@ -1,7 +1,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.kikirikii.security.PasswordCrypt;
+import com.kikirikii.security.util.PasswordCrypt;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

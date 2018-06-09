@@ -33,7 +33,7 @@ public class RefreshToken implements JwtToken {
      * @throws BadCredentialsException
      * @throws ExpiredTokenException
      */
-    public static Optional<RefreshToken> create(RawAccessJwtToken token, String signingKey) {
+    public static Optional<RefreshToken> create(BearerJwtToken token, String signingKey) {
         Jws<Claims> claims = token.parseClaims(signingKey);
 
         List<String> scopes = claims.getBody().get("scopes", List.class);

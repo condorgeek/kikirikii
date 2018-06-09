@@ -5,11 +5,10 @@
 package com.kikirikii.security.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kikirikii.security.authentication.JwtAuthenticationProvider;
 import com.kikirikii.security.authentication.JwtAuthenticationFilter;
-import com.kikirikii.security.authorization.JwtAuthorizationProvider;
+import com.kikirikii.security.authentication.JwtAuthenticationProvider;
 import com.kikirikii.security.authorization.JwtAuthorizationFilter;
-import com.kikirikii.security.util.TokenExtractor;
+import com.kikirikii.security.authorization.JwtAuthorizationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,9 +49,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthorizationProvider jwtAuthorizationProvider;
 
     @Autowired
-    private TokenExtractor tokenExtractor;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -66,8 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     protected JwtAuthorizationFilter buildJwtAuthorizationFilter(List<String> pathsToSkip, String pattern) throws Exception {
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, pattern);
-        JwtAuthorizationFilter filter
-                = new JwtAuthorizationFilter(failureHandler, tokenExtractor, matcher);
+        JwtAuthorizationFilter filter = new JwtAuthorizationFilter(failureHandler, matcher);
         filter.setAuthenticationManager(this.authenticationManager);
         return filter;
     }
@@ -88,8 +83,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         List<String> permitAllEndpointList = Arrays.asList(
                 AUTHENTICATION_URL,
-                REFRESH_TOKEN_URL,
-                "/console"
+                REFRESH_TOKEN_URL
         );
 
         http
