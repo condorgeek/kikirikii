@@ -45,7 +45,9 @@ public class RefreshTokenController {
     JwtToken refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
         BearerJwtToken bearerToken = new BearerJwtToken(request.getHeader(WebSecurityConfig.AUTHENTICATION_HEADER_NAME));
-        RefreshToken refreshToken = RefreshToken.create(bearerToken, securitySettings.getTokenSigningKey()).orElseThrow(() -> new InvalidTokenException());
+        RefreshToken refreshToken = RefreshToken.create(bearerToken, securitySettings
+                .getTokenSigningKey())
+                .orElseThrow(InvalidTokenException::new);
 
         String jti = refreshToken.getJti();
         if (!tokenVerifier.verify(jti)) {
