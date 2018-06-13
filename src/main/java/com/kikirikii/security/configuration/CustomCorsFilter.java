@@ -24,6 +24,9 @@ public class CustomCorsFilter extends CorsFilter {
         config.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(path, config);
+
+        source.registerCorsConfiguration("/public/login", config);
+        source.registerCorsConfiguration("/public/token", config);
         return source;
     }
 }
