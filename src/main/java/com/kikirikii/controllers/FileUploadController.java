@@ -4,6 +4,7 @@ import com.kikirikii.exceptions.StorageFileNotFoundException;
 import com.kikirikii.model.Media;
 import com.kikirikii.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,11 @@ public class FileUploadController {
 
         String location = storageService.storeAtLocation(file, userName);
         return Media.of(location, Media.Type.PICTURE);
+    }
+
+    @RequestMapping(value = "/validate/authorization", method = RequestMethod.GET)
+    public ResponseEntity<HttpStatus> validateAuthorization() {
+        return ResponseEntity.ok().build();
     }
 
 
