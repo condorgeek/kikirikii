@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 public interface UserRepository extends CrudRepository<User, String> {
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByEmail(String email);
+
     @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")
     Optional<Space> findHomeSpace(@Param("userId") Long userId);
 

@@ -31,6 +31,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String AUTHENTICATION_URL = "/public/login";
     public static final String REFRESH_TOKEN_URL = "/public/token";
+    public static final String VALIDATION_URL = "/public/validate/**";
     public static final String SECURE_ROOT_URL = "/user/**";
 
     @Autowired
@@ -83,7 +84,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         List<String> permitAllEndpointList = Arrays.asList(
                 AUTHENTICATION_URL,
-                REFRESH_TOKEN_URL
+                REFRESH_TOKEN_URL,
+                VALIDATION_URL
         );
 
         http

@@ -46,6 +46,10 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public Post addPost(Space space, User user, String title, String text, Set<Media> media) {
         return postRepository.save(Post.of(space, user, title, text, media));
     }

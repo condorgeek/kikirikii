@@ -27,6 +27,8 @@ public class CustomCorsFilter extends CorsFilter {
 
         source.registerCorsConfiguration("/public/login", config);
         source.registerCorsConfiguration("/public/token", config);
+        source.registerCorsConfiguration("/public/validate/**", config);
+
         return source;
     }
 }
