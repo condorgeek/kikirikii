@@ -1,5 +1,6 @@
 package com.kikirikii.services;
 
+import com.kikirikii.exceptions.DuplicateResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.repos.FollowerRepository;
 import com.kikirikii.repos.FriendRepository;
@@ -48,6 +49,19 @@ public class UserService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public User createUser(String email, String username, String firstname, String lastname, String password) {
+        if(findByUsername(username).isPresent()) {
+            throw new DuplicateResourceException("Username already exists.");
+        }
+
+        if(findByEmail(email).isPresent()) {
+            throw new DuplicateResourceException("Email already associated to user.");
+
+        }
+
+        return userRepository.save(User.of(email, username, firstname, lastname, password));
     }
 
     public Post addPost(Space space, User user, String title, String text, Set<Media> media) {

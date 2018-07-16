@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @Table(name = "user_data")
 public class UserData {
 
+    public enum Gender {MALE, FEMALE}
+
     public enum Marital {SINGLE, ENGAGED, MARRIED, DIVORCED, COMPLICATED}
 
     public enum Interest {MEN, WOMEN, BOTH, NONE}
@@ -26,6 +28,9 @@ public class UserData {
     @NotNull
     private LocalDate birthday;
 
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     private Address address;
 
     private String telNumber;
@@ -37,25 +42,28 @@ public class UserData {
 
     private String politics;
 
+    @Enumerated(EnumType.STRING)
     private Marital marital;
 
+    @Enumerated(EnumType.STRING)
     private Interest interest;
 
     private UserData() {
     }
 
-    public static UserData of(LocalDate birthday, String telNumber, Address address) {
-        return of(null, birthday, telNumber, address);
+    public static UserData of(LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, Address address) {
+        return of(null, birthday, gender, marital, interest, aboutYou, address);
     }
 
-    public static UserData of(User user, LocalDate birthday, String telNumber, Address address) {
+    public static UserData of(User user, LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, Address address) {
         UserData userData = new UserData();
         userData.user = user;
         userData.birthday = birthday;
+        userData.gender = gender;
         userData.address = address;
-        userData.telNumber = telNumber;
-        userData.marital = Marital.SINGLE;
-        userData.interest = Interest.NONE;
+        userData.aboutYou = aboutYou;
+        userData.marital = marital;
+        userData.interest = interest;
         return userData;
     }
 
@@ -133,5 +141,13 @@ public class UserData {
 
     public void setPolitics(String politics) {
         this.politics = politics;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
-//@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000", "http://192.168.1.100:3000"})
 @CrossOrigin(origins = {"*"})
 @RequestMapping("/user/{userName}")
 public class UserController {
@@ -70,6 +69,21 @@ public class UserController {
         User user = userService.getUser(userName);
 
         return userService.getUserFollowers(user);
+    }
+
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public User createUser(@PathVariable String username, @RequestBody CreateUser createUser) {
+
+        return null;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class CreateUser {
+        private String email;
+        private String username;
+        private String firstname;
+        private String lastname;
+        private String password;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -203,8 +203,11 @@ public class PersistenceInit {
             int index = (int) Math.floor((Math.random() * userdata.size() + 1) - 1);
             try {
                 String[] values = userdata.get(index).split(", ");
-               return  UserData.of(LocalDate.parse(values[0], formatter), values[1],
-                        Address.of(values[2], values[3], values[4], values[5], values[6], values[7]));
+               return  UserData.of(LocalDate.parse(values[0], formatter),
+                       UserData.Gender.valueOf(values[1]),
+                       UserData.Marital.valueOf(values[2]),
+                       UserData.Interest.valueOf(values[3]),
+                       values[4], Address.of(values[5], values[6], values[7], values[8], values[9], values[10]));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new NoSuchFieldError("Invalid user format");

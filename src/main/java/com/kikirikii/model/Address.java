@@ -13,6 +13,10 @@ public class Address {
 
     private Address() {}
 
+    public static Address of(String city, String country) {
+        return of(null, null, null, null, city, country);
+    }
+
     public static Address of(String street, String number, String optional, String areacode, String city, String country) {
         Address address = new Address();
         address.street = street;
