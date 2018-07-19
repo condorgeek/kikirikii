@@ -52,16 +52,18 @@ public class UserData {
     }
 
     public static UserData of(LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, Address address) {
-        return of(null, birthday, gender, marital, interest, aboutYou, address);
+        return of(null, birthday, gender, marital, interest, aboutYou, null, null, address);
     }
 
-    public static UserData of(User user, LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, Address address) {
+    public static UserData of(User user, LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, String religion, String politics, Address address) {
         UserData userData = new UserData();
         userData.user = user;
         userData.birthday = birthday;
         userData.gender = gender;
         userData.address = address;
         userData.aboutYou = aboutYou;
+        userData.religion = religion;
+        userData.politics = politics;
         userData.marital = marital;
         userData.interest = interest;
         return userData;

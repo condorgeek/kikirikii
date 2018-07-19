@@ -1,6 +1,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.User;
+import com.kikirikii.model.dto.UserProspect;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,15 @@ public class LoginController {
     @RequestMapping(value = "/validate/username", method = RequestMethod.GET)
     public boolean usernameExists(@RequestParam("value") String username) {
         return userService.findByUsername(username).isPresent();
+    }
+
+    @RequestMapping(value = "/user/create/{username}", method = RequestMethod.POST)
+    public User createUser(@PathVariable String username, @RequestBody UserProspect prospect) {
+
+        User user = userService.createUser(username, prospect);
+        userService.createSpaces(user);
+
+        return user;
     }
 
 }

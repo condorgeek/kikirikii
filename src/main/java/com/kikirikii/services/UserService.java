@@ -1,16 +1,20 @@
 package com.kikirikii.services;
 
 import com.kikirikii.exceptions.DuplicateResourceException;
-import com.kikirikii.model.*;
-import com.kikirikii.repos.FollowerRepository;
-import com.kikirikii.repos.FriendRepository;
-import com.kikirikii.repos.PostRepository;
-import com.kikirikii.repos.UserRepository;
+import com.kikirikii.exceptions.InvalidResourceException;
+import com.kikirikii.model.Media;
+import com.kikirikii.model.Post;
+import com.kikirikii.model.Space;
+import com.kikirikii.model.User;
+import com.kikirikii.model.dto.UserProspect;
+import com.kikirikii.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,9 @@ public class UserService {
 
     @Autowired
     private FollowerRepository followerRepository;
+
+    @Autowired
+    private SpaceRepository spaceRepository;
 
     public UserService() {
         logger.info("Initialized");
@@ -51,17 +58,38 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User createUser(String email, String username, String firstname, String lastname, String password) {
-        if(findByUsername(username).isPresent()) {
+    public User createUser(String username, UserProspect prospect) {
+        if(findByUsername(prospect.username).isPresent()) {
             throw new DuplicateResourceException("Username already exists.");
         }
 
-        if(findByEmail(email).isPresent()) {
+        if(findByEmail(prospect.email).isPresent()) {
             throw new DuplicateResourceException("Email already associated to user.");
-
         }
 
-        return userRepository.save(User.of(email, username, firstname, lastname, password));
+        try {
+            return userRepository.save(prospect.createUser());
+
+        } catch(Exception e) {
+            throw new InvalidResourceException("User cannot be created. " + e.getMessage());
+        }
+
+    }
+
+    public void createSpaces(User user) {
+        try {
+            spaceRepository.save(Space.of(user,
+                    user.getUsername() + "'s Home Space",
+                    "This is a personal place for me and friends",
+                    Space.Type.HOME));
+            spaceRepository.save(Space.of(user,
+                    user.getUsername() + "'s Global Space",
+                    "This is a place for me, friends and followers",
+                    Space.Type.GLOBAL));
+
+        } catch (Exception e) {
+            throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());
+        }
     }
 
     public Post addPost(Space space, User user, String title, String text, Set<Media> media) {

@@ -1,10 +1,8 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kikirikii.model.Media;
-import com.kikirikii.model.Post;
-import com.kikirikii.model.Space;
-import com.kikirikii.model.User;
+import com.kikirikii.model.*;
+import com.kikirikii.model.dto.UserProspect;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,19 +40,19 @@ public class UserController {
     }
 
     @RequestMapping(value = "/posts/home", method = RequestMethod.POST)
-    public Post addHomePost(@PathVariable String userName, @RequestBody AddPost addPost) {
+    public Post addHomePost(@PathVariable String userName, @RequestBody PostProspect postProspect) {
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(userName);
 
-        return userService.addPost(space, user, addPost.title, addPost.text, toSet.apply(addPost.media));
+        return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
     }
 
     @RequestMapping(value = "/posts/global", method = RequestMethod.POST)
-    public Post addGlobalPost(@PathVariable String userName, @RequestBody AddPost addPost) {
+    public Post addGlobalPost(@PathVariable String userName, @RequestBody PostProspect postProspect) {
         User user = userService.getUser(userName);
         Space space = userService.getGlobalSpace(userName);
 
-        return userService.addPost(space, user, addPost.title, addPost.text, toSet.apply(addPost.media));
+        return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
     }
 
     @RequestMapping(value = "/friends", method = RequestMethod.GET)
@@ -71,23 +69,8 @@ public class UserController {
         return userService.getUserFollowers(user);
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public User createUser(@PathVariable String username, @RequestBody CreateUser createUser) {
-
-        return null;
-    }
-
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class CreateUser {
-        private String email;
-        private String username;
-        private String firstname;
-        private String lastname;
-        private String password;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class AddPost {
+    static class PostProspect {
         private String title;
         private String text;
         private Media[] media;
@@ -118,7 +101,7 @@ public class UserController {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class AddMedia {
+    static class MediaProspect {
         private String url;
         private Media.Type type;
 
@@ -139,10 +122,10 @@ public class UserController {
         }
     }
 
-    private Function<AddMedia[], Set<Media>> toMediaSet = media ->
+    private Function<MediaProspect[], Set<Media>> toMediaSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media)
-                            .map(entry -> Media.of(entry.url, entry.type))
-                            .collect(Collectors.toSet()) : null;
+                    .map(entry -> Media.of(entry.url, entry.type))
+                    .collect(Collectors.toSet()) : null;
 
     private Function<Media[], Set<Media>> toSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media).collect(Collectors.toSet()) : null;
