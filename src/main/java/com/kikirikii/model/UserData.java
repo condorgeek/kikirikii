@@ -33,6 +33,7 @@ public class UserData {
 
     private Address address;
 
+    @JsonIgnore
     private String telNumber;
 
     @Column(columnDefinition = "text", length = 10485760)

@@ -64,7 +64,7 @@ public class RefreshTokenController {
                 .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
                 .collect(Collectors.toList());
 
-        UserContext userContext = UserContext.create(user.getUsername(), authorities);
+        UserContext userContext = UserContext.of(user.getUsername(), authorities);
 
         return tokenFactory.createAccessJwtToken(userContext);
     }

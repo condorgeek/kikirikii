@@ -7,9 +7,7 @@ import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,6 +65,15 @@ public class UserController {
         User user = userService.getUser(userName);
 
         return userService.getUserFollowers(user);
+    }
+
+    @RequestMapping(value = "/userdata", method = RequestMethod.GET)
+    public Map<String, Object> getUserData(@PathVariable String userName) {
+        Map<String, Object> data = new HashMap<>();
+        User user = userService.getUser(userName);
+        data.put("user", user);
+        data.put("userdata", user.getUserData());
+        return data;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
