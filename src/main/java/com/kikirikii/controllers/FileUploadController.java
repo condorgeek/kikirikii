@@ -2,6 +2,7 @@ package com.kikirikii.controllers;
 
 import com.kikirikii.exceptions.StorageFileNotFoundException;
 import com.kikirikii.model.Media;
+import com.kikirikii.storage.StorageProperties;
 import com.kikirikii.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,27 @@ public class FileUploadController {
     @Autowired
     private StorageService storageService;
 
+    @Autowired
+    private StorageProperties storageProperties;
+
     @RequestMapping(value = "/posts/upload", method = RequestMethod.POST)
     public Media handleFileUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file,
                                   @RequestParam("text") String text) {
 
         String location = storageService.storeAtLocation(file, userName);
         return Media.of(location, Media.Type.PICTURE);
+    }
+
+    @RequestMapping(value ="/profile/upload", method = RequestMethod.POST)
+    public String handleProfileUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
+        return storageService.storeAtLocation(file, userName + storageProperties
+                .getLocation().getProfile());
+    }
+
+    @RequestMapping(value ="/cover/upload", method = RequestMethod.POST)
+    public String handleCoverUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
+        return storageService.storeAtLocation(file, userName + storageProperties
+                .getLocation().getCover());
     }
 
     @RequestMapping(value = "/validate/authorization", method = RequestMethod.GET)

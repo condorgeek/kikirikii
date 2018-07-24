@@ -76,6 +76,10 @@ public class UserService {
 
     }
 
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
     public void createSpaces(User user) {
         try {
             spaceRepository.save(Space.of(user,

@@ -69,12 +69,31 @@ public class UserController {
 
     @RequestMapping(value = "/userdata", method = RequestMethod.GET)
     public Map<String, Object> getUserData(@PathVariable String userName) {
-        Map<String, Object> data = new HashMap<>();
         User user = userService.getUser(userName);
+
+        Map<String, Object> data = new HashMap<>();
         data.put("user", user);
         data.put("userdata", user.getUserData());
         return data;
     }
+
+    @RequestMapping(value = "/userdata/profile", method = RequestMethod.PUT)
+    public Map<String, Object> updateUserProfile(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        user.setThumbnail(values.get("path"));
+        user = userService.updateUser(user);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user);
+        data.put("userdata", user.getUserData());
+        return data;
+    }
+
+    @RequestMapping(value = "/userdata/cover", method = RequestMethod.PUT)
+    public Map<String, Object> updateUserCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
+       return null;
+    }
+
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class PostProspect {
