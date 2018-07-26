@@ -107,6 +107,10 @@ public class UserService {
         return home.get();
     }
 
+    public Space updateSpace(Space space) {
+        return spaceRepository.save(space);
+    }
+
     public Space getGlobalSpace(String name) {
         Optional<Space> global = userRepository.findGlobalSpaceByName(name);
         assert global.isPresent() : "Invalid user name or user has no global space " + name;

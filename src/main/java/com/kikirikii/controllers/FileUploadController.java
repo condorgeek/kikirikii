@@ -32,7 +32,7 @@ public class FileUploadController {
         return Media.of(location, Media.Type.PICTURE);
     }
 
-    @RequestMapping(value ="/profile/upload", method = RequestMethod.POST)
+    @RequestMapping(value ="/avatar/upload", method = RequestMethod.POST)
     public String handleProfileUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
         return storageService.storeAtLocation(file, userName + storageProperties
                 .getLocation().getProfile());

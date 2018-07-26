@@ -24,6 +24,8 @@ public class Space {
     @NotNull
     private String name;
 
+    private String cover;
+
     @NotNull
     private String description;
 
@@ -37,9 +39,14 @@ public class Space {
     }
 
     public static Space of(User user, String name, String description, Type type) {
+        return of(user, name, null, description, type);
+    }
+
+    public static Space of(User user, String name, String cover, String description, Type type) {
         Space space = new Space();
         space.user = user;
         space.name = name;
+        space.cover = cover;
         space.description = description;
         space.type = type;
         space.created = new Date();
@@ -88,5 +95,13 @@ public class Space {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
     }
 }

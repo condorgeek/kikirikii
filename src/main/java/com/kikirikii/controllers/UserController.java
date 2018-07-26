@@ -2,7 +2,6 @@ package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.*;
-import com.kikirikii.model.dto.UserProspect;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -77,10 +76,10 @@ public class UserController {
         return data;
     }
 
-    @RequestMapping(value = "/userdata/profile", method = RequestMethod.PUT)
-    public Map<String, Object> updateUserProfile(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    @RequestMapping(value = "/userdata/avatar", method = RequestMethod.PUT)
+    public Map<String, Object> updateUserAvatar(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
-        user.setThumbnail(values.get("path"));
+        user.setAvatar(values.get("path"));
         user = userService.updateUser(user);
 
         Map<String, Object> data = new HashMap<>();
@@ -89,11 +88,23 @@ public class UserController {
         return data;
     }
 
-    @RequestMapping(value = "/userdata/cover", method = RequestMethod.PUT)
-    public Map<String, Object> updateUserCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
-       return null;
+    @RequestMapping(value = "/space/cover", method = RequestMethod.PUT)
+    public Map<String, Object> updateHomeCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        Space space = userService.getHomeSpace(userName);
+        space.setCover(values.get("path"));
+        space = userService.updateSpace(space);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("space", space);
+        return data;
     }
 
+    @RequestMapping(value = "/space/home", method = RequestMethod.GET)
+    public Map<String, Object> getHomeSpace(@PathVariable String userName) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("space", userService.getHomeSpace(userName));
+        return data;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class PostProspect {

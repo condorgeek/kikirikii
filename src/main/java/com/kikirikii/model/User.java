@@ -40,7 +40,7 @@ public class User {
     @NotNull
     private String password;
 
-    private String thumbnail;
+    private String avatar;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
@@ -61,14 +61,14 @@ public class User {
         return of(email, userid, firstname, lastname, password, null);
     }
 
-    public static User of(String email, String username, String firstname, String lastname, String password, String thumbnail) {
+    public static User of(String email, String username, String firstname, String lastname, String password, String avatar) {
         User user = new User();
         user.email = email;
         user.username = username.toLowerCase();
         user.firstname = firstname;
         user.lastname = lastname;
         user.state = State.ACTIVE;
-        user.thumbnail = thumbnail;
+        user.avatar = avatar;
         user.addRole(Role.of(Role.Type.USER));
         user.salt = PasswordCrypt.getSalt(64);
         user.password = PasswordCrypt.encrypt(password, user.salt);
@@ -91,12 +91,12 @@ public class User {
         return state;
     }
 
-    public String getThumbnail() {
-        return thumbnail;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public void setState(State state) {
