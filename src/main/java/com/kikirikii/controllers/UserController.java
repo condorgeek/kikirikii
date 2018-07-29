@@ -103,6 +103,7 @@ public class UserController {
     public Map<String, Object> getHomeSpace(@PathVariable String userName) {
         Map<String, Object> data = new HashMap<>();
         data.put("space", userService.getHomeSpace(userName));
+        data.put("userdata", userService.getUser(userName).getUserData());
         return data;
     }
 
