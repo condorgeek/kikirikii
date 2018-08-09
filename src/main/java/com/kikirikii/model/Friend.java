@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "friends")
 public class Friend {
 
-    public enum State {ACTIVE, BLOCKED}
+    public enum State {ACTIVE, BLOCKED, DELETED, REQUEST, PENDING}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

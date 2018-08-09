@@ -15,4 +15,7 @@ public interface FollowerRepository extends CrudRepository<Follower, Long> {
 
     @Query("select f from Follower f where f.user.id = :userId")
     List<Follower> findAsListByUserId(@Param("userId") Long userId);
+
+    @Query("select count(f) from Follower f where f.user.username = :username")
+    Long countByUsername(@Param("username") String username);
 }

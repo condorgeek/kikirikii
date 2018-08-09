@@ -148,4 +148,12 @@ public class UserService {
                 .map(f -> f.getSurrogate())
                 .collect(Collectors.toList());
     }
+
+    public Long getFriendsCount(String username) {
+        return friendRepository.countByUsername(username);
+    }
+
+    public Long getFollowersCount(String username) {
+        return followerRepository.countByUsername(username);
+    }
 }

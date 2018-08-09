@@ -104,6 +104,8 @@ public class UserController {
         Map<String, Object> data = new HashMap<>();
         data.put("space", userService.getHomeSpace(userName));
         data.put("userdata", userService.getUser(userName).getUserData());
+        data.put("friends", userService.getFriendsCount(userName));
+        data.put("followers", userService.getFollowersCount(userName));
         return data;
     }
 

@@ -190,7 +190,7 @@ public class PersistenceInit {
             try {
                 String[] values = data.split(", ");
                 String userid = (values[1] + "." + values[2]).toLowerCase();
-                return User.of(values[0], userid, values[1], values[2], values[3], values[4]);
+                return User.of(values[0], userid, values[1], values[2], values[3], null);
 
             } catch (Exception e) {
                 e.printStackTrace();
