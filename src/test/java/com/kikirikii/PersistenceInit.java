@@ -2,6 +2,7 @@ package com.kikirikii;
 
 import com.kikirikii.model.*;
 import com.kikirikii.repos.*;
+import com.kikirikii.services.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ public class PersistenceInit {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Test
     public void init() {
         logger.info("Init database with test data");
@@ -67,7 +71,7 @@ public class PersistenceInit {
         createFollowersForUser("amaru.london", new String[]{"ana.kern", "heidi.angeles", "jack.north", "beate.schulz", "thomas.earl"});
         createPostsAndMediaForUser("amaru.london");
         createCommentsAndLikesForPosts();
-        createSuperUsers(new String[] {"amaru.london", "julia.jobs"});
+        createSuperUsers(new String[]{"amaru.london", "julia.jobs"});
     }
 
     void createSuperUsers(String[] users) {
@@ -99,11 +103,15 @@ public class PersistenceInit {
         });
     }
 
-    void createFriendsForUser(String username, String[] friends) {
+    void createFriendsForUser(String username, String[] friendnames) {
         Optional<User> user = userRepository.findByUsername(username);
-        Stream.of(friends).forEach(friend -> {
-            friendRepository.save(Friend.of(user.get(), userRepository.findByUsername(friend).get()));
-        });
+        user.ifPresent(usr -> Stream.of(friendnames).forEach(name -> {
+            Optional<User> friend = userRepository.findByUsername(name);
+            friend.ifPresent(frnd -> {
+                userService.addFriend(usr, frnd);
+                userService.acceptFriend(frnd, usr);
+            });
+        }));
     }
 
     void createFollowersForUser(String username, String[] followers) {
@@ -203,11 +211,11 @@ public class PersistenceInit {
             int index = (int) Math.floor((Math.random() * userdata.size() + 1) - 1);
             try {
                 String[] values = userdata.get(index).split(", ");
-               return  UserData.of(LocalDate.parse(values[0], formatter),
-                       UserData.Gender.valueOf(values[1]),
-                       UserData.Marital.valueOf(values[2]),
-                       UserData.Interest.valueOf(values[3]),
-                       values[4], Address.of(values[5], values[6], values[7], values[8], values[9], values[10]));
+                return UserData.of(LocalDate.parse(values[0], formatter),
+                        UserData.Gender.valueOf(values[1]),
+                        UserData.Marital.valueOf(values[2]),
+                        UserData.Interest.valueOf(values[3]),
+                        values[4], Address.of(values[5], values[6], values[7], values[8], values[9], values[10]));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new NoSuchFieldError("Invalid user format");

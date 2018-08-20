@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface FriendRepository extends CrudRepository<Friend, Long> {
@@ -19,4 +20,13 @@ public interface FriendRepository extends CrudRepository<Friend, Long> {
 
     @Query("select count(f) from Friend f where f.user.username = :username")
     Long countByUsername(@Param("username") String username);
+
+    @Query("select f from Friend f where f.user.username = :username and f.surrogate.username = :surrogate and f.state = :state")
+    Optional<Friend> findBySurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") Friend.State state);
+
+    @Query("select f from Friend f where f.user.username = :username and f.state in ('ACTIVE', 'PENDING', 'BLOCKED')")
+    List<Friend> findActivePendingBlocked(@Param("username") String username);
+
+    @Query("select f from Friend f where f.user.username = :username and f.state = :state")
+    List<Friend> findByState(@Param("username") String username, @Param("state") Friend.State state);
 }

@@ -2,6 +2,7 @@ package com.kikirikii;
 
 import com.kikirikii.model.*;
 import com.kikirikii.repos.*;
+import com.kikirikii.services.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,15 +48,18 @@ public class PersistenceTests {
     @Autowired
     private LikeRepository likeRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Test
     @Transactional
     public void createUsers() {
-        userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
-        userRepository.save(User.of("marga.barcelona@testmail.com", "Barcelona", "Marga", "Barcelona","password"));
-        userRepository.save(User.of("ronny.helsinki@testmail.com", "Helsinki", "Ronny", "Helsinki","password"));
+        userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        userRepository.save(User.of("marga.barcelona@testmail.com", "Barcelona", "Marga", "Barcelona", "password"));
+        userRepository.save(User.of("ronny.helsinki@testmail.com", "Helsinki", "Ronny", "Helsinki", "password"));
         userRepository.save(User.of("hans.munich@testmail.com", "Munich", "Hans", "Munich", "password"));
-        userRepository.save(User.of("maria.hamburg@testmail.com", "Hamburg", "Maria", "Hamburg","password"));
-        userRepository.save(User.of("luisa.brighton@testmail.com", "Brighton", "Luisa", "Brighton","password"));
+        userRepository.save(User.of("maria.hamburg@testmail.com", "Hamburg", "Maria", "Hamburg", "password"));
+        userRepository.save(User.of("luisa.brighton@testmail.com", "Brighton", "Luisa", "Brighton", "password"));
 
         User london = findByName("london");
         Assert.assertEquals("jack.london@testmail.com", london.getEmail());
@@ -79,16 +83,16 @@ public class PersistenceTests {
         user = userRepository.save(user);
         Assert.assertTrue(user.verifyPassword("newpassword"));
 
-            UserData userData = userDataRepository.save(UserData.of(user, LocalDate.of(1989, 06, 18),
+        UserData userData = userDataRepository.save(UserData.of(user, LocalDate.of(1989, 06, 18),
                 UserData.Gender.FEMALE, UserData.Marital.SINGLE, UserData.Interest.NONE, "About me", "religion", "politics", Address.of("Victoria Street", "1A",
                         "3th Floor", "C-12-999", "London", "UK")
-                ));
+        ));
         Assert.assertEquals("Victoria Street", userData.getAddress().getStreet());
 
         london.setUserData(UserData.of(LocalDate.of(1976, 03, 22),
                 UserData.Gender.MALE, UserData.Marital.SINGLE, UserData.Interest.WOMEN, "About me",
                 Address.of("Ginger Road", "08", "Royal Docks", "C-12-111", "London", "UK")
-                ));
+        ));
         london = userRepository.save(london);
         Assert.assertEquals("Ginger Road", london.getUserData().getAddress().getStreet());
     }
@@ -103,8 +107,8 @@ public class PersistenceTests {
     @Transactional
     public void createSpaces() {
 
-        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
-        User lapaz = userRepository.save(User.of("marga.lapaz@testmail.com", "Lapaz", "Marga", "LaPaz","password"));
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        User lapaz = userRepository.save(User.of("marga.lapaz@testmail.com", "Lapaz", "Marga", "LaPaz", "password"));
 
         spaceRepository.save(Space.of(london,
                 "London's Space",
@@ -148,7 +152,7 @@ public class PersistenceTests {
     @Transactional
     public void createPostsWithMedia() {
 
-        User user = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
+        User user = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
         Space home = spaceRepository.save(Space.of(user,
                 "London's Space",
                 "This is a place for London and friends",
@@ -184,7 +188,7 @@ public class PersistenceTests {
     @Test
     @Transactional
     public void createComments() {
-        User user = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
+        User user = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
         Space home = spaceRepository.save(Space.of(user,
                 "London's Space",
                 "This is a place for London and friends",
@@ -204,11 +208,11 @@ public class PersistenceTests {
 
     @Test
     @Transactional
-    public void createFriends() {
-        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
-        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris","password"));
-        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid","password"));
-        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Moscu","password"));
+    public void createFriendsRaw() {
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris", "password"));
+        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid", "password"));
+        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Moscu", "password"));
 
         friendRepository.save(Friend.of(london, paris));
         friendRepository.save(Friend.of(london, madrid));
@@ -220,11 +224,51 @@ public class PersistenceTests {
 
     @Test
     @Transactional
+    public void createFriendsStaged() {
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris", "password"));
+        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid", "password"));
+        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Moscu", "password"));
+        User munich = userRepository.save(User.of("tom.shell@testmail.com", "Tom", "Tom", "Shell", "password"));
+        User julietta = userRepository.save(User.of("julietta.fago@testmail.com", "Julietta", "Julietta", "Fago", "password"));
+        User maria = userRepository.save(User.of("maria.perez@testmail.com", "Maria", "Maria", "Perez", "password"));
+
+        userService.addFriend(london, paris);
+        userService.addFriend(london, madrid);
+        userService.addFriend(london, moscu);
+        userService.addFriend(london, munich);
+        userService.addFriend(london, julietta);
+        userService.addFriend(london, maria);
+
+        List<Friend> friends = friendRepository.findByState(london.getUsername(), Friend.State.PENDING);
+        Assert.assertEquals(6, friends.size());
+
+        userService.acceptFriend(paris, london);
+        userService.acceptFriend(madrid, london);
+        userService.acceptFriend(julietta, london);
+
+        friends = friendRepository.findByState(london.getUsername(), Friend.State.ACTIVE);
+        Assert.assertEquals(3, friends.size());
+
+        userService.ignoreFriendRequest(moscu, london);
+        userService.cancelFriendRequest(london, munich);
+        userService.deleteFriend(london, julietta);
+
+        friends = friendRepository.findActivePendingBlocked(london.getUsername());
+        Assert.assertEquals(3, friends.size());
+
+        long pending = friends.stream().filter(f -> f.getState() == Friend.State.PENDING).count();
+        Assert.assertEquals(1L, pending);
+
+    }
+
+    @Test
+    @Transactional
     public void createFollowers() {
-        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
-        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris","password"));
-        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid","password"));
-        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Mosku","password"));
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris", "password"));
+        User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid", "password"));
+        User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Mosku", "password"));
 
         followerRepository.save(Follower.of(london, paris));
         followerRepository.save(Follower.of(london, madrid));
@@ -238,9 +282,9 @@ public class PersistenceTests {
     @Transactional
     public void createLikes() {
 
-        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London","password"));
-        User barcelona = userRepository.save(User.of("julia.barcelona@testmail.com", "Barcelona", "Julia", "Barcelona","password"));
-        User munich = userRepository.save(User.of("john.munich@testmail.com", "Munich", "John", "Munich","password"));
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        User barcelona = userRepository.save(User.of("julia.barcelona@testmail.com", "Barcelona", "Julia", "Barcelona", "password"));
+        User munich = userRepository.save(User.of("john.munich@testmail.com", "Munich", "John", "Munich", "password"));
 
         Space home = spaceRepository.save(Space.of(london,
                 "Jack's Space",

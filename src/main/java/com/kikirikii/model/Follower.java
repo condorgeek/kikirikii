@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "followers")
 public class Follower {
 
-    public enum State {ACTIVE, BLOCKED}
+    public enum State {ACTIVE, BLOCKED, DELETED, REQUEST, PENDING, NONE}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

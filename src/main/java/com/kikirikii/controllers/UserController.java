@@ -59,6 +59,62 @@ public class UserController {
         return userService.getUserFriends(user);
     }
 
+    @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
+    public void addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.addFriend(user, surrogate);
+    }
+
+    @RequestMapping(value = "/friend/accept", method = RequestMethod.PUT)
+    public void acceptFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.acceptFriend(user, surrogate);
+    }
+
+    @RequestMapping(value = "/friend/block", method = RequestMethod.PUT)
+    public void blockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.blockFriend(user, surrogate);
+    }
+
+    @RequestMapping(value = "/friend/unblock", method = RequestMethod.PUT)
+    public void unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.unblockFriend(user, surrogate);
+    }
+
+    @RequestMapping(value = "/friend/cancel", method = RequestMethod.PUT)
+    public void cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.cancelFriendRequest(user, surrogate);
+    }
+
+    @RequestMapping(value = "/friend/ignore", method = RequestMethod.PUT)
+    public void ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.ignoreFriendRequest(user, surrogate);
+    }
+
+    @RequestMapping(value = "/friend/delete", method = RequestMethod.PUT)
+    public void deleteFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.deleteFriend(user, surrogate);
+    }
+
     @RequestMapping(value = "/followers", method = RequestMethod.GET)
     public List<User> getFollowers(@PathVariable String userName) {
         User user = userService.getUser(userName);

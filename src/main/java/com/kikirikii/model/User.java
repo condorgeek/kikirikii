@@ -5,6 +5,7 @@ import com.kikirikii.security.util.PasswordCrypt;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,6 +56,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private State state;
 
+    @NotNull
+    private Date created;
+
     private User(){}
 
     public static User of(String email, String userid, String firstname, String lastname, String password) {
@@ -72,6 +76,7 @@ public class User {
         user.addRole(Role.of(Role.Type.USER));
         user.salt = PasswordCrypt.getSalt(64);
         user.password = PasswordCrypt.encrypt(password, user.salt);
+        user.created = new Date();
         return user;
     }
 
@@ -165,5 +170,11 @@ public class User {
         this.password = PasswordCrypt.encrypt(password, salt);
     }
 
+    public Date getCreated() {
+        return created;
+    }
 
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 }
