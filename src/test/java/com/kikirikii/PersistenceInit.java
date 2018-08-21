@@ -114,10 +114,12 @@ public class PersistenceInit {
         }));
     }
 
-    void createFollowersForUser(String username, String[] followers) {
+    void createFollowersForUser(String username, String[] followernames) {
         Optional<User> user = userRepository.findByUsername(username);
-        Stream.of(followers).forEach(follower -> {
-            followerRepository.save(Follower.of(user.get(), userRepository.findByUsername(follower).get()));
+        Stream.of(followernames).forEach(name -> {
+            User follower = userRepository.findByUsername(name).get();
+            userService.addFollowee(user.get(),follower);
+            userService.addFollowee(follower, user.get());
         });
     }
 
