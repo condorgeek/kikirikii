@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface FollowerRepository extends CrudRepository<Follower, Long> {
@@ -18,4 +19,19 @@ public interface FollowerRepository extends CrudRepository<Follower, Long> {
 
     @Query("select count(f) from Follower f where f.user.username = :username")
     Long countByUsername(@Param("username") String username);
+
+    @Query("select f from Follower f where f.user.username = :username and f.surrogate.username = :surrogate and f.state = :state")
+    Optional<Follower> findByUserSurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") Follower.State state);
+
+    @Query("select f from Follower f where f.surrogate.username = :surrogate and f.state = :state")
+    Optional<Follower> findBySurrogateAndState(@Param("surrogate") String surrogate, @Param("state") Follower.State state);
+
+    @Query("select f from Follower f where f.user.username = :username and f.state = :state")
+    Optional<Follower> findByUsernameAndState(@Param("username") String username, @Param("state") Follower.State state);
+
+    @Query("select f from Follower f where f.user.username = :username and f.state in('ACTIVE', 'BLOCKED')")
+    List<Follower> findActiveBlockedFollowees(@Param("username") String username);
+
+    @Query("select f from Follower f where f.surrogate.username = :username and f.state in('ACTIVE', 'BLOCKED')")
+    List<Follower> findActiveBlockedFollowers(@Param("username") String username);
 }

@@ -251,8 +251,10 @@ public class UserService {
     }
 
     public void deleteFriend(User user, User surrogate) {
-        Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.ACTIVE);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.ACTIVE);
+        Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(),
+                surrogate.getUsername(), Friend.State.ACTIVE);
+        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(),
+                user.getUsername(), Friend.State.ACTIVE);
 
         if(passive.isPresent() && active.isPresent()) {
                 active.get().setState(Friend.State.DELETED);
@@ -265,4 +267,71 @@ public class UserService {
                 friendRepository.save(passive.get());
         }
     }
+
+    public void addFollowee(User user, User surrogate) {
+        Follower follower = Follower.of(user, surrogate, Follower.State.ACTIVE);
+        followerRepository.save(follower);
+    }
+
+    public void deleteFollowee(User user, User surrogate) {
+        Optional<Follower> opt = followerRepository.findByUserSurrogateAndState(user.getUsername(),
+                surrogate.getUsername(), Follower.State.ACTIVE);
+        opt.ifPresent(follower -> {
+            follower.setState(Follower.State.DELETED);
+            followerRepository.save(follower);
+        });
+    }
+
+    public void deleteFollowee(String username, String surrogate, Long id) {
+        Optional<Follower> opt = followerRepository.findById(id);
+        opt.ifPresent(follower -> {
+            if(follower.getUser().getUsername().equals(username) && follower.getSurrogate().getUsername().equals(surrogate)) {
+                follower.setState(Follower.State.DELETED);
+                followerRepository.save(follower);
+            }
+        });
+    }
+
+    public void blockFollower(User user, User surrogate) {
+        Optional<Follower> opt = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
+                user.getUsername(), Follower.State.ACTIVE);
+        opt.ifPresent(follower -> {
+            follower.setState(Follower.State.BLOCKED);
+            followerRepository.save(follower);
+        });
+    }
+
+    public void blockFollower(String username, String surrogate, Long id) {
+        Optional<Follower> opt = followerRepository.findById(id);
+        opt.ifPresent(follower -> {
+            if(follower.getUser().getUsername().equals(surrogate) &&
+                    follower.getSurrogate().getUsername().equals(username) &&
+                    follower.getState() == Follower.State.ACTIVE) {
+                follower.setState(Follower.State.BLOCKED);
+                followerRepository.save(follower);
+            }
+        });
+    }
+
+    public void unblockFollower(User user, User surrogate) {
+        Optional<Follower> opt = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
+                user.getUsername(), Follower.State.BLOCKED);
+        opt.ifPresent(follower -> {
+            follower.setState(Follower.State.ACTIVE);
+            followerRepository.save(follower);
+        });
+    }
+
+    public void unblockFollower(String username, String surrogate, Long id) {
+        Optional<Follower> opt = followerRepository.findById(id);
+        opt.ifPresent(follower -> {
+            if(follower.getUser().getUsername().equals(surrogate)
+                    && follower.getSurrogate().getUsername().equals(username) &&
+                    follower.getState() == Follower.State.BLOCKED) {
+                follower.setState(Follower.State.ACTIVE);
+                followerRepository.save(follower);
+            }
+        });
+    }
+
 }

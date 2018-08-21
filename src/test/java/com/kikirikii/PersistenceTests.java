@@ -269,13 +269,67 @@ public class PersistenceTests {
         User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris", "password"));
         User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid", "password"));
         User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Mosku", "password"));
+        User munich = userRepository.save(User.of("tom.shell@testmail.com", "Tom", "Tom", "Shell", "password"));
+        User julietta = userRepository.save(User.of("julietta.fago@testmail.com", "Julietta", "Julietta", "Fago", "password"));
+        User maria = userRepository.save(User.of("maria.perez@testmail.com", "Maria", "Maria", "Perez", "password"));
 
-        followerRepository.save(Follower.of(london, paris));
-        followerRepository.save(Follower.of(london, madrid));
-        followerRepository.save(Follower.of(london, moscu));
+        userService.addFollowee(london, paris);
+        userService.addFollowee(london, madrid);
+        userService.addFollowee(london, moscu);
+        userService.addFollowee(london, munich);
+        userService.deleteFollowee(london, munich);
 
-        Stream<Follower> followers = followerRepository.findAllByUserId(london.getId());
-        Assert.assertEquals(3, followers.count());
+        userService.addFollowee(julietta, london);
+        userService.addFollowee(maria, london);
+
+        userService.addFollowee(paris, madrid);
+        userService.addFollowee(paris, moscu);
+        userService.addFollowee(paris, julietta);
+        userService.blockFollower(julietta, paris);
+
+        List<Follower> followees = followerRepository.findActiveBlockedFollowees(london.getUsername());
+        Assert.assertEquals(3, followees.size());
+
+        List<Follower> followers = followerRepository.findActiveBlockedFollowers(london.getUsername());
+        Assert.assertEquals(2, followers.size());
+
+        followees = followerRepository.findActiveBlockedFollowees(paris.getUsername());
+        Assert.assertEquals(3, followees.size());
+
+        long count = followees.stream().filter(followee -> followee.getState() == Follower.State.BLOCKED).count();
+        Assert.assertEquals(1, count);
+
+        userService.blockFollower(moscu, paris);
+        userService.blockFollower(madrid, paris);
+
+        followees = followerRepository.findActiveBlockedFollowees(paris.getUsername());
+        count = followees.stream().filter(followee -> followee.getState() == Follower.State.ACTIVE).count();
+        Assert.assertEquals(0, count);
+
+        userService.addFollowee(paris, maria);
+        userService.unblockFollower(julietta, paris);
+        userService.unblockFollower(moscu, paris);
+        userService.unblockFollower(madrid, paris);
+
+        followees = followerRepository.findActiveBlockedFollowees(paris.getUsername());
+        Assert.assertEquals(4, followees.size());
+
+        count = followees.stream().filter(followee -> followee.getState() == Follower.State.ACTIVE).count();
+        Assert.assertEquals(4, count);
+
+        userService.addFollowee(julietta, maria);
+        userService.addFollowee(moscu, maria);
+        userService.addFollowee(madrid, maria);
+        userService.addFollowee(munich, maria);
+
+        followers = followerRepository.findActiveBlockedFollowers(maria.getUsername());
+        Assert.assertEquals(5, followers.size());
+
+        userService.deleteFollowee(julietta, maria);
+        userService.deleteFollowee(moscu, maria);
+
+        followers = followerRepository.findActiveBlockedFollowers(maria.getUsername());
+        Assert.assertEquals(3, followers.size());
     }
 
     @Test
