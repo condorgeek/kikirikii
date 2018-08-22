@@ -135,13 +135,31 @@ public class UserService {
     }
 
     public List<User> getUserFriends(User user) {
-        return friendRepository.findAllByUserId(user.getId())
+        return friendRepository.findActivePendingBlocked(user.getUsername()).stream()
                 .map(f -> f.getSurrogate())
                 .collect(Collectors.toList());
     }
 
     public List<User> getUserFollowers(User user) {
-        return followerRepository.findAllByUserId(user.getId())
+        return followerRepository.findActiveBlockedFollowers(user.getUsername()).stream()
+                .map(f -> f.getUser())
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getUserFollowers(String username) {
+        return followerRepository.findActiveBlockedFollowers(username).stream()
+                .map(f -> f.getUser())
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getUserFollowees(User user) {
+        return followerRepository.findActiveBlockedFollowees(user.getUsername()).stream()
+                .map(f -> f.getSurrogate())
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getUserFollowees(String username) {
+        return followerRepository.findActiveBlockedFollowees(username).stream()
                 .map(f -> f.getSurrogate())
                 .collect(Collectors.toList());
     }

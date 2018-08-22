@@ -115,11 +115,50 @@ public class UserController {
         userService.deleteFriend(user, surrogate);
     }
 
+    @RequestMapping(value = "/followee/add", method = RequestMethod.PUT)
+    public void addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("follower"));
+
+        userService.addFriend(user, surrogate);
+    }
+
+    @RequestMapping(value = "/followee/delete", method = RequestMethod.PUT)
+    public void deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("follower"));
+
+        userService.deleteFollowee(user, surrogate);
+    }
+
+    @RequestMapping(value = "/follower/block", method = RequestMethod.PUT)
+    public void blockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("follower"));
+
+        userService.blockFollower(user, surrogate);
+    }
+
+    @RequestMapping(value = "/follower/unblock", method = RequestMethod.PUT)
+    public void unblockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("follower"));
+
+        userService.unblockFollower(user, surrogate);
+    }
+
     @RequestMapping(value = "/followers", method = RequestMethod.GET)
     public List<User> getFollowers(@PathVariable String userName) {
         User user = userService.getUser(userName);
 
         return userService.getUserFollowers(user);
+    }
+
+    @RequestMapping(value = "/followees", method = RequestMethod.GET)
+    public List<User> getFollowees(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+
+        return userService.getUserFollowees(user);
     }
 
     @RequestMapping(value = "/userdata", method = RequestMethod.GET)

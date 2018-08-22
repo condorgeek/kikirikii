@@ -269,9 +269,11 @@ public class PersistenceTests {
         User paris = userRepository.save(User.of("marga.paris@testmail.com", "Paris", "Marga", "Paris", "password"));
         User madrid = userRepository.save(User.of("ronny.madrid@testmail.com", "Madrid", "Ronny", "Madrid", "password"));
         User moscu = userRepository.save(User.of("hans.moscu@testmail.com", "Mosku", "Hans", "Mosku", "password"));
-        User munich = userRepository.save(User.of("tom.shell@testmail.com", "Tom", "Tom", "Shell", "password"));
+        User munich = userRepository.save(User.of("munich.shell@testmail.com", "Munich", "Munich", "Shell", "password"));
         User julietta = userRepository.save(User.of("julietta.fago@testmail.com", "Julietta", "Julietta", "Fago", "password"));
         User maria = userRepository.save(User.of("maria.perez@testmail.com", "Maria", "Maria", "Perez", "password"));
+        User violetta = userRepository.save(User.of("violetta@testmail.com", "Violetta", "Violetta", "Perez", "password"));
+        User peter = userRepository.save(User.of("peter@testmail.com", "Peter", "Peter", "Perez", "password"));
 
         userService.addFollowee(london, paris);
         userService.addFollowee(london, madrid);
@@ -321,15 +323,28 @@ public class PersistenceTests {
         userService.addFollowee(moscu, maria);
         userService.addFollowee(madrid, maria);
         userService.addFollowee(munich, maria);
+        userService.addFollowee(violetta, maria);
 
         followers = followerRepository.findActiveBlockedFollowers(maria.getUsername());
-        Assert.assertEquals(5, followers.size());
+        followees.forEach(f -> logger.info("-- Followee: " + f.getUser().getUsername() + " " + f.getSurrogate().getUsername()));
+        followers.forEach(f -> logger.info("++ Follower: " + f.getUser().getUsername() + " " + f.getSurrogate().getUsername()));
+        Assert.assertEquals(6, followers.size());
+
+        // people following maria
+        List<User> mariafollowers = followers.stream().map(Follower::getUser).collect(Collectors.toList());
+        Assert.assertTrue(mariafollowers.contains(violetta));
+        Assert.assertTrue(mariafollowers.contains(munich));
+
+        // people paris follows
+        List<User> parisfollowees = followees.stream().map(Follower::getSurrogate).collect(Collectors.toList());
+        Assert.assertTrue(parisfollowees.contains(madrid));
+        Assert.assertTrue(parisfollowees.contains(moscu));
 
         userService.deleteFollowee(julietta, maria);
         userService.deleteFollowee(moscu, maria);
 
         followers = followerRepository.findActiveBlockedFollowers(maria.getUsername());
-        Assert.assertEquals(3, followers.size());
+        Assert.assertEquals(4, followers.size());
     }
 
     @Test
