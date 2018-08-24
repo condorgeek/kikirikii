@@ -116,19 +116,23 @@ public class UserController {
     }
 
     @RequestMapping(value = "/followee/add", method = RequestMethod.PUT)
-    public void addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<User> addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
-        User surrogate = userService.getUser(values.get("follower"));
+        User surrogate = userService.getUser(values.get("followee"));
 
-        userService.addFriend(user, surrogate);
+        userService.addFollowee(user, surrogate);
+
+        return userService.getUserFollowees(user);
     }
 
     @RequestMapping(value = "/followee/delete", method = RequestMethod.PUT)
-    public void deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<User> deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
-        User surrogate = userService.getUser(values.get("follower"));
+        User surrogate = userService.getUser(values.get("followee"));
 
         userService.deleteFollowee(user, surrogate);
+
+        return userService.getUserFollowees(user);
     }
 
     @RequestMapping(value = "/follower/block", method = RequestMethod.PUT)
