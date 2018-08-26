@@ -27,6 +27,9 @@ public interface FriendRepository extends CrudRepository<Friend, Long> {
     @Query("select f from Friend f where f.user.username = :username and f.state in ('ACTIVE', 'PENDING', 'BLOCKED')")
     List<Friend> findActivePendingBlocked(@Param("username") String username);
 
+    @Query("select f from Friend f where f.user.username = :username and f.state in ('ACTIVE', 'BLOCKED')")
+    List<Friend> findActiveBlocked(@Param("username") String username);
+
     @Query("select f from Friend f where f.user.username = :username and f.state = :state")
     List<Friend> findByState(@Param("username") String username, @Param("state") Friend.State state);
 }

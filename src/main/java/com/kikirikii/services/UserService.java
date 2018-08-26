@@ -135,7 +135,13 @@ public class UserService {
     }
 
     public List<User> getUserFriends(User user) {
-        return friendRepository.findActivePendingBlocked(user.getUsername()).stream()
+        return friendRepository.findActiveBlocked(user.getUsername()).stream()
+                .map(f -> f.getSurrogate())
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getUserFriendsPending(User user) {
+        return friendRepository.findByState(user.getUsername(), Friend.State.PENDING).stream()
                 .map(f -> f.getSurrogate())
                 .collect(Collectors.toList());
     }

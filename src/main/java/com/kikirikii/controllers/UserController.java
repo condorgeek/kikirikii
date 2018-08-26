@@ -59,6 +59,13 @@ public class UserController {
         return userService.getUserFriends(user);
     }
 
+    @RequestMapping(value = "/friends/pending", method = RequestMethod.GET)
+    public List<User> getFriendsPending(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+
+        return userService.getUserFriendsPending(user);
+    }
+
     @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
     public void addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
