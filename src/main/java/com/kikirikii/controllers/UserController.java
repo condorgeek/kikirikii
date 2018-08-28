@@ -67,59 +67,67 @@ public class UserController {
     }
 
     @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
-    public void addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<User> addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.addFriend(user, surrogate);
+        return userService.getUserFriendsPending(user);
     }
 
+    // TODO need to return change in actual friend list as well....
     @RequestMapping(value = "/friend/accept", method = RequestMethod.PUT)
-    public void acceptFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<User> acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.acceptFriend(user, surrogate);
+        return userService.getUserFriendsPending(user);
     }
 
-    @RequestMapping(value = "/friend/block", method = RequestMethod.PUT)
-    public void blockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
-        User user = userService.getUser(userName);
-        User surrogate = userService.getUser(values.get("friend"));
-
-        userService.blockFriend(user, surrogate);
-    }
-
-    @RequestMapping(value = "/friend/unblock", method = RequestMethod.PUT)
-    public void unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
-        User user = userService.getUser(userName);
-        User surrogate = userService.getUser(values.get("friend"));
-
-        userService.unblockFriend(user, surrogate);
-    }
-
-    @RequestMapping(value = "/friend/cancel", method = RequestMethod.PUT)
-    public void cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
-        User user = userService.getUser(userName);
-        User surrogate = userService.getUser(values.get("friend"));
-
-        userService.cancelFriendRequest(user, surrogate);
-    }
-
+    // TODO need to return change in actual friend list as well....
     @RequestMapping(value = "/friend/ignore", method = RequestMethod.PUT)
-    public void ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<User> ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.ignoreFriendRequest(user, surrogate);
+        return userService.getUserFriendsPending(user);
+    }
+    @RequestMapping(value = "/friend/cancel", method = RequestMethod.PUT)
+    public List<User> cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.cancelFriendRequest(user, surrogate);
+        return userService.getUserFriendsPending(user);
+    }
+
+    @RequestMapping(value = "/friend/block", method = RequestMethod.PUT)
+    public List<User> blockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.blockFriend(user, surrogate);
+        return userService.getUserFriends(user);
+    }
+
+    @RequestMapping(value = "/friend/unblock", method = RequestMethod.PUT)
+    public List<User> unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        User user = userService.getUser(userName);
+        User surrogate = userService.getUser(values.get("friend"));
+
+        userService.unblockFriend(user, surrogate);
+        return userService.getUserFriends(user);
     }
 
     @RequestMapping(value = "/friend/delete", method = RequestMethod.PUT)
-    public void deleteFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<User> deleteFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.deleteFriend(user, surrogate);
+        return userService.getUserFriends(user);
     }
 
     @RequestMapping(value = "/followee/add", method = RequestMethod.PUT)
@@ -138,7 +146,6 @@ public class UserController {
         User surrogate = userService.getUser(values.get("followee"));
 
         userService.deleteFollowee(user, surrogate);
-
         return userService.getUserFollowees(user);
     }
 
