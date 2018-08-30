@@ -136,38 +136,34 @@ public class UserService {
 
     public List<User> getUserFriends(User user) {
         return friendRepository.findActiveBlocked(user.getUsername()).stream()
-                .map(f -> f.getSurrogate())
+                .map(Friend::getSurrogate)
                 .collect(Collectors.toList());
     }
 
     public List<User> getUserFriendsPending(User user) {
         return friendRepository.findByState(user.getUsername(), Friend.State.PENDING).stream()
-                .map(f -> f.getSurrogate())
+                .map(Friend::getSurrogate)
                 .collect(Collectors.toList());
     }
 
     public List<User> getUserFollowers(User user) {
         return followerRepository.findActiveBlockedFollowers(user.getUsername()).stream()
-                .map(f -> f.getUser())
+                .map(Follower::getUser)
                 .collect(Collectors.toList());
     }
 
-    public List<User> getUserFollowers(String username) {
-        return followerRepository.findActiveBlockedFollowers(username).stream()
-                .map(f -> f.getUser())
-                .collect(Collectors.toList());
+    public List<Follower> getFollowers(User user) {
+        return followerRepository.findActiveBlockedFollowers(user.getUsername());
     }
 
     public List<User> getUserFollowees(User user) {
         return followerRepository.findActiveBlockedFollowees(user.getUsername()).stream()
-                .map(f -> f.getSurrogate())
+                .map(Follower::getSurrogate)
                 .collect(Collectors.toList());
     }
 
-    public List<User> getUserFollowees(String username) {
-        return followerRepository.findActiveBlockedFollowees(username).stream()
-                .map(f -> f.getSurrogate())
-                .collect(Collectors.toList());
+    public List<Follower> getFollowees(User user) {
+        return followerRepository.findActiveBlockedFollowees(user.getUsername());
     }
 
     public Long getFriendsCount(String username) {
@@ -184,6 +180,16 @@ public class UserService {
 
         friendRepository.save(request);
         friendRepository.save(pending);
+    }
+
+    public boolean isFriend(User user, User surrogate) {
+        Optional<Friend> active = friendRepository.findBySurrogateActiveState(user.getUsername(), surrogate.getUsername());
+        return active.isPresent();
+    }
+
+    public boolean isFollowee(User user, User surrogate) {
+        Optional<Follower> active = followerRepository.findByUserSurrogateActiveState(user.getUsername(), surrogate.getUsername());
+        return active.isPresent();
     }
 
     public void acceptFriend(User user, User surrogate) {

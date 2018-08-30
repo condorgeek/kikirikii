@@ -1,6 +1,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -26,10 +27,12 @@ public class Follower {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonProperty("follower")
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonProperty("followee")
     @OneToOne
     @JoinColumn(name = "surrogate_id")
     private User surrogate;
@@ -41,6 +44,7 @@ public class Follower {
     @NotNull
     private Date created;
 
+    @JsonIgnore
     @NotNull
     private Date transitioned;
 

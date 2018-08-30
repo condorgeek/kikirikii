@@ -1,6 +1,8 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kikirikii.exceptions.DuplicateResourceException;
+import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,12 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
+        if(user.getUsername().equals(surrogate.getUsername())) {
+            throw new InvalidResourceException("User and friend cannot be equal");
+        } else if(userService.isFriend(user, surrogate)) {
+            throw new InvalidResourceException("Users are already friends");
+        }
+
         userService.addFriend(user, surrogate);
         return userService.getUserFriendsPending(user);
     }
@@ -135,48 +143,69 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("followee"));
 
-        userService.addFollowee(user, surrogate);
+        if(user.getUsername().equals(surrogate.getUsername())) {
+            throw new InvalidResourceException("User and followee cannot be equal");
+        } else if(userService.isFollowee(user, surrogate)) {
+            throw new InvalidResourceException("User is already a follower");
+        }
 
+        userService.addFollowee(user, surrogate);
         return userService.getUserFollowees(user);
     }
 
     @RequestMapping(value = "/followee/delete", method = RequestMethod.PUT)
-    public List<User> deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<Follower> deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("followee"));
 
         userService.deleteFollowee(user, surrogate);
-        return userService.getUserFollowees(user);
+        return userService.getFollowees(user);
     }
 
     @RequestMapping(value = "/follower/block", method = RequestMethod.PUT)
-    public void blockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<Follower> blockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("follower"));
 
         userService.blockFollower(user, surrogate);
+        return userService.getFollowers(user);
     }
 
     @RequestMapping(value = "/follower/unblock", method = RequestMethod.PUT)
-    public void unblockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<Follower> unblockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("follower"));
 
         userService.unblockFollower(user, surrogate);
+        return userService.getFollowers(user);
     }
 
-    @RequestMapping(value = "/followers", method = RequestMethod.GET)
-    public List<User> getFollowers(@PathVariable String userName) {
+    @RequestMapping(value = "/user/followers", method = RequestMethod.GET)
+    public List<User> getUserFollowers(@PathVariable String userName) {
         User user = userService.getUser(userName);
 
         return userService.getUserFollowers(user);
     }
 
-    @RequestMapping(value = "/followees", method = RequestMethod.GET)
-    public List<User> getFollowees(@PathVariable String userName) {
+    @RequestMapping(value = "/user/followees", method = RequestMethod.GET)
+    public List<User> getUserFollowees(@PathVariable String userName) {
         User user = userService.getUser(userName);
 
         return userService.getUserFollowees(user);
+    }
+
+    @RequestMapping(value = "/followers", method = RequestMethod.GET)
+    public List<Follower> getRawFollowers(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+
+        return userService.getFollowers(user);
+    }
+
+    @RequestMapping(value = "/followees", method = RequestMethod.GET)
+    public List<Follower> getRawFollowees(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+
+        return userService.getFollowees(user);
     }
 
     @RequestMapping(value = "/userdata", method = RequestMethod.GET)

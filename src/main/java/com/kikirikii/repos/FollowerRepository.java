@@ -23,6 +23,9 @@ public interface FollowerRepository extends CrudRepository<Follower, Long> {
     @Query("select f from Follower f where f.user.username = :username and f.surrogate.username = :surrogate and f.state = :state")
     Optional<Follower> findByUserSurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") Follower.State state);
 
+    @Query("select f from Follower f where f.user.username = :username and f.surrogate.username = :surrogate and f.state in('ACTIVE', 'BLOCKED')")
+    Optional<Follower> findByUserSurrogateActiveState(@Param("username") String username, @Param("surrogate") String surrogate);
+
     @Query("select f from Follower f where f.surrogate.username = :surrogate and f.state = :state")
     Optional<Follower> findBySurrogateAndState(@Param("surrogate") String surrogate, @Param("state") Follower.State state);
 
