@@ -139,7 +139,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/followee/add", method = RequestMethod.PUT)
-    public List<User> addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public List<Follower> addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("followee"));
 
@@ -150,7 +150,7 @@ public class UserController {
         }
 
         userService.addFollowee(user, surrogate);
-        return userService.getUserFollowees(user);
+        return userService.getFollowees(user);
     }
 
     @RequestMapping(value = "/followee/delete", method = RequestMethod.PUT)
