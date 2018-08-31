@@ -140,10 +140,18 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<Friend> getFriends(User user) {
+        return friendRepository.findActiveBlocked(user.getUsername());
+    }
+
     public List<User> getUserFriendsPending(User user) {
         return friendRepository.findByState(user.getUsername(), Friend.State.PENDING).stream()
                 .map(Friend::getSurrogate)
                 .collect(Collectors.toList());
+    }
+
+    public List<Friend> getFriendsPending(User user) {
+        return friendRepository.findByState(user.getUsername(), Friend.State.PENDING);
     }
 
     public List<User> getUserFollowers(User user) {

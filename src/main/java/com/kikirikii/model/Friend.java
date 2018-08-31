@@ -1,6 +1,8 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -39,6 +41,7 @@ public class Friend {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonProperty("friend")
     @OneToOne
     @JoinColumn(name = "surrogate_id")
     private User surrogate;
@@ -47,7 +50,6 @@ public class Friend {
     @Enumerated(EnumType.STRING)
     private State state;
 
-    @JsonIgnore
     @NotNull
     @Enumerated(EnumType.STRING)
     private Action action;
