@@ -97,17 +97,15 @@ public class UserController {
         return userService.getFriendsPending(user);
     }
 
-    // TODO need to return change in actual friend list as well....
+    /** returning single friend object ! */
     @RequestMapping(value = "/friend/accept", method = RequestMethod.PUT)
-    public List<Friend> acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        userService.acceptFriend(user, surrogate);
-        return userService.getFriendsPending(user);
+        return userService.acceptFriend(user, surrogate);
     }
 
-    // TODO need to return change in actual friend list as well....
     @RequestMapping(value = "/friend/ignore", method = RequestMethod.PUT)
     public List<Friend> ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -116,6 +114,7 @@ public class UserController {
         userService.ignoreFriendRequest(user, surrogate);
         return userService.getFriendsPending(user);
     }
+
     @RequestMapping(value = "/friend/cancel", method = RequestMethod.PUT)
     public List<Friend> cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);

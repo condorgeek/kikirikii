@@ -200,7 +200,7 @@ public class UserService {
         return active.isPresent();
     }
 
-    public void acceptFriend(User user, User surrogate) {
+    public Friend acceptFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
@@ -212,10 +212,12 @@ public class UserService {
                 active.get().setAction(Friend.Action.ACCEPTING);
                 passive.get().setAction(Friend.Action.ACCEPTED);
 
-                friendRepository.save(active.get());
                 friendRepository.save(passive.get());
+                return friendRepository.save(active.get());
             }
         }
+
+        throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
     public void blockFriend(User user, User surrogate) {
