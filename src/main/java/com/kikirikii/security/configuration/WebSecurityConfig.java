@@ -87,7 +87,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 AUTHENTICATION_URL,
                 REFRESH_TOKEN_URL,
                 PUBLIC_USER_URL,
-                VALIDATION_URL
+                VALIDATION_URL,
+                "/stomp/**"
         );
 
         http
@@ -98,14 +99,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-                .and()
-                .authorizeRequests()
-                .antMatchers(permitAllEndpointList.toArray(new String[permitAllEndpointList.size()]))
-                .permitAll()
-                .and()
-                .authorizeRequests()
-                .antMatchers(SECURE_ROOT_URL).authenticated() // Protected API End-points
+                .and().authorizeRequests().antMatchers(permitAllEndpointList.toArray(new String[permitAllEndpointList.size()])).permitAll()
+                .and().authorizeRequests().antMatchers(SECURE_ROOT_URL).authenticated() // Protected API End-points
                 .and()
                 .addFilterBefore(new CustomCorsFilter(SECURE_ROOT_URL), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(buildJwtAuthenticationFilter(AUTHENTICATION_URL), UsernamePasswordAuthenticationFilter.class)
