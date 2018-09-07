@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,10 +20,12 @@ public class WebSocketController {
     }
 
     @MessageMapping("/hello")
-    @SendTo("/topic/greetings")
-    public Map<String, String> greeting(Map<String, String> values) {
+    @SendToUser("/topic/greetings")
+    public Map<String, String> greeting(Principal principal, Map<String, String> values) {
         String message = values.get("message");
         String from = values.get("from");
+
+        logger.info("Message from " + principal.getName());
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Hello and greetings from " + from);
