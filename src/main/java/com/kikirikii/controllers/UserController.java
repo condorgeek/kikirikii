@@ -5,10 +5,13 @@ import com.kikirikii.exceptions.DuplicateResourceException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.services.UserService;
+import com.kikirikii.services.WebsocketService;
+import com.sun.tools.javac.util.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,6 +22,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private WebsocketService websocketService;
 
     @RequestMapping(value = "/posts/global", method = RequestMethod.GET)
     List<Post> getUserGlobalPosts(@PathVariable String userName) {
@@ -94,6 +100,11 @@ public class UserController {
         }
 
         userService.addFriend(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(),
+                entry.apply("event", Friend.Action.REQUESTED.name()),
+                entry.apply("message", user.getUsername() + " is requesting your friendship"));
+
         return userService.getFriendsPending(user);
     }
 
@@ -102,6 +113,10 @@ public class UserController {
     public Friend acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
+
+        websocketService.sendToUser(surrogate.getUsername(),
+                entry.apply("event", Friend.Action.ACCEPTED.name()),
+                entry.apply("message", user.getUsername() + " has accepted your friendship"));
 
         return userService.acceptFriend(user, surrogate);
     }
@@ -112,6 +127,11 @@ public class UserController {
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.ignoreFriendRequest(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(),
+                entry.apply("event", Friend.Action.IGNORED.name()),
+                entry.apply("message", user.getUsername() + " has ignored your friendship request"));
+
         return userService.getFriendsPending(user);
     }
 
@@ -121,6 +141,11 @@ public class UserController {
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.cancelFriendRequest(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(),
+                entry.apply("event", Friend.Action.CANCELLED.name()),
+                entry.apply("message", user.getUsername() + " has cancelled her friendship request"));
+
         return userService.getFriendsPending(user);
     }
 
@@ -317,6 +342,16 @@ public class UserController {
         }
     }
 
+    public class Property {
+        private String key;
+        private String value;
+
+        public Property() {}
+        public Property(String key, String value) {this.key = key; this.value = value;}
+        public String getKey() {return key;}
+        public String getValue() {return value;}
+    }
+
     private Function<MediaProspect[], Set<Media>> toMediaSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media)
                     .map(entry -> Media.of(entry.url, entry.type))
@@ -324,4 +359,7 @@ public class UserController {
 
     private Function<Media[], Set<Media>> toSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media).collect(Collectors.toSet()) : null;
+
+    private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;
+
 }
