@@ -1,12 +1,11 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kikirikii.exceptions.DuplicateResourceException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.Topic;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
-import com.sun.tools.javac.util.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,7 +100,7 @@ public class UserController {
 
         userService.addFriend(user, surrogate);
 
-        websocketService.sendToUser(surrogate.getUsername(),
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Friend.Action.REQUESTED.name()),
                 entry.apply("message", user.getUsername() + " is requesting your friendship"));
 
@@ -114,7 +113,7 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        websocketService.sendToUser(surrogate.getUsername(),
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Friend.Action.ACCEPTED.name()),
                 entry.apply("message", user.getUsername() + " has accepted your friendship"));
 
@@ -128,7 +127,7 @@ public class UserController {
 
         userService.ignoreFriendRequest(user, surrogate);
 
-        websocketService.sendToUser(surrogate.getUsername(),
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Friend.Action.IGNORED.name()),
                 entry.apply("message", user.getUsername() + " has ignored your friendship request"));
 
@@ -142,7 +141,7 @@ public class UserController {
 
         userService.cancelFriendRequest(user, surrogate);
 
-        websocketService.sendToUser(surrogate.getUsername(),
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Friend.Action.CANCELLED.name()),
                 entry.apply("message", user.getUsername() + " has cancelled her friendship request"));
 

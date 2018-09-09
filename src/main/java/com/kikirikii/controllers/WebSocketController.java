@@ -16,12 +16,12 @@ public class WebSocketController {
     private static Logger logger = LoggerFactory.getLogger(WebSocketController.class);
 
     public WebSocketController() {
-        logger.info("WebSocketController instantiated and waiting on /app/hello");
+        logger.info("WebSocketController instantiated and waiting on /app/message");
     }
 
-    @MessageMapping("/hello")
-    @SendToUser("/topic/greetings")
-    public Map<String, String> greeting(Principal principal, Map<String, String> values) {
+    @MessageMapping("/message")
+    @SendToUser("/topic/event/generic")
+    public Map<String, String> message(Principal principal, Map<String, String> values) {
         String message = values.get("message");
         String from = values.get("from");
 
