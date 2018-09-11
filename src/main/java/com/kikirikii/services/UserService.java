@@ -182,12 +182,14 @@ public class UserService {
         return followerRepository.countByUsername(username);
     }
 
-    public void addFriend(User user, User surrogate) {
+    public Friend addFriend(User user, User surrogate) {
         Friend request = Friend.of(user, surrogate, Friend.State.PENDING, Friend.Action.REQUESTING);
         Friend pending = Friend.of(surrogate, user, Friend.State.PENDING, Friend.Action.REQUESTED);
 
-        friendRepository.save(request);
+        Friend friend = friendRepository.save(request);
         friendRepository.save(pending);
+
+        return friend;
     }
 
     public boolean isFriend(User user, User surrogate) {

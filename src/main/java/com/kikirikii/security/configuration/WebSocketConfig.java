@@ -16,6 +16,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -72,7 +73,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, Applic
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                     accessor.setUser(authenticate(accessor));
-                    logger.info("CONNECT to " + accessor.getLogin());
+                    logger.info("CONNECT to " + simpUser.apply(accessor).getPrincipal() + "(" + accessor.getLogin() + ")");
 
                 } else if(StompCommand.DISCONNECT.equals(accessor.getCommand())) {
                     UsernamePasswordAuthenticationToken user = simpUser.apply(accessor);
@@ -104,13 +105,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, Applic
 
             return new UsernamePasswordAuthenticationToken(
                     subject, null,
-                    authorities);
+                    Collections.singleton((GrantedAuthority) () -> "ROLE_USER"));
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.info("WEBSOCKET authentication failed for " +
                     accessor.getLogin() + " " + e.getMessage());
+            throw new MessagingException("WEBSOCKET authentication failed for " +
+                    accessor.getLogin() + " " + e.getMessage());
         }
-        return null;
+//        return null;
     }
 
     private void dumpHeaders(Message<?> message, StompHeaderAccessor accessor) {
@@ -123,7 +127,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer, Applic
     @Deprecated
     private UsernamePasswordAuthenticationToken getPrincipal() {
         if (principal == null) {
-            // TODO should throw an exception and force a new client login ?
             this.principal = new UsernamePasswordAuthenticationToken(
                     UUID.randomUUID().toString(), null,
                     Collections.singleton((GrantedAuthority) () -> "ROLE_USER")

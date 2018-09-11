@@ -25,6 +25,7 @@ public class WebsocketService {
     }
 
     public void sendToUser(String username, Topic topic, AbstractMap.SimpleEntry<String, String>... messages) {
+
         template.convertAndSendToUser(username, topic.getPath(),
                 Arrays.stream(messages).collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue())));
     }

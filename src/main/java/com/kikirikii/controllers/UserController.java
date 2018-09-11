@@ -1,6 +1,7 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.Topic;
@@ -24,6 +25,9 @@ public class UserController {
 
     @Autowired
     private WebsocketService websocketService;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @RequestMapping(value = "/posts/global", method = RequestMethod.GET)
     List<Post> getUserGlobalPosts(@PathVariable String userName) {
@@ -98,11 +102,12 @@ public class UserController {
             throw new InvalidResourceException("Users are already friends");
         }
 
-        userService.addFriend(user, surrogate);
+        Friend friend = userService.addFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Friend.Action.REQUESTED.name()),
-                entry.apply("message", user.getUsername() + " is requesting your friendship"));
+                entry.apply("message", user.getUsername() + " is requesting your friendship"),
+                entry.apply("user", toJSON.apply(friend)));
 
         return userService.getFriendsPending(user);
     }
@@ -154,6 +159,11 @@ public class UserController {
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.blockFriend(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Friend.Action.BLOCKED.name()),
+                entry.apply("message", user.getUsername() + " has blocked you."));
+
         return userService.getFriends(user);
     }
 
@@ -163,6 +173,11 @@ public class UserController {
         User surrogate = userService.getUser(values.get("friend"));
 
         userService.unblockFriend(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Friend.Action.UNBLOCKED.name()),
+                entry.apply("message", user.getUsername() + " has unblocked you."));
+
         return userService.getFriends(user);
     }
 
@@ -361,4 +376,10 @@ public class UserController {
 
     private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;
 
+    Function<Object, String> toJSON = (o) -> {
+        try {
+            return mapper.writeValueAsString(o);
+        } catch (Exception e) {}
+        return null;
+    };
 }
