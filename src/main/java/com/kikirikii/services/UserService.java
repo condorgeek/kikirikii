@@ -5,10 +5,12 @@ import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.UserProspect;
 import com.kikirikii.repos.*;
+import com.sun.corba.se.impl.resolver.FileResolverImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -186,10 +188,8 @@ public class UserService {
         Friend request = Friend.of(user, surrogate, Friend.State.PENDING, Friend.Action.REQUESTING);
         Friend pending = Friend.of(surrogate, user, Friend.State.PENDING, Friend.Action.REQUESTED);
 
-        Friend friend = friendRepository.save(request);
-        friendRepository.save(pending);
-
-        return friend;
+        friendRepository.save(request);
+        return friendRepository.save(pending);
     }
 
     public boolean isFriend(User user, User surrogate) {
@@ -202,27 +202,30 @@ public class UserService {
         return active.isPresent();
     }
 
-    public Friend acceptFriend(User user, User surrogate) {
+    public List<Friend> acceptFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
         if(active.isPresent() && passive.isPresent()) {
             if(active.get().getAction() == Friend.Action.REQUESTED) {
+
+                List<Friend> friends = new ArrayList<>();
                 active.get().setState(Friend.State.ACTIVE);
                 passive.get().setState(Friend.State.ACTIVE);
 
                 active.get().setAction(Friend.Action.ACCEPTING);
                 passive.get().setAction(Friend.Action.ACCEPTED);
 
-                friendRepository.save(passive.get());
-                return friendRepository.save(active.get());
+                friends.add(friendRepository.save(active.get()));
+                friends.add(friendRepository.save(passive.get()));
+                return friends;
             }
         }
 
         throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
-    public void blockFriend(User user, User surrogate) {
+    public Friend blockFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.ACTIVE);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.ACTIVE);
 
@@ -234,11 +237,12 @@ public class UserService {
             passive.get().setAction(Friend.Action.BLOCKED);
 
             friendRepository.save(active.get());
-            friendRepository.save(passive.get());
+            return friendRepository.save(passive.get());
         }
+        return null;
     }
 
-    public void unblockFriend(User user, User surrogate) {
+    public Friend unblockFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.BLOCKED);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.BLOCKED);
 
@@ -251,12 +255,13 @@ public class UserService {
                 passive.get().setAction(Friend.Action.UNBLOCKED);
 
                 friendRepository.save(active.get());
-                friendRepository.save(passive.get());
+                return friendRepository.save(passive.get());
             }
         }
+        return null;
     }
 
-    public void cancelFriendRequest(User user, User surrogate) {
+    public Friend cancelFriendRequest(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
@@ -269,12 +274,13 @@ public class UserService {
                 passive.get().setAction(Friend.Action.CANCELLED);
 
                 friendRepository.save(active.get());
-                friendRepository.save(passive.get());
+                return friendRepository.save(passive.get());
             }
         }
+        return null;
     }
 
-    public void ignoreFriendRequest(User user, User surrogate) {
+    public Friend ignoreFriendRequest(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
@@ -287,12 +293,13 @@ public class UserService {
                 passive.get().setAction(Friend.Action.IGNORED);
 
                 friendRepository.save(active.get());
-                friendRepository.save(passive.get());
+                return friendRepository.save(passive.get());
             }
         }
+        return null;
     }
 
-    public void deleteFriend(User user, User surrogate) {
+    public Friend deleteFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(),
                 surrogate.getUsername(), Friend.State.ACTIVE);
         Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(),
@@ -306,22 +313,24 @@ public class UserService {
                 passive.get().setAction(Friend.Action.DELETED);
 
                 friendRepository.save(active.get());
-                friendRepository.save(passive.get());
+                return friendRepository.save(passive.get());
         }
+        return null;
     }
 
-    public void addFollowee(User user, User surrogate) {
+    public Follower addFollowee(User user, User surrogate) {
         Follower follower = Follower.of(user, surrogate, Follower.State.ACTIVE);
-        followerRepository.save(follower);
+        return followerRepository.save(follower);
     }
 
-    public void deleteFollowee(User user, User surrogate) {
-        Optional<Follower> opt = followerRepository.findByUserSurrogateAndState(user.getUsername(),
+    public Follower deleteFollowee(User user, User surrogate) {
+        Optional<Follower> follower = followerRepository.findByUserSurrogateAndState(user.getUsername(),
                 surrogate.getUsername(), Follower.State.ACTIVE);
-        opt.ifPresent(follower -> {
-            follower.setState(Follower.State.DELETED);
-            followerRepository.save(follower);
-        });
+       if(follower.isPresent()) {
+            follower.get().setState(Follower.State.DELETED);
+            return followerRepository.save(follower.get());
+        }
+        return null;
     }
 
     public void deleteFollowee(String username, String surrogate, Long id) {
@@ -334,13 +343,14 @@ public class UserService {
         });
     }
 
-    public void blockFollower(User user, User surrogate) {
-        Optional<Follower> opt = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
+    public Follower blockFollower(User user, User surrogate) {
+        Optional<Follower> follower = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
                 user.getUsername(), Follower.State.ACTIVE);
-        opt.ifPresent(follower -> {
-            follower.setState(Follower.State.BLOCKED);
-            followerRepository.save(follower);
-        });
+       if(follower.isPresent()) {
+            follower.get().setState(Follower.State.BLOCKED);
+            return followerRepository.save(follower.get());
+        }
+       return null;
     }
 
     public void blockFollower(String username, String surrogate, Long id) {
@@ -355,13 +365,14 @@ public class UserService {
         });
     }
 
-    public void unblockFollower(User user, User surrogate) {
-        Optional<Follower> opt = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
+    public Follower unblockFollower(User user, User surrogate) {
+        Optional<Follower> follower = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
                 user.getUsername(), Follower.State.BLOCKED);
-        opt.ifPresent(follower -> {
-            follower.setState(Follower.State.ACTIVE);
-            followerRepository.save(follower);
-        });
+        if(follower.isPresent()) {
+            follower.get().setState(Follower.State.ACTIVE);
+            return followerRepository.save(follower.get());
+        }
+        return null;
     }
 
     public void unblockFollower(String username, String surrogate, Long id) {

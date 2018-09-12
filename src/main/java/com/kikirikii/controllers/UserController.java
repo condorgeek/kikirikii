@@ -102,27 +102,30 @@ public class UserController {
             throw new InvalidResourceException("Users are already friends");
         }
 
-        Friend friend = userService.addFriend(user, surrogate);
+        Friend requested = userService.addFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
-                entry.apply("event", Friend.Action.REQUESTED.name()),
+                entry.apply("event", Event.EVENT_FRIEND_REQUESTED.name()),
                 entry.apply("message", user.getUsername() + " is requesting your friendship"),
-                entry.apply("user", toJSON.apply(friend)));
+                entry.apply("user", toJSON.apply(requested)));
 
         return userService.getFriendsPending(user);
     }
 
-    /** returning single friend object ! */
+    /** returning single friend object ! friends(0) - active, friends(1) - passive */
     @RequestMapping(value = "/friend/accept", method = RequestMethod.PUT)
     public Friend acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
-                entry.apply("event", Friend.Action.ACCEPTED.name()),
-                entry.apply("message", user.getUsername() + " has accepted your friendship"));
+        List<Friend> friends = userService.acceptFriend(user, surrogate);
 
-        return userService.acceptFriend(user, surrogate);
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Event.EVENT_FRIEND_ACCEPTED.name()),
+                entry.apply("message", user.getUsername() + " has accepted your friendship"),
+                entry.apply("user", toJSON.apply(friends.get(1))));
+
+        return friends.get(0);
     }
 
     @RequestMapping(value = "/friend/ignore", method = RequestMethod.PUT)
@@ -130,11 +133,12 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        userService.ignoreFriendRequest(user, surrogate);
+        Friend ignored = userService.ignoreFriendRequest(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
-                entry.apply("event", Friend.Action.IGNORED.name()),
-                entry.apply("message", user.getUsername() + " has ignored your friendship request"));
+                entry.apply("event", Event.EVENT_FRIEND_IGNORED.name()),
+                entry.apply("message", user.getUsername() + " has ignored your friendship request"),
+                entry.apply("user", toJSON.apply(ignored)));
 
         return userService.getFriendsPending(user);
     }
@@ -144,11 +148,12 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        userService.cancelFriendRequest(user, surrogate);
+        Friend cancelled = userService.cancelFriendRequest(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
-                entry.apply("event", Friend.Action.CANCELLED.name()),
-                entry.apply("message", user.getUsername() + " has cancelled her friendship request"));
+                entry.apply("event", Event.EVENT_FRIEND_CANCELLED.name()),
+                entry.apply("message", user.getUsername() + " has cancelled her friendship request"),
+                entry.apply("user", toJSON.apply(cancelled)));
 
         return userService.getFriendsPending(user);
     }
@@ -158,11 +163,12 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        userService.blockFriend(user, surrogate);
+        Friend blocked = userService.blockFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
-                entry.apply("event", Friend.Action.BLOCKED.name()),
-                entry.apply("message", user.getUsername() + " has blocked you."));
+                entry.apply("event", Event.EVENT_FRIEND_BLOCKED.name()),
+                entry.apply("message", user.getUsername() + " has blocked you."),
+                entry.apply("user", toJSON.apply(blocked)));
 
         return userService.getFriends(user);
     }
@@ -172,11 +178,12 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        userService.unblockFriend(user, surrogate);
+        Friend unblocked = userService.unblockFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
-                entry.apply("event", Friend.Action.UNBLOCKED.name()),
-                entry.apply("message", user.getUsername() + " has unblocked you."));
+                entry.apply("event", Event.EVENT_FRIEND_UNBLOCKED.name()),
+                entry.apply("message", user.getUsername() + " has unblocked you."),
+                entry.apply("user", toJSON.apply(unblocked)));
 
         return userService.getFriends(user);
     }
@@ -186,7 +193,13 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        userService.deleteFriend(user, surrogate);
+        Friend deleted = userService.deleteFriend(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Event.EVENT_FRIEND_DELETED.name()),
+                entry.apply("message", user.getUsername() + " has cancelled your friendship."),
+                entry.apply("user", toJSON.apply(deleted)));
+
         return userService.getFriends(user);
     }
 
@@ -201,7 +214,13 @@ public class UserController {
             throw new InvalidResourceException("User is already a follower");
         }
 
-        userService.addFollowee(user, surrogate);
+        Follower follower = userService.addFollowee(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Event.EVENT_FOLLOWER_ADDED.name()),
+                entry.apply("message", user.getUsername() + " is following you."),
+                entry.apply("follower", toJSON.apply(follower)));
+
         return userService.getFollowees(user);
     }
 
@@ -210,7 +229,13 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("followee"));
 
-        userService.deleteFollowee(user, surrogate);
+        Follower follower =userService.deleteFollowee(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Event.EVENT_FOLLOWER_DELETED.name()),
+                entry.apply("message", user.getUsername() + " has stopped following you."),
+                entry.apply("follower", toJSON.apply(follower)));
+
         return userService.getFollowees(user);
     }
 
@@ -219,7 +244,13 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("follower"));
 
-        userService.blockFollower(user, surrogate);
+        Follower follower = userService.blockFollower(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Event.EVENT_FOLLOWER_BLOCKED.name()),
+                entry.apply("message", user.getUsername() + " has blocked you."),
+                entry.apply("follower", toJSON.apply(follower)));
+
         return userService.getFollowers(user);
     }
 
@@ -228,7 +259,13 @@ public class UserController {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("follower"));
 
-        userService.unblockFollower(user, surrogate);
+        Follower follower = userService.unblockFollower(user, surrogate);
+
+        websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
+                entry.apply("event", Event.EVENT_FOLLOWER_UNBLOCKED.name()),
+                entry.apply("message", user.getUsername() + " has unblocked you."),
+                entry.apply("follower", toJSON.apply(follower)));
+
         return userService.getFollowers(user);
     }
 
