@@ -197,7 +197,7 @@ public class UserController {
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_DELETED.name()),
-                entry.apply("message", user.getUsername() + " has cancelled your friendship."),
+                entry.apply("message", user.getUsername() + " has deleted your friendship."),
                 entry.apply("user", toJSON.apply(deleted)));
 
         return userService.getFriends(user);
