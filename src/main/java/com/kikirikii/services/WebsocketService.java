@@ -30,5 +30,8 @@ public class WebsocketService {
                 Arrays.stream(messages).collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue())));
     }
 
+    public static Map<String, String> asMap(AbstractMap.SimpleEntry<String, String>... messages) {
+        return Arrays.stream(messages).collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue()));
+    }
 
 }
