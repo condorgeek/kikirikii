@@ -54,6 +54,10 @@ public class Friend {
     @Enumerated(EnumType.STRING)
     private Action action;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
+
     @NotNull
     private Date created;
 
@@ -135,5 +139,13 @@ public class Friend {
 
     public void setActioned(Date actioned) {
         this.actioned = actioned;
+    }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
     }
 }

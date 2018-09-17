@@ -185,8 +185,13 @@ public class UserService {
     }
 
     public Friend addFriend(User user, User surrogate) {
+
         Friend request = Friend.of(user, surrogate, Friend.State.PENDING, Friend.Action.REQUESTING);
         Friend pending = Friend.of(surrogate, user, Friend.State.PENDING, Friend.Action.REQUESTED);
+
+        Chat chat = Chat.of(request, pending);
+        request.setChat(chat);
+        pending.setChat(chat);
 
         friendRepository.save(request);
         return friendRepository.save(pending);
