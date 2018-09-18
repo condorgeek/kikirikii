@@ -67,4 +67,8 @@ public class Chat {
     public void setCreated(Date created) {
         this.created = created;
     }
+
+    public long getId() {
+        return id;
+    }
 }

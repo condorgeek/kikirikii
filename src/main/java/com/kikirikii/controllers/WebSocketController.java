@@ -1,9 +1,12 @@
 package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kikirikii.model.Chat;
+import com.kikirikii.model.ChatEntry;
 import com.kikirikii.model.Event;
 import com.kikirikii.model.User;
 import com.kikirikii.model.dto.Topic;
+import com.kikirikii.services.ChatService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
 import org.slf4j.Logger;
@@ -36,6 +39,9 @@ public class WebSocketController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ChatService chatService;
+
 
     public WebSocketController() {
         logger.info("WebSocketController instantiated and waiting on /app/message");
@@ -62,27 +68,24 @@ public class WebSocketController {
     @SuppressWarnings("unchecked")
     public Map<String, String> chat(Principal principal, Map<String, String> values) {
         String message = values.get("message");
-        String id = UUID.randomUUID().toString();
+
+        Chat chat = chatService.getChat( values.get("id"));
         User sendTo = userService.getUser(values.get("to"));
+
+        ChatEntry chatEntry = chatService.saveChatEntry(chat, principal.getName(), sendTo.getUsername(), message);
 
         websocketService.sendToUser(sendTo.getUsername(), Topic.CHAT,
                 entry.apply("event", Event.EVENT_CHAT_SIMPLE.name()),
-                entry.apply("id", id),
-                entry.apply("message", message),
-                entry.apply("from", principal.getName()));
+                entry.apply("data", toJSON.apply(chatEntry)));
 
         return WebsocketService.asMap(
                 entry.apply("event", Event.EVENT_CHAT_ACK.name()),
-                entry.apply("id", id),
-                entry.apply("to", sendTo.getUsername()),
-                entry.apply("from", principal.getName())
-        );
+                entry.apply("data", toJSON.apply(chatEntry)));
     }
-
 
     private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;
 
-    Function<Object, String> toJSON = (o) -> {
+    private Function<Object, String> toJSON = (o) -> {
         try {
             return mapper.writeValueAsString(o);
         } catch (Exception e) { // none }
