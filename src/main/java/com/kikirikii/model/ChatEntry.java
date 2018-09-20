@@ -97,4 +97,8 @@ public class ChatEntry {
     public void setTo(String to) {
         this.to = to;
     }
+
+    public long getId() {
+        return id;
+    }
 }
