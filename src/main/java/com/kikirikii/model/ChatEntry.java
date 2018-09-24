@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "chat_entries")
 public class ChatEntry {
 
-    public enum State {ACTIVE, DELETED}
+    public enum State {ACTIVE, DELIVERED, CONSUMED, DELETED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,12 +40,16 @@ public class ChatEntry {
     private ChatEntry() {}
 
     public static ChatEntry of(Chat chat, String from, String to, String text) {
+        return of(chat, from, to, text, State.ACTIVE);
+    }
+
+    public static ChatEntry of(Chat chat, String from, String to, String text, State state) {
         ChatEntry entry = new ChatEntry();
         entry.chat = chat;
         entry.text = text;
         entry.from = from;
         entry.to = to;
-        entry.state = State.ACTIVE;
+        entry.state = state;
         entry.created = new Date();
         return entry;
     }
@@ -70,8 +74,9 @@ public class ChatEntry {
         return state;
     }
 
-    public void setState(State state) {
+    public ChatEntry setState(State state) {
         this.state = state;
+        return this;
     }
 
     public Date getCreated() {

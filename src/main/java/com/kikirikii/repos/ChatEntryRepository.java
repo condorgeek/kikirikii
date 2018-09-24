@@ -10,9 +10,9 @@ import java.util.stream.Stream;
 
 public interface ChatEntryRepository extends CrudRepository<ChatEntry, Long> {
 
-    @Query("select c from ChatEntry c where c.chat.id = :chatid and c.state = 'ACTIVE' order by c.created asc")
+    @Query("select c from ChatEntry c where c.chat.id = :chatid and c.state in ('ACTIVE', 'CONSUMED', 'DELIVERED') order by c.created asc")
     List<ChatEntry> findAllByChatId(@Param("chatid") Long chatId);
 
-    @Query("select c from ChatEntry c where c.chat.id = :chatid and c.state = 'ACTIVE' order by c.created asc")
+    @Query("select c from ChatEntry c where c.chat.id = :chatid and c.state in ('ACTIVE', 'CONSUMED', 'DELIVERED') order by c.created asc")
     Stream<ChatEntry> findAllByChatIdAsStream(@Param("chatid") Long chatId);
 }

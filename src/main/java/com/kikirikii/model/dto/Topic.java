@@ -2,7 +2,7 @@ package com.kikirikii.model.dto;
 
 public enum Topic {
     GENERIC("/topic/event/generic"),
-    CHAT("/topic/chat/simple");
+    CHAT_SIMPLE("/topic/chat/simple");
 
     String path;
 

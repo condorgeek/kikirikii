@@ -23,8 +23,16 @@ public class ChatService {
     @Autowired
     private ChatEntryRepository chatEntryRepository;
 
+    public ChatEntry saveChatEntryAsDelivered(Chat chat, String from, String to, String message) {
+        return chatEntryRepository.save(ChatEntry.of(chat, from, to, message, ChatEntry.State.DELIVERED));
+    }
+
     public ChatEntry saveChatEntry(Chat chat, String from, String to, String message) {
         return chatEntryRepository.save(ChatEntry.of(chat, from, to, message));
+    }
+
+    public ChatEntry saveChatEntry(ChatEntry chatEntry) {
+        return chatEntryRepository.save(chatEntry);
     }
 
     public Chat getChat(String id) {
@@ -36,6 +44,17 @@ public class ChatService {
         } catch(Exception e) { /*empty*/ }
 
         throw new InvalidResourceException("Chat Id " + id + " is invalid.");
+    }
+
+    public ChatEntry getChatEntry(String id) {
+        try {
+            Optional<ChatEntry> chatEntry = chatEntryRepository.findById(new Long(id));
+            if(chatEntry.isPresent()) {
+                return chatEntry.get();
+            }
+        } catch (Exception e) {/* empty */}
+
+        throw new InvalidResourceException("ChatEntry Id " + id + " is invalid.");
     }
 
     public List<ChatEntry> getChatEntries(Chat chat) {
