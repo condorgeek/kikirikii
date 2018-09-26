@@ -30,6 +30,12 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     private State state;
 
+//    @Transient TODO
+    private long delivered;
+
+//    @Transient TODO
+    private long consumed;
+
     @NotNull
     private Date created;
 
@@ -66,6 +72,32 @@ public class Chat {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public long getDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(long delivered) {
+        this.delivered = delivered;
+    }
+
+    public long getConsumed() {
+        return consumed;
+    }
+
+    public void setConsumed(long consumed) {
+        this.consumed = consumed;
+    }
+
+    public Chat incrementConsumed() {
+        ++this.consumed;
+        return this;
+    }
+
+    public Chat incrementDelivered() {
+        ++this.delivered;
+        return this;
     }
 
     public long getId() {

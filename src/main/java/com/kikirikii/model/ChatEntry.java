@@ -1,7 +1,5 @@
 package com.kikirikii.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -30,7 +28,6 @@ public class ChatEntry {
     private String text;
 
     @NotNull
-    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private State state;
 

@@ -9,10 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * DELIVERED - the chat entry has been delivered but not read yet
+ * CONSUMED - the chat entry has been delivered and read
+ *
+ * EVENT_CHAT_DELIVERED - client incoming chat entry
+ * EVENT_CHAT_DELIVERED_ACK - client outgoing chat entry
+ */
 @Service
 @Transactional
 public class ChatService {
@@ -61,7 +68,19 @@ public class ChatService {
         return chatEntryRepository.findAllByChatId(chat.getId());
     }
 
+    public Long getDeliveredToCount(Long id, String username) {
+        return chatEntryRepository.countDeliveredToByChatId(id, username);
+    }
+
+    public Long getConsumedFromCount(Long id, String username) {
+        return chatEntryRepository.countConsumedFromByChatId(id, username);
+    }
+
     public Stream<ChatEntry> getChatEntriesAsStream(Chat chat) {
         return chatEntryRepository.findAllByChatIdAsStream(chat.getId());
+    }
+
+    public static Map<String, String> asMap(AbstractMap.SimpleEntry<String, String>... messages) {
+        return Arrays.stream(messages).collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue()));
     }
 }

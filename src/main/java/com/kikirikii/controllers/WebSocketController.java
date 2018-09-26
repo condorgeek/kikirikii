@@ -70,8 +70,8 @@ public class WebSocketController {
         Chat chat = chatService.getChat(values.get("id"));
         User sendTo = userService.getUser(values.get("to"));
 
-        ChatEntry chatEntry = chatService.saveChatEntryAsDelivered(chat, principal.getName(), sendTo.getUsername(),
-                message);
+        ChatEntry chatEntry = chatService.saveChatEntryAsDelivered(chat.incrementDelivered(),
+                principal.getName(), sendTo.getUsername(), message);
 
         websocketService.sendToUser(sendTo.getUsername(), Topic.CHAT_SIMPLE,
                 entry.apply("event", Event.EVENT_CHAT_DELIVERED.name()),
@@ -85,20 +85,26 @@ public class WebSocketController {
     @MessageMapping("/chat/consume")
     @SendToUser("/topic/chat/simple")
     @SuppressWarnings("unchecked")
-    public Map<String, String> consumeChatEntry(Principal principal, Map<String, String> values) {
+//    public Map<String, String> consumeChatEntry(Principal principal, Map<String, String> values) {
+    public void consumeChatEntry(Principal principal, Map<String, String> values) {
         Chat chat = chatService.getChat(values.get("id"));
+        User sendTo = userService.getUser(values.get("to"));
 
         ChatEntry chatEntry = chatService.getChatEntry(values.get("entryId"));
         chatEntry = chatService.saveChatEntry(chatEntry.setState(ChatEntry.State.CONSUMED));
 
         // TODO Chat: store simple username strings instead of full friend entities
-//        websocketService.sendToUser(chat.getSurrogate().getUser().getUsername(), Topic.CHAT_SIMPLE,
-//                entry.apply("event", Event.EVENT_CHAT_CONSUMED.name()),
-//                entry.apply("data", toJSON.apply(chatEntry)));
+        websocketService.sendToUser(sendTo.getUsername(), Topic.CHAT_SIMPLE,
+                entry.apply("event", Event.EVENT_CHAT_CONSUMED.name()),
+                entry.apply("data", toJSON.apply(chatEntry)));
 
-        return WebsocketService.asMap(
+        websocketService.sendToUser(principal.getName(), Topic.CHAT_SIMPLE,
                 entry.apply("event", Event.EVENT_CHAT_CONSUMED_ACK.name()),
                 entry.apply("data", toJSON.apply(chatEntry)));
+
+//        return WebsocketService.asMap(
+//                entry.apply("event", Event.EVENT_CHAT_CONSUMED_ACK.name()),
+//                entry.apply("data", toJSON.apply(chatEntry)));
     }
 
     private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;

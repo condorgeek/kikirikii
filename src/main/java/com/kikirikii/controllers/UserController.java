@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.Topic;
+import com.kikirikii.services.ChatService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ChatService chatService;
 
     @Autowired
     private WebsocketService websocketService;
@@ -74,7 +78,12 @@ public class UserController {
     public List<Friend> getFriends(@PathVariable String userName) {
         User user = userService.getUser(userName);
 
-        return userService.getFriends(user);
+        return userService.getFriends(user).stream().map(friend -> {
+            Chat chat = friend.getChat();
+            chat.setConsumed(chatService.getConsumedFromCount(chat.getId(), user.getUsername()));
+            chat.setDelivered(chatService.getDeliveredToCount(chat.getId(), user.getUsername()));
+            return friend;
+        }).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/user/friends/pending", method = RequestMethod.GET)

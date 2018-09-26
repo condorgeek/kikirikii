@@ -1,5 +1,6 @@
 package com.kikirikii.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.model.Chat;
 import com.kikirikii.model.ChatEntry;
 import com.kikirikii.model.Event;
@@ -9,7 +10,10 @@ import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -23,28 +27,45 @@ public class ChatController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     @RequestMapping(value = "/chat/{chatId}/entries", method = RequestMethod.GET)
-    List<ChatEvent> getChatEntries(@PathVariable String userName, @PathVariable String chatId) {
+    List<ChatEvent<ChatEntry>> getChatEntries(@PathVariable String userName, @PathVariable String chatId) {
 
         User user = userService.getUser(userName);
         Chat chat = chatService.getChat(chatId);
 
         return chatService.getChatEntries(chat).stream()
                 .map(entry -> {
-                    String event = entry.getFrom().equals(user.getUsername()) ? Event.EVENT_CHAT_ACK.name() : Event.EVENT_CHAT_SIMPLE.name();
-                    return new ChatEvent(event, entry);
+                    String event = entry.getFrom().equals(user.getUsername()) ? Event.EVENT_CHAT_DELIVERED_ACK.name() : Event.EVENT_CHAT_DELIVERED.name();
+                    return new ChatEvent<>(event, entry);
                 })
                 .collect(Collectors.toList());
+
     }
 
-    class ChatEvent {
+    @RequestMapping(value = "/chat/{chatId}/count", method = RequestMethod.GET)
+    @SuppressWarnings("unchecked")
+    ChatEvent<Chat> getChatCount(@PathVariable String userName, @PathVariable String chatId) {
+
+        User user = userService.getUser(userName);
+        Chat chat = chatService.getChat(chatId);
+
+        chat.setConsumed(chatService.getConsumedFromCount(chat.getId(), user.getUsername()));
+        chat.setDelivered(chatService.getDeliveredToCount(chat.getId(), user.getUsername()));
+
+        return new ChatEvent<>(Event.EVENT_CHAT_COUNT.name(), chat);
+    }
+
+    class ChatEvent <T>{
         private String event;
-        private ChatEntry data;
+        private T data;
 
         public ChatEvent() {
         }
 
-        public ChatEvent(String event, ChatEntry data) {
+        public ChatEvent(String event, T data) {
             this.event = event;
             this.data = data;
         }
@@ -57,12 +78,22 @@ public class ChatController {
             this.event = event;
         }
 
-        public ChatEntry getData() {
+        public T getData() {
             return data;
         }
 
-        public void setData(ChatEntry data) {
+        public void setData(T data) {
             this.data = data;
         }
     }
+
+    private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;
+
+    private Function<Object, String> toJSON = (o) -> {
+        try {
+            return mapper.writeValueAsString(o);
+        } catch (Exception e) { // none }
+            return null;
+        }
+    };
 }
