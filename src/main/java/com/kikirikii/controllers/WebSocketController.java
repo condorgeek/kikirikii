@@ -85,8 +85,7 @@ public class WebSocketController {
     @MessageMapping("/chat/consume")
     @SendToUser("/topic/chat/simple")
     @SuppressWarnings("unchecked")
-//    public Map<String, String> consumeChatEntry(Principal principal, Map<String, String> values) {
-    public void consumeChatEntry(Principal principal, Map<String, String> values) {
+    public Map<String, String> consumeChatEntry(Principal principal, Map<String, String> values) {
         Chat chat = chatService.getChat(values.get("id"));
         User sendTo = userService.getUser(values.get("to"));
 
@@ -98,13 +97,9 @@ public class WebSocketController {
                 entry.apply("event", Event.EVENT_CHAT_CONSUMED.name()),
                 entry.apply("data", toJSON.apply(chatEntry)));
 
-        websocketService.sendToUser(principal.getName(), Topic.CHAT_SIMPLE,
+        return WebsocketService.asMap(
                 entry.apply("event", Event.EVENT_CHAT_CONSUMED_ACK.name()),
                 entry.apply("data", toJSON.apply(chatEntry)));
-
-//        return WebsocketService.asMap(
-//                entry.apply("event", Event.EVENT_CHAT_CONSUMED_ACK.name()),
-//                entry.apply("data", toJSON.apply(chatEntry)));
     }
 
     private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;
