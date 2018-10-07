@@ -14,6 +14,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -41,9 +42,11 @@ public class Post {
     private User user;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Where(clause = "state = 'ACTIVE'")
     private Set<Media> media = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Where(clause = "state = 'ACTIVE'")
     private Set<Like> likes = new HashSet<>();
 
     @JsonIgnore
@@ -88,7 +91,8 @@ public class Post {
 
     public Post removeMedia(Media media) {
         this.media.remove(media);
-        media.setPost(null);
+//        media.setPost(null);
+        media.setState(Media.State.DELETED);
         return this;
     }
 
@@ -99,8 +103,9 @@ public class Post {
     }
 
     public Post removeLike(Like like) {
-        this.likes.remove(like);
-        like.setPost(null);
+//        this.likes.remove(like);
+//        like.setPost(null);
+        like.setState(Like.State.DELETED);
         return this;
     }
 

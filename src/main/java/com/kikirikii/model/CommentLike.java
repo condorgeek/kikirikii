@@ -23,6 +23,8 @@ import java.util.Date;
 @Table(name = "comment_likes")
 public class CommentLike {
 
+    public enum State {ACTIVE, DELETED}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -35,6 +37,10 @@ public class CommentLike {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private State state;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -55,6 +61,7 @@ public class CommentLike {
         like.comment = comment;
         like.user = user;
         like.reaction = reaction;
+        like.state = State.ACTIVE;
         like.created = new Date();
         return like;
     }
@@ -85,6 +92,14 @@ public class CommentLike {
 
     public void setReaction(LikeReaction reaction) {
         this.reaction = reaction;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public Date getCreated() {

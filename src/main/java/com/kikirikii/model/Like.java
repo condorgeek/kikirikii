@@ -23,6 +23,8 @@ import java.util.Date;
 @Table(name = "post_likes")
 public class Like {
 
+    public enum State {ACTIVE, DELETED}
+
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private long id;
@@ -40,6 +42,9 @@ public class Like {
     @Enumerated(EnumType.STRING)
     private LikeReaction reaction;
 
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     @NotNull
     private Date created;
 
@@ -54,6 +59,7 @@ public class Like {
         like.post = post;
         like.user = user;
         like.reaction = reaction;
+        like.state = State.ACTIVE;
         like.created = new Date();
         return like;
     }
@@ -84,6 +90,14 @@ public class Like {
 
     public void setReaction(LikeReaction reaction) {
         this.reaction = reaction;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 
     public Date getCreated() {

@@ -43,10 +43,12 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     private State state;
 
-//    @Transient TODO
+    @Transient
+    /* dynamic value - not saved */
     private long delivered;
 
-//    @Transient TODO
+    @Transient
+    /* dynamic value - not saved */
     private long consumed;
 
     @NotNull

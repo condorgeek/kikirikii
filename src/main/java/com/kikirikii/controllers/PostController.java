@@ -42,26 +42,41 @@ public class PostController {
     }
 
     @RequestMapping(value = "/comments/{postId}", method = RequestMethod.POST)
-    public Comment addComment(@PathVariable String userName, @PathVariable Long postId, @RequestBody AddComment addComment) {
-        User user = userService.getUser(addComment.getUsername());
-        return postService.addComment(user, postId, addComment.text);
+    public Comment addComment(@PathVariable String userName, @PathVariable Long postId, @RequestBody CommentRequest commentRequest) {
+        User user = userService.getUser(commentRequest.getUsername());
+        return postService.addComment(user, postId, commentRequest.text);
     }
 
     @RequestMapping(value = "/likes/{postId}", method = RequestMethod.POST)
-    public List<Like> addLike(@PathVariable String userName, @PathVariable Long postId, @RequestBody AddLike addLike) {
+    public List<Like> addLike(@PathVariable String userName, @PathVariable Long postId, @RequestBody LikeRequest addLike) {
         User user = userService.getUser(addLike.getUsername());
 
         return postService.addLike(user, postId, addLike.getReaction());
     }
 
+    @RequestMapping(value = "/likes/{postId}/remove/{likeId}", method = RequestMethod.DELETE)
+    public List<Like> removeLike(@PathVariable String userName, @PathVariable Long postId,
+                                 @PathVariable Long likeId) {
+        User user = userService.getUser(userName);
+
+        return postService.removeLike(user, postId, likeId);
+    }
+
     @RequestMapping(value = "/commentlikes/{commentId}", method =  RequestMethod.POST)
-    public List<CommentLike> addCommentLike(@PathVariable String userName, @PathVariable Long commentId, @RequestBody AddLike addCommentLike) {
+    public List<CommentLike> addCommentLike(@PathVariable String userName, @PathVariable Long commentId, @RequestBody LikeRequest addCommentLike) {
         User user = userService.getUser(addCommentLike.getUsername());
 
         return postService.addCommentLike(user, commentId, addCommentLike.getReaction());
     }
 
-    static class AddLike {
+    @RequestMapping(value = "/commentlikes/{commentId}/remove/{likeId}", method = RequestMethod.DELETE)
+    public List<CommentLike> removeCommentLike(@PathVariable String userName, @PathVariable Long commentId, @PathVariable Long likeId) {
+        User user = userService.getUser(userName);
+
+        return postService.removeCommentLike(user, commentId, likeId);
+    }
+
+    static class LikeRequest {
         private String username;
 
         @Enumerated(EnumType.STRING)
@@ -85,7 +100,7 @@ public class PostController {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class AddComment {
+    static class CommentRequest {
         private String text;
         private String username;
 

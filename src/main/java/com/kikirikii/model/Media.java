@@ -22,7 +22,8 @@ import javax.validation.constraints.NotNull;
 @Table(name = "media")
 public class Media {
 
-    public enum Type {PICTURE, VIDEO, SOUND, YOUTUBE, VIMEO, SOUNDCLOUD, SPOTTIFY}
+    public enum Type {PICTURE, VIDEO, SOUND, YOUTUBE, VIMEO, SOUNDCLOUD, SPOTIFY}
+    public enum State {ACTIVE, DELETED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +42,10 @@ public class Media {
     @JsonIgnore
     private String username;
 
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private Type type;
@@ -56,6 +61,7 @@ public class Media {
         media.post = post;
         media.url = url;
         media.type = type;
+        media.state = State.ACTIVE;
         return media;
     }
 
@@ -101,5 +107,13 @@ public class Media {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 }

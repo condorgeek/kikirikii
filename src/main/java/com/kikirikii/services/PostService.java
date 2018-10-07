@@ -13,8 +13,11 @@
 
 package com.kikirikii.services;
 
+import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
+import com.kikirikii.repos.CommentLikeRepository;
 import com.kikirikii.repos.CommentRepository;
+import com.kikirikii.repos.LikeRepository;
 import com.kikirikii.repos.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,12 @@ public class PostService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
+
     public List<Comment> getCommentsByPostId(Long postId) {
         return commentRepository.findAllByPostId(postId).collect(Collectors.toList());
     }
@@ -44,6 +53,22 @@ public class PostService {
         assert post.isPresent() : "PostId not found " + postId;
 
         return post.get();
+    }
+
+    public Like getLike(Long likeId) {
+        Optional<Like> like = likeRepository.findById(likeId);
+        if (like.isPresent()) {
+            return like.get();
+        }
+        throw new InvalidResourceException("Cannot find like " + likeId);
+    }
+
+    public CommentLike getCommentLike(Long likeId) {
+        Optional<CommentLike> like = commentLikeRepository.findById(likeId);
+        if (like.isPresent()) {
+            return like.get();
+        }
+        throw new InvalidResourceException("Cannot find comment like " + likeId);
     }
 
     public Comment getComment(Long commentId) {
@@ -62,6 +87,22 @@ public class PostService {
         post.addLike(Like.of(user, type));
 
         return new ArrayList<>(postRepository.save(post).getLikes());
+    }
+
+    public List<Like> removeLike(User user, Long postId, Long likeId) {
+        Post post = getPost(postId);
+        post.removeLike(getLike(likeId));
+
+        postRepository.save(post);
+
+        return likeRepository.findAllActiveByPostId(postId);
+    }
+
+    public List<CommentLike> removeCommentLike(User user, Long commentId, Long likeId) {
+        Comment comment = getComment(commentId);
+        comment.removeLike(getCommentLike(likeId));
+
+        return new ArrayList<>(commentRepository.save(comment).getLikes());
     }
 
     public List<CommentLike> addCommentLike(User user, Long commentId, LikeReaction reaction) {

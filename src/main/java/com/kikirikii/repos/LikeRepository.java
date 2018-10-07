@@ -18,10 +18,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public interface LikeRepository extends CrudRepository<Like, Long> {
 
     @Query("select l from Like l where l.post.id = :postId")
     Stream<Like> findAllByPostId(@Param("postId") Long postId);
+
+    @Query("select l from Like l where l.post.id = :postId and l.state = 'ACTIVE'")
+    List<Like> findAllActiveByPostId(@Param("postId") Long postId);
 }
