@@ -91,18 +91,18 @@ public class PostService {
 
     public List<Like> removeLike(User user, Long postId, Long likeId) {
         Post post = getPost(postId);
-        post.removeLike(getLike(likeId));
+        post.deleteLike(getLike(likeId));
 
         postRepository.save(post);
-
         return likeRepository.findAllActiveByPostId(postId);
     }
 
     public List<CommentLike> removeCommentLike(User user, Long commentId, Long likeId) {
         Comment comment = getComment(commentId);
-        comment.removeLike(getCommentLike(likeId));
+        comment.deleteLike(getCommentLike(likeId));
 
-        return new ArrayList<>(commentRepository.save(comment).getLikes());
+        commentRepository.save(comment);
+        return commentLikeRepository.findAllActiveByCommentId(commentId);
     }
 
     public List<CommentLike> addCommentLike(User user, Long commentId, LikeReaction reaction) {

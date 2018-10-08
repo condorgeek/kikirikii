@@ -103,8 +103,13 @@ public class Post {
     }
 
     public Post removeLike(Like like) {
-//        this.likes.remove(like);
-//        like.setPost(null);
+        this.likes.remove(like);
+        like.setPost(null);
+        return this;
+    }
+
+    /* soft delete - requires re-reading like list */
+    public Post deleteLike(Like like) {
         like.setState(Like.State.DELETED);
         return this;
     }

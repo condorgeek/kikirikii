@@ -76,7 +76,12 @@ public class Comment {
 
     public Comment removeLike(CommentLike like) {
         this.likes.remove(like);
-//        like.setComment(null);
+        like.setComment(null);
+        return this;
+    }
+
+    /* soft delete - requires rereading comment like list */
+    public Comment deleteLike(CommentLike like) {
         like.setState(CommentLike.State.DELETED);
         return this;
     }
