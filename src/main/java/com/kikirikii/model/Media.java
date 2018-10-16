@@ -42,7 +42,6 @@ public class Media {
     @JsonIgnore
     private String username;
 
-    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private State state;
 
