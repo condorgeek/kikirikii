@@ -55,11 +55,14 @@ public class UserService {
     }
 
     public User getUser(String username) {
+        try {
+            Optional<User> user = userRepository.findByUsername(username);
+            if (user.isPresent()) {
+                return user.get();
+            }
+        } catch (Exception e) { /*empty*/ }
 
-        Optional<User> user = userRepository.findByUsername(username);
-        assert user.isPresent() : "Invalid username " + username;
-
-        return user.get();
+        throw new InvalidResourceException("User " + username + " is invalid.");
     }
 
     public Optional<User> findByUsername(String username) {

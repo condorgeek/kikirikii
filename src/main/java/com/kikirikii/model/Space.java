@@ -14,21 +14,37 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
+/**
+ *
+ * The quality of spaces does not come by design: it can only emerge during the process of making. We experience
+ * beauty in space when we see that everything around has arisen by careful choice and restless consideration of
+ * both the place and our own self. We are interested in the process of fine-tuning that creates a place: i
+ * n a short-term "project" scenario, and in the longer-term, and truly "evolutionary."
+ *
+ * public access - anonymous, automatic joining
+ * restricted access - by invitation, needs confirmation
+ *      JOIN REQUEST -> PENDING -> CONFIRMED
+ */
+
 @Entity
 @Table(name = "spaces")
 public class Space {
 
-    public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, DATING, GROUP}
+    public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, DATING}
+    public enum State {ACTIVE, BLOCKED, DELETED}
+    public enum Access {PUBLIC, RESTRICTED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+//    @JsonProperty("owner")
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -41,8 +57,17 @@ public class Space {
     @NotNull
     private String description;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private Type type;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Access access;
 
     @NotNull
     private Date created;
@@ -51,16 +76,22 @@ public class Space {
     }
 
     public static Space of(User user, String name, String description, Type type) {
-        return of(user, name, null, description, type);
+        return of(user, name, null, description, type, Access.PUBLIC);
     }
 
-    public static Space of(User user, String name, String cover, String description, Type type) {
+    public static Space of(User user, String name, String description, Type type, Access access) {
+        return of(user, name, null, description, type, access);
+    }
+
+    public static Space of(User user, String name, String cover, String description, Type type, Access access) {
         Space space = new Space();
         space.user = user;
         space.name = name;
         space.cover = cover;
         space.description = description;
         space.type = type;
+        space.access = access;
+        space.state = State.ACTIVE;
         space.created = new Date();
         return space;
     }
@@ -115,5 +146,21 @@ public class Space {
 
     public void setCover(String cover) {
         this.cover = cover;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public Access getAccess() {
+        return access;
+    }
+
+    public void setAccess(Access access) {
+        this.access = access;
     }
 }

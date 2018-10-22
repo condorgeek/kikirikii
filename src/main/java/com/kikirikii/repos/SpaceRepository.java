@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -31,4 +32,16 @@ public interface SpaceRepository extends CrudRepository<Space, Long> {
 
     @Query("select s from Space s where s.user.id = :userId and s.type not in ('GLOBAL', 'HOME')")
     Stream<Space> findAllByUserId(@Param("userId") Long userId);
+
+    /* find PUBLIC and RESTRICTED access */
+    @Query("select s from Space s where s.user.id = :userId and s.state = 'ACTIVE' and s.type = 'GENERIC'")
+    List<Space> findActiveByUserId(@Param("userId") Long userId);
+
+    /* find PUBLIC and RESTRICTED access */
+    @Query("select s from Space s where s.user.id = :userId and s.state = 'ACTIVE' and s.type = 'EVENT'")
+    List<Space> findActiveEventsByUserId(@Param("userId") Long userId);
+
+    /* find PUBLIC and RESTRICTED access */
+    @Query("select s from Space s where s.user.id = :userId and s.state = 'ACTIVE' and s.type = 'SHOP'")
+    List<Space> findActiveShopsByUserId(@Param("userId") Long userId);
 }

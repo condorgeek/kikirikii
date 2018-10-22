@@ -15,6 +15,7 @@ package com.kikirikii;
 
 import com.kikirikii.model.*;
 import com.kikirikii.repos.*;
+import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,6 +64,9 @@ public class PersistenceTests {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SpaceService spaceService;
 
     @Test
     @Transactional
@@ -146,7 +150,7 @@ public class PersistenceTests {
         spaceRepository.save(Space.of(lapaz,
                 "Some Marga's Space",
                 "This is a place for Marga, friends and followers",
-                Space.Type.GENERIC));
+                Space.Type.GENERIC, Space.Access.RESTRICTED));
 
         Stream<Space> spaces = spaceRepository.findAllByUserId(london.getId());
         Assert.assertEquals(1, spaces.count());
@@ -159,6 +163,56 @@ public class PersistenceTests {
 
         Optional<Space> global = spaceRepository.findGlobalSpace(lapaz.getId());
         Assert.assertTrue(global.isPresent());
+    }
+
+    @Test
+    @Transactional
+    public void createSpaceMembers() {
+        User london = userRepository.save(User.of("jack.london@testmail.com", "London", "Jack", "London", "password"));
+        User hans = userRepository.save(User.of("hans.munich@testmail.com", "Munich", "Hans", "Munich", "password"));
+        User maria = userRepository.save(User.of("maria.hamburg@testmail.com", "Hamburg", "Maria", "Hamburg", "password"));
+        User luisa = userRepository.save(User.of("luisa.brighton@testmail.com", "Brighton", "Luisa", "Brighton", "password"));
+        User jack = userRepository.save(User.of("jack.lustig@testmail.com", "Jack", "Jack", "Lustig", "password"));
+
+        Space playground = spaceService.createGenericSpace(london, "Children Playground", "For children under 8", "PUBLIC");
+        Space space = spaceService.createGenericSpace(london, "City of London", "Friends of London", "PUBLIC");
+        Space salsaclub = spaceService.createGenericSpace(maria, "Salsa Club", "Salsa Dancers all ages", "PUBLIC");
+
+        List<Space> londonSpaces = spaceService.getGenericSpacesByUser(london.getId());
+        List<Space> mariaSpaces = spaceService.getGenericSpacesByUser(maria.getId());
+
+        Assert.assertEquals(2, londonSpaces.size());
+        Assert.assertEquals(1, mariaSpaces.size());
+
+        spaceService.createSpaceCombined(jack, "Jacks's Space", "A funny space", "PUBLIC");
+        List<Space> spaces = spaceService.getGenericSpacesByUser(jack.getId());
+        Assert.assertEquals(1, spaces.size());
+
+        List<Member> members = spaceService.getMembersBySpace(spaces.get(0).getId());
+        Assert.assertEquals(1, members.size());
+        Assert.assertEquals(Member.Role.OWNER, members.get(0).getRole());
+
+        spaceService.addMember(space, london, london, "OWNER");
+        spaceService.addMember(space, hans, london, "MEMBER");
+        spaceService.addMember(space, luisa, london, "MEMBER");
+        spaceService.addMember(space, maria, london, "MEMBER");
+
+        spaceService.addMember(playground, london, london, "OWNER");
+        spaceService.addMember(playground, maria, london, "MEMBER");
+
+        spaceService.addMember(salsaclub, maria, maria, "OWNER");
+        spaceService.addMember(salsaclub, hans, london, "MEMBER");
+        spaceService.addMember(salsaclub, luisa, london, "MEMBER");
+
+        members = spaceService.getMembersBySpace(space.getId());
+        Assert.assertEquals(4, members.size());
+
+        members = spaceService.getMembersBySpace(playground.getId());
+        Assert.assertEquals(2, members.size());
+
+        members = spaceService.getMembersBySpace(salsaclub.getId());
+        Assert.assertEquals(3, members.size());
+
     }
 
     @Test
