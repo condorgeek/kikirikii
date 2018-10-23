@@ -15,6 +15,7 @@ package com.kikirikii;
 
 import com.kikirikii.model.*;
 import com.kikirikii.repos.*;
+import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -75,13 +77,27 @@ public class PersistenceInit {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SpaceService spaceService;
+
     @Test
     public void init() {
         logger.info("Init database with test data");
 
         createUsersAndSpaces();
-        createFriendsForUser("amaru.london", new String[]{"julia.jobs", "marc.shell", "peter.hummel", "anita.huebsch"});
-        createFollowersForUser("amaru.london", new String[]{"ana.kern", "heidi.angeles", "jack.north", "beate.schulz", "thomas.earl"});
+
+        createSpaceMembers("amaru.london", "Birds Watch Central",
+                new String[]{"julia.jobs", "marc.shell", "peter.hummel", "anita.huebsch"});
+        createSpaceMembers("ana.kern", "Grand Sunday's Bingo",
+                new String[]{"heidi.angeles", "jack.north", "beate.schulz", "thomas.earl", "peter.hummel"});
+        createSpaceMembers("ana.kern", "Best Party's in Town",
+                new String[]{"marc.shell", "peter.hummel", "anita.huebsch"});
+
+        createFriendsForUser("amaru.london", new String[]{"julia.jobs", "marc.shell",
+                "peter.hummel", "anita.huebsch"});
+        createFollowersForUser("amaru.london", new String[]{"ana.kern", "heidi.angeles",
+                "jack.north", "beate.schulz", "thomas.earl"});
+
         createPostsAndMediaForUser("amaru.london");
         createCommentsAndLikesForPosts();
         createSuperUsers(new String[]{"amaru.london", "julia.jobs"});
@@ -114,6 +130,19 @@ public class PersistenceInit {
                     "This is a place for me, friends and followers",
                     Space.Type.GLOBAL));
         });
+    }
+
+    void createSpaceMembers(String ownername, String spacename, String[] members) {
+        User owner = userService.getUser(ownername);
+
+        Space space = spaceService.createGenericSpace(owner, spacename,ownername + " Space", "PUBLIC");
+        spaceService.addMember(space, owner, owner, "OWNER");
+
+        Arrays.stream(members).forEach(member -> {
+            User user = userService.getUser(member);
+            spaceService.addMember(space, user, owner, "MEMBER");
+        });
+
     }
 
     void createFriendsForUser(String username, String[] friendnames) {

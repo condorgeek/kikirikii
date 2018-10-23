@@ -101,7 +101,16 @@ public class SpaceService {
         throw new InvalidResourceException("Cannot create space " + name);
     }
 
+    public boolean isMember(Space space, User user) {
+        Optional<Member> member = memberRepository.findMemberByUserId(space.getId(), user.getId());
+        return member.isPresent();
+    }
+
     public Member addMember(Space space, User user, User reference, String role) {
+        if(isMember(space, user)) {
+            throw new InvalidResourceException("User " + user.getUsername() + " already member of " + space.getName());
+        }
+
         try {
             return memberRepository.save(Member.of(space, user, reference, Member.State.ACTIVE,
                     Member.Role.valueOf(role)));
