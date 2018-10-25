@@ -19,6 +19,7 @@ import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.Topic;
 import com.kikirikii.services.ChatService;
+import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SpaceService spaceService;
 
     @Autowired
     private ChatService chatService;
@@ -56,6 +60,22 @@ public class UserController {
     List<Post> getUserHomePosts(@PathVariable String userName) {
         User user = userService.getUser(userName);
         return userService.getUserHomePosts(user);
+    }
+
+    @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.GET)
+    List<Post> getUserGenericPosts(@PathVariable String userName, @PathVariable Long spaceId) {
+        User user = userService.getUser(userName);
+        return userService.getSpacePosts(user, spaceId);
+    }
+
+    @RequestMapping(value = "/posts/event/{spaceId}", method = RequestMethod.GET)
+    List<Post> getUserEventPosts(@PathVariable String userName, @PathVariable Long spaceId) {
+        return Collections.emptyList();
+    }
+
+    @RequestMapping(value = "/posts/shop/{spaceId}", method = RequestMethod.GET)
+    List<Post> getUserShopPosts(@PathVariable String userName, @PathVariable Long spaceId) {
+        return Collections.emptyList();
     }
 
     @RequestMapping(value = "/posts/{postId}", method = RequestMethod.GET)
@@ -341,26 +361,35 @@ public class UserController {
         return data;
     }
 
-    @RequestMapping(value = "/space/cover", method = RequestMethod.PUT)
-    public Map<String, Object> updateHomeCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
-        Space space = userService.getHomeSpace(userName);
-        space.setCover(values.get("path"));
-        space = userService.updateSpace(space);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("space", space);
-        return data;
-    }
-
-    @RequestMapping(value = "/space/home", method = RequestMethod.GET)
-    public Map<String, Object> getHomeSpace(@PathVariable String userName) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("space", userService.getHomeSpace(userName));
-        data.put("userdata", userService.getUser(userName).getUserData());
-        data.put("friends", userService.getFriendsCount(userName));
-        data.put("followers", userService.getFollowersCount(userName));
-        return data;
-    }
+//    @RequestMapping(value = "/space/cover", method = RequestMethod.PUT)
+//    public Map<String, Object> updateHomeCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
+//        Space space = userService.getHomeSpace(userName);
+//        space.setCover(values.get("path"));
+//        space = userService.updateSpace(space);
+//
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("space", space);
+//        return data;
+//    }
+//
+//    @RequestMapping(value = "/space/home", method = RequestMethod.GET)
+//    public Map<String, Object> getHomeSpaceData(@PathVariable String userName) {
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("space", userService.getHomeSpace(userName));
+//        data.put("userdata", userService.getUser(userName).getUserData());
+//        data.put("friends", userService.getFriendsCount(userName));
+//        data.put("followers", userService.getFollowersCount(userName));
+//        return data;
+//    }
+//
+//    @RequestMapping(value = "/space/generic/{spaceId}", method = RequestMethod.GET)
+//    public Map<String, Object> getGenericSpaceData(@PathVariable String userName, @PathVariable Long spaceId) {
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("space", spaceService.getSpace(spaceId));
+//        data.put("userdata", userService.getUser(userName).getUserData());
+//        data.put("members", spaceService.getMembersCount(spaceId));
+//        return data;
+//    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class PostProspect {

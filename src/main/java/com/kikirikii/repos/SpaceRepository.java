@@ -44,4 +44,9 @@ public interface SpaceRepository extends CrudRepository<Space, Long> {
     /* find PUBLIC and RESTRICTED access */
     @Query("select s from Space s where s.user.id = :userId and s.state = 'ACTIVE' and s.type = 'SHOP'")
     List<Space> findActiveShopsByUserId(@Param("userId") Long userId);
+
+    @Query("select count(m) from Member m where m.space.id = :spaceId")
+    Long countBySpaceId(@Param("spaceId") Long spaceId);
+
+
 }

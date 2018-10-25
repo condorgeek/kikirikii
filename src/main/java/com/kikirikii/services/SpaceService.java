@@ -101,13 +101,13 @@ public class SpaceService {
         throw new InvalidResourceException("Cannot create space " + name);
     }
 
-    public boolean isMember(Space space, User user) {
-        Optional<Member> member = memberRepository.findMemberByUserId(space.getId(), user.getId());
+    public boolean isMember(Long spaceId, User user) {
+        Optional<Member> member = memberRepository.findMemberByUserId(spaceId, user.getId());
         return member.isPresent();
     }
 
     public Member addMember(Space space, User user, User reference, String role) {
-        if(isMember(space, user)) {
+        if(isMember(space.getId(), user)) {
             throw new InvalidResourceException("User " + user.getUsername() + " already member of " + space.getName());
         }
 
@@ -119,6 +119,10 @@ public class SpaceService {
             logger.error(e.getMessage());
         }
         throw new InvalidResourceException("Cannot add member " + user.getUsername());
+    }
+
+    public Long getMembersCount(Long spaceId) {
+        return spaceRepository.countBySpaceId(spaceId);
     }
 
     public List<Member> getMembersBySpace(Long spaceId) {
@@ -136,4 +140,5 @@ public class SpaceService {
     public List<Space> getShopsByUser(Long userId) {
         return spaceRepository.findActiveShopsByUserId(userId);
     }
+
 }

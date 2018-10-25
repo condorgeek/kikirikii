@@ -23,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -135,14 +132,26 @@ public class UserService {
 
     public List<Post> getUserGlobalPosts(User user) {
         Optional<Space> global = userRepository.findGlobalSpace(user.getId());
-        List<Post> posts = postRepository.findAllBySpaceId(global.get().getId()).collect(Collectors.toList());
-        return posts;
+        if(global.isPresent()) {
+            return postRepository.findAllBySpaceId(global.get().getId()).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     public List<Post> getUserHomePosts(User user) {
         Optional<Space> home = userRepository.findHomeSpace(user.getId());
-        List<Post> posts = postRepository.findAllBySpaceId(home.get().getId()).collect(Collectors.toList());
-        return posts;
+        if(home.isPresent()) {
+            return postRepository.findAllBySpaceId(home.get().getId()).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    public List<Post> getSpacePosts(User user, Long spaceId) {
+        Optional<Space> space = spaceRepository.findById(spaceId);
+         if(space.isPresent()) {
+             return postRepository.findAllBySpaceId(space.get().getId()).collect(Collectors.toList());
+         }
+         return Collections.emptyList();
     }
 
     public Post getPostById(Long postId) {
