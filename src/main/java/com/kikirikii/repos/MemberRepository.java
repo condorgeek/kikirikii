@@ -20,7 +20,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public interface MemberRepository extends CrudRepository<Member, Long> {
 
@@ -30,11 +29,9 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
     @Query("select m from Member m where m.space.id = :spaceId and state= 'ACTIVE'")
     List<Member> findActiveBySpaceId(@Param("spaceId") Long spaceId);
 
-    @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE'")
-    List<Member> findActiveByUserId(@Param("userId") Long userId);
-
-    @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE'")
-    Stream<Member> findActiveByUserIdAsStream(@Param("userId") Long userId);
+    @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
+            "and m.space.type = 'GENERIC' and m.space.state = 'ACTIVE'")
+    List<Member> findMemberOfGenericByUserId(@Param("userId") Long userId);
 
     @Query("select m from Member m where m.space.id = :spaceId and m.user.id = :userId")
     Optional<Member> findMemberByUserId(@Param("spaceId") Long spaceId, @Param("userId") Long userId);

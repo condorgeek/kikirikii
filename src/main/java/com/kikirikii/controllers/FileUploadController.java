@@ -51,10 +51,16 @@ public class FileUploadController {
                 .getLocation().getProfile());
     }
 
-    @RequestMapping(value ="/cover/upload", method = RequestMethod.POST)
+    @RequestMapping(value ="/cover/upload/home", method = RequestMethod.POST)
     public String handleCoverUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
-        return storageService.storeAtLocation(file, userName + storageProperties
-                .getLocation().getCover());
+        return storageService.storeAtLocation(file,
+                userName + storageProperties.getLocation().getCover());
+    }
+
+    @RequestMapping(value ="/cover/upload/generic/{spaceId}", method = RequestMethod.POST)
+    public String handleGenericCoverUpload(@PathVariable String userName, @PathVariable String spaceId, @RequestParam("file") MultipartFile file) {
+        return storageService.storeAtLocation(file,
+                userName + "/generic/" + spaceId + storageProperties.getLocation().getCover());
     }
 
     @RequestMapping(value = "/validate/authorization", method = RequestMethod.GET)

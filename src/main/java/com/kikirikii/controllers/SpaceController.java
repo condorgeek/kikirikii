@@ -52,7 +52,7 @@ public class SpaceController {
     public List<Space> getUserSpaces(@PathVariable String userName) {
 
         User user = userService.getUser(userName);
-        return spaceService.getGenericSpacesByUser(user.getId());
+        return spaceService.getMemberOfGenericSpaces(user.getId());
     }
 
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)
@@ -98,9 +98,20 @@ public class SpaceController {
         return null;
     }
 
-    @RequestMapping(value = "/space/cover", method = RequestMethod.PUT)
+    @RequestMapping(value = "/space/cover/home", method = RequestMethod.PUT)
     public Map<String, Object> updateHomeCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
         Space space = userService.getHomeSpace(userName);
+        space.setCover(values.get("path"));
+        space = userService.updateSpace(space);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("space", space);
+        return data;
+    }
+
+    @RequestMapping(value = "/space/cover/generic/{spaceId}", method = RequestMethod.PUT)
+    public Map<String, Object> updateGenericSpaceCover(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody Map<String, String> values) {
+        Space space = spaceService.getSpace(spaceId);
         space.setCover(values.get("path"));
         space = userService.updateSpace(space);
 

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -129,8 +130,19 @@ public class SpaceService {
         return memberRepository.findActiveBySpaceId(spaceId);
     }
 
+    /* returns ownership spaces only */
     public List<Space> getGenericSpacesByUser(Long userId) {
         return spaceRepository.findActiveByUserId(userId);
+    }
+
+    /* generic and active */
+    public List<Space> getMemberOfGenericSpaces(Long userId) {
+        return memberRepository.findMemberOfGenericByUserId(userId).stream()
+//                .filter(member -> {
+//                    Space space = member.getSpace();
+//                    return space.getType() == Space.Type.GENERIC && space.getState() == Space.State.ACTIVE;
+//                })
+                .map(Member::getSpace).collect(Collectors.toList());
     }
 
     public List<Space> getEventsByUser(Long userId) {

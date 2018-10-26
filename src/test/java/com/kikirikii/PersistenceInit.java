@@ -87,7 +87,7 @@ public class PersistenceInit {
         createUsersAndSpaces();
 
         createSpaceMembers("amaru.london", "Birds Watch Central",
-                new String[]{"julia.jobs", "marc.shell", "peter.hummel", "anita.huebsch"});
+                new String[]{"julia.jobs", "marc.shell", "peter.hummel", "anita.huebsch", "ana.kern"});
         createSpaceMembers("ana.kern", "Grand Sunday's Bingo",
                 new String[]{"heidi.angeles", "jack.north", "beate.schulz", "thomas.earl", "peter.hummel"});
         createSpaceMembers("ana.kern", "Best Party's in Town",
@@ -144,6 +144,29 @@ public class PersistenceInit {
         });
 
     }
+
+//    @Test
+//    public void createMember() {
+//        User user = userService.getUser("ana.kern");
+//        Space space = spaceService.getSpace(100L);
+//
+//        spaceService.addMember(space, user, user, "MEMBER");
+//
+//    }
+
+//    @Test
+//    public void createPostsForGeneric() {
+//        User user = userService.getUser("ana.kern");
+//        Space space = spaceService.getSpace(100L);
+//        MediaHelper media = new MediaHelper();
+//
+//        PostHelper helper = new PostHelper(space, user, "genericlist.txt");
+//        helper.postlist.forEach(postdata -> {
+//            Post post = helper.parsePost(postdata, user);
+//            postRepository.save(post.addMedia(media.randomMedia()));
+//        });
+//    }
+
 
     void createFriendsForUser(String username, String[] friendnames) {
         Optional<User> user = userRepository.findByUsername(username);
@@ -274,6 +297,12 @@ public class PersistenceInit {
 
         public PostHelper(Space space, User user) {
             postlist = Loader.load("postlist.txt");
+            this.space = space;
+            this.user = user;
+        }
+
+        public PostHelper(Space space, User user, String filename) {
+            postlist = Loader.load(filename);
             this.space = space;
             this.user = user;
         }
