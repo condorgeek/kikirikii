@@ -60,6 +60,11 @@ public class SpaceService {
         throw new InvalidResourceException("Member Id " + id + " is invalid.");
     }
 
+    public Space updateCoverPath(Space space, String path) {
+        space.setCover(path);
+        return spaceRepository.save(space);
+    }
+
     public Map<String, Object> createSpaceCombined(User user, String name, String description, String access) {
         Map<String, Object> map = new HashMap<>();
         try {
