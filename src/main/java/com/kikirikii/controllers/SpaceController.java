@@ -62,7 +62,7 @@ public class SpaceController {
 
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/space/create", method = RequestMethod.POST)
-    public Map<String, Object> createSpace(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Space createSpace(@PathVariable String userName, @RequestBody Map<String, String> values) {
 
         User user = userService.getUser(userName);
         return spaceService.createSpaceCombined(user, values.get("name"),  values.get("description"),

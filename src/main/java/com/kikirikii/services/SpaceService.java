@@ -65,18 +65,14 @@ public class SpaceService {
         return spaceRepository.save(space);
     }
 
-    public Map<String, Object> createSpaceCombined(User user, String name, String description, String access) {
-        Map<String, Object> map = new HashMap<>();
+    public Space createSpaceCombined(User user, String name, String description, String access) {
         try {
             Space space = spaceRepository.save(Space.of(user, name, description,
                     Space.Type.GENERIC, Space.Access.valueOf(access)));
 
-            Member member = memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
+             memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
 
-            map.put("space", space);
-            map.put("member", member);
-
-            return map;
+            return space;
 
         } catch (Exception e) {
             logger.error(e.getMessage());
