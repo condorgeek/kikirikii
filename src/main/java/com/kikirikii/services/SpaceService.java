@@ -25,9 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,10 +63,10 @@ public class SpaceService {
         return spaceRepository.save(space);
     }
 
-    public Space createSpaceCombined(User user, String name, String description, String access) {
+    public Space createSpaceCombined(User user, String type, String name, String description, String access) {
         try {
             Space space = spaceRepository.save(Space.of(user, name, description,
-                    Space.Type.GENERIC, Space.Access.valueOf(access)));
+                    Space.Type.valueOf(type.toUpperCase()), Space.Access.valueOf(access)));
 
              memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
 
@@ -101,6 +99,21 @@ public class SpaceService {
             logger.error(e.getMessage());
         }
         throw new InvalidResourceException("Cannot create space " + name);
+    }
+
+    public Space deleteSpace(Space space) {
+        space.setState(Space.State.DELETED);
+        return spaceRepository.save(space);
+    }
+
+    public Space blockSpace(Space space) {
+        space.setState(Space.State.BLOCKED);
+        return spaceRepository.save(space);
+    }
+
+    public Space unblockSpace(Space space) {
+        space.setState(Space.State.ACTIVE);
+        return spaceRepository.save(space);
     }
 
     public boolean isMember(Long spaceId, User user) {
@@ -143,6 +156,11 @@ public class SpaceService {
 //                    Space space = member.getSpace();
 //                    return space.getType() == Space.Type.GENERIC && space.getState() == Space.State.ACTIVE;
 //                })
+                .map(Member::getSpace).collect(Collectors.toList());
+    }
+
+    public List<Space> getMemberOfSpacesByType(String type, Long userId) {
+        return memberRepository.findMemberOfByTypeAndUserId(Space.Type.valueOf(type), userId).stream()
                 .map(Member::getSpace).collect(Collectors.toList());
     }
 

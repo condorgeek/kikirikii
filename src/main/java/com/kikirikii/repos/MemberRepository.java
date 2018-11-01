@@ -14,6 +14,7 @@
 package com.kikirikii.repos;
 
 import com.kikirikii.model.Member;
+import com.kikirikii.model.Space;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -32,6 +33,10 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
     @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
             "and m.space.type = 'GENERIC' and m.space.state = 'ACTIVE'")
     List<Member> findMemberOfGenericByUserId(@Param("userId") Long userId);
+
+    @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
+            "and m.space.type = :type and m.space.state = 'ACTIVE'")
+    List<Member> findMemberOfByTypeAndUserId(@Param("type") Space.Type type, @Param("userId") Long userId);
 
     @Query("select m from Member m where m.space.id = :spaceId and m.user.id = :userId")
     Optional<Member> findMemberByUserId(@Param("spaceId") Long spaceId, @Param("userId") Long userId);

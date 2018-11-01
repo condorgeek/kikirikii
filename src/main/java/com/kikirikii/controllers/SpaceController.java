@@ -47,12 +47,12 @@ public class SpaceController {
     @Autowired
     private UserService userService;
 
-    /*  active, generic and restricted spaces */
-    @RequestMapping(value = "/spaces", method = RequestMethod.GET)
-    public List<Space> getUserSpaces(@PathVariable String userName) {
+    /*  active, generic|shop|event and restricted spaces */
+    @RequestMapping(value = "/spaces/{spaceType}", method = RequestMethod.GET)
+    public List<Space> getUserSpaces(@PathVariable String userName, @PathVariable String spaceType) {
 
         User user = userService.getUser(userName);
-        return spaceService.getMemberOfGenericSpaces(user.getId());
+        return spaceService.getMemberOfSpacesByType(spaceType, user.getId());
     }
 
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)
@@ -61,11 +61,11 @@ public class SpaceController {
     }
 
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/space/create", method = RequestMethod.POST)
-    public Space createSpace(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    @RequestMapping(value = "/space/{spaceType}/create", method = RequestMethod.POST)
+    public Space createSpace(@PathVariable String userName, @PathVariable String spaceType, @RequestBody Map<String, String> values) {
 
         User user = userService.getUser(userName);
-        return spaceService.createSpaceCombined(user, values.get("name"),  values.get("description"),
+        return spaceService.createSpaceCombined(user, spaceType, values.get("name"),  values.get("description"),
                 values.get("access"));
     }
 
@@ -86,7 +86,23 @@ public class SpaceController {
         User user = userService.getUser(userName);
         Space space = spaceService.getSpace(spaceId);
 
-        return null;
+        return spaceService.deleteSpace(space);
+    }
+
+    @RequestMapping(value = "/space/{spaceId}/block", method = RequestMethod.PUT)
+    public Space blockSpace(@PathVariable String userName, @PathVariable Long spaceId) {
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return spaceService.blockSpace(space);
+    }
+
+    @RequestMapping(value = "/space/{spaceId}/unblock", method = RequestMethod.PUT)
+    public Space unblockSpace(@PathVariable String userName, @PathVariable Long spaceId) {
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return spaceService.unblockSpace(space);
     }
 
     @RequestMapping(value = "/member/{memberId}/delete", method = RequestMethod.DELETE)
