@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -136,6 +137,14 @@ public class SpaceService {
         throw new InvalidResourceException("Cannot add member " + user.getUsername());
     }
 
+    public Member deleteMember(Space space, Member member) {
+        if(!isOwner.apply(space, member) && member.getSpace().getId() == space.getId()) {
+            member.setState(Member.State.DELETED);
+            return memberRepository.save(member);
+        }
+        throw new InvalidResourceException("Cannot delete member " + member.getUser().getUsername() + " from space " + space.getName());
+    }
+
     public Long getMembersCount(Long spaceId) {
         return spaceRepository.countBySpaceId(spaceId);
     }
@@ -171,5 +180,7 @@ public class SpaceService {
     public List<Space> getShopsByUser(Long userId) {
         return spaceRepository.findActiveShopsByUserId(userId);
     }
+
+    private BiFunction<Space, Member, Boolean> isOwner = (s, m) -> s.getUser().getUsername().equals(m.getUser().getUsername());
 
 }

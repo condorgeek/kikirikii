@@ -81,6 +81,25 @@ public class SpaceController {
         return spaceService.addMember(space, member, referer, values.get("role"));
     }
 
+    @RequestMapping(value = "/space/{spaceId}/join", method = RequestMethod.POST)
+    public Member joinSpace(@PathVariable String userName, @PathVariable Long spaceId) {
+
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return spaceService.addMember(space, user, user, "MEMBER");
+    }
+
+    @RequestMapping(value = "/space/{spaceId}/leave/{memberId}", method = RequestMethod.POST)
+    public Member leaveSpace(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
+
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+        Member member = spaceService.getMember(memberId);
+
+        return spaceService.deleteMember(space, member);
+    }
+
     @RequestMapping(value = "/space/{spaceId}/delete", method = RequestMethod.DELETE)
     public Space deleteSpace(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);
