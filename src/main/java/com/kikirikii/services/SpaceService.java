@@ -118,8 +118,13 @@ public class SpaceService {
     }
 
     public boolean isMember(Long spaceId, User user) {
-        Optional<Member> member = memberRepository.findMemberByUserId(spaceId, user.getId());
+        Optional<Member> member = memberRepository.findActiveMemberByUserId(spaceId, user.getId());
         return member.isPresent();
+    }
+
+    public Member findMember(Long spaceId, User user) {
+        Optional<Member> member = memberRepository.findActiveMemberByUserId(spaceId, user.getId());
+        return member.orElse(null);
     }
 
     public Member addMember(Space space, User user, User reference, String role) {

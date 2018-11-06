@@ -84,6 +84,10 @@ public class Member {
         return member;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public Space getSpace() {
         return space;
     }

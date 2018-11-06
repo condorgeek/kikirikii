@@ -169,11 +169,14 @@ public class SpaceController {
     }
 
     private Map<String, Object> genericSpaceDataAsMap(Space space, User user) {
+        Member member = spaceService.findMember(space.getId(), user);
+
         Map<String, Object> data = new HashMap<>();
         data.put("space", space);
         data.put("userdata", user.getUserData());
         data.put("members", spaceService.getMembersCount(space.getId()));
-        data.put("isMember", spaceService.isMember(space.getId(), user));
+        data.put("isMember", member != null);
+        data.put("member", member);
         return data;
     }
 
