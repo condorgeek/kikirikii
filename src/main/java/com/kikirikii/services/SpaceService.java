@@ -151,7 +151,7 @@ public class SpaceService {
     }
 
     public Long getMembersCount(Long spaceId) {
-        return spaceRepository.countBySpaceId(spaceId);
+        return spaceRepository.countActiveBySpaceId(spaceId);
     }
 
     public List<Member> getMembersBySpace(Long spaceId) {
