@@ -184,7 +184,7 @@ public class PersistenceTests {
         Assert.assertEquals(2, londonSpaces.size());
         Assert.assertEquals(1, mariaSpaces.size());
 
-        spaceService.createSpaceCombined(jack, "Jacks's Space", "A funny space", "PUBLIC");
+        spaceService.createSpaceCombined(jack, "GENERIC","Jacks's Space", "A funny space", "PUBLIC");
         List<Space> spaces = spaceService.getGenericSpacesByUser(jack.getId());
         Assert.assertEquals(1, spaces.size());
 

@@ -90,6 +90,7 @@ public class SpaceController {
         return spaceService.addMember(space, user, user, "MEMBER");
     }
 
+    /* member itself leaves space */
     @RequestMapping(value = "/space/{spaceId}/leave/{memberId}", method = RequestMethod.POST)
     public Member leaveSpace(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
 
@@ -97,7 +98,29 @@ public class SpaceController {
         Space space = spaceService.getSpace(spaceId);
         Member member = spaceService.getMember(memberId);
 
-        return spaceService.deleteMember(space, member);
+        return spaceService.leaveSpace(space, member);
+    }
+
+    /* owner ie. admin removes some member from space */
+    @RequestMapping(value = "space/{spaceId}/delete/{memberId}", method = RequestMethod.DELETE)
+    public Member deleteMember(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
+
+        Space space = spaceService.getSpace(spaceId);
+        Member admin = spaceService.findMember(spaceId, userName);
+        Member member = spaceService.getMember(memberId);
+
+        return spaceService.deleteMember(space, admin, member);
+    }
+
+    /* owner ie. admin blocks some member from space */
+    @RequestMapping(value = "space/{spaceId}/block/{memberId}", method = RequestMethod.DELETE)
+    public Member blockMember(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
+
+        Space space = spaceService.getSpace(spaceId);
+        Member admin = spaceService.findMember(spaceId, userName);
+        Member member = spaceService.getMember(memberId);
+
+        return spaceService.blockMember(space, admin, member);
     }
 
     @RequestMapping(value = "/space/{spaceId}/delete", method = RequestMethod.DELETE)
@@ -122,15 +145,6 @@ public class SpaceController {
         Space space = spaceService.getSpace(spaceId);
 
         return spaceService.unblockSpace(space);
-    }
-
-    @RequestMapping(value = "/member/{memberId}/delete", method = RequestMethod.DELETE)
-    public Member deleteMember(@PathVariable String userName, @PathVariable Long memberId) {
-
-        User user = userService.getUser(userName);
-        Member member = spaceService.getMember(memberId);
-
-        return null;
     }
 
     @RequestMapping(value = "/space/cover/home", method = RequestMethod.PUT)

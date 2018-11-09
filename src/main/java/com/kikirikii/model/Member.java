@@ -140,6 +140,10 @@ public class Member {
         this.role = role;
     }
 
+    public boolean isAdmin() {
+        return this.role == Role.OWNER || this.role == Role.ADMIN;
+    }
+
     public void setCreated(Date created) {
         this.created = created;
     }

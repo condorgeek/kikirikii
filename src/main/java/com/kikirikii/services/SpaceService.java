@@ -13,6 +13,7 @@
 
 package com.kikirikii.services;
 
+import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.Member;
 import com.kikirikii.model.Space;
@@ -122,8 +123,23 @@ public class SpaceService {
         return member.isPresent();
     }
 
+    public boolean isMember(Long spaceId, Long userId) {
+        Optional<Member> member = memberRepository.findActiveMemberByUserId(spaceId, userId);
+        return member.isPresent();
+    }
+
     public Member findMember(Long spaceId, User user) {
         Optional<Member> member = memberRepository.findActiveMemberByUserId(spaceId, user.getId());
+        return member.orElse(null);
+    }
+
+    public Member findMember(Long spaceId, Long userId) {
+        Optional<Member> member = memberRepository.findActiveMemberByUserId(spaceId, userId);
+        return member.orElse(null);
+    }
+
+    public Member findMember(Long spaceId, String username) {
+        Optional<Member> member = memberRepository.findActiveMemberByUsername(spaceId, username);
         return member.orElse(null);
     }
 
@@ -142,12 +158,42 @@ public class SpaceService {
         throw new InvalidResourceException("Cannot add member " + user.getUsername());
     }
 
-    public Member deleteMember(Space space, Member member) {
+    public Member leaveSpace(Space space, Member member) {
         if(!isOwner.apply(space, member) && member.getSpace().getId() == space.getId()) {
             member.setState(Member.State.DELETED);
             return memberRepository.save(member);
         }
+        throw new InvalidResourceException(member.getUser().getUsername() + " cannot leave space " + space.getName());
+    }
+
+    public Member deleteMember(Space space, Member admin, Member member) {
+        try {
+            return _updateMemberState(space, admin, member, Member.State.DELETED);
+        } catch (Exception e) { logger.warn(e.getMessage()); }
+
         throw new InvalidResourceException("Cannot delete member " + member.getUser().getUsername() + " from space " + space.getName());
+    }
+
+    public Member blockMember(Space space, Member admin, Member member) {
+        try {
+            return _updateMemberState(space, admin, member, Member.State.BLOCKED);
+        } catch (Exception e) { logger.warn(e.getMessage()); }
+
+        throw new InvalidResourceException("Cannot block member " + member.getUser().getUsername() + " from space " + space.getName());
+    }
+
+    private Member _updateMemberState(Space space, Member admin, Member member, Member.State state) {
+        if(!isOwner.apply(space, member) && member.getSpace().getId() == space.getId()) {
+            if(admin.getRole() == Member.Role.OWNER) {
+                member.setState(state);
+                return memberRepository.save(member);
+
+            } else if(admin.getRole() == Member.Role.ADMIN && member.getRole() != Member.Role.ADMIN) {
+                member.setState(state);
+                return memberRepository.save(member);
+            }
+        }
+        throw new InvalidAuthorizationException(member.getUser().getUsername() + " cannot " + state + member.getUser().getUsername());
     }
 
     public Long getMembersCount(Long spaceId) {
