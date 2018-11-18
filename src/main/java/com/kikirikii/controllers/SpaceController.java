@@ -16,13 +16,18 @@ package com.kikirikii.controllers;
 import com.kikirikii.model.Member;
 import com.kikirikii.model.Space;
 import com.kikirikii.model.User;
+import com.kikirikii.security.authorization.JwtAuthorizationToken;
+import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +45,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/user/{userName}")
 public class SpaceController {
+    public static Logger logger = Logger.getLogger("SpaceController");
+
 
     @Autowired
     private SpaceService spaceService;
@@ -148,12 +155,12 @@ public class SpaceController {
     }
 
     @RequestMapping(value = "/space/cover/home", method = RequestMethod.PUT)
-    public Map<String, Object> updateHomeCover(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Map<String, Object> updateHomeCover(Principal principal, @PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(userName);
         space = spaceService.updateCoverPath(space, values.get("path"));
 
-        return homeSpaceDataAsMap(space, user);
+        return homeSpaceDataAsMap(space, user, principal);
     }
 
     @RequestMapping(value = "/space/cover/generic/{spaceId}", method = RequestMethod.PUT)
@@ -166,12 +173,19 @@ public class SpaceController {
         return genericSpaceDataAsMap(space, user);
     }
 
+    /* userName is the id of the home page to get the data for!! and is not the id of the authorized
+     * user, as implicit for other user and space requests. Further, Principal is always an instance of
+     * JwtAuthorizationToken  */
     @RequestMapping(value = "/space/home", method = RequestMethod.GET)
-    public Map<String, Object> getHomeSpaceData(@PathVariable String userName) {
+    public Map<String, Object> getHomeSpaceData(Principal principal, @PathVariable String userName) {
+
+        UserContext userContext = getUserContext.apply(principal);
+        logger.info("getHomeSpaceData: " + principal.getName() + " for " + userName + " login(" + userContext.getUsername() +")");
+
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(user.getUsername());
 
-        return homeSpaceDataAsMap(space, user);
+        return homeSpaceDataAsMap(space, user, principal);
     }
 
     @RequestMapping(value = "/space/generic/{spaceId}", method = RequestMethod.GET)
@@ -194,12 +208,19 @@ public class SpaceController {
         return data;
     }
 
-    private Map<String, Object> homeSpaceDataAsMap(Space space, User user) {
+    private Map<String, Object> homeSpaceDataAsMap(Space space, User user, Principal principal) {
+
+        boolean isFriend = user.getUsername().equals(principal.getName()) || userService.isFriend(principal.getName(), user);
+        boolean isFollowee = user.getUsername().equals(principal.getName()) || userService.isFollowee(principal.getName(), user);
+
         Map<String, Object> data = new HashMap<>();
         data.put("space", space);
         data.put("userdata", user.getUserData());
         data.put("friends", userService.getFriendsCount(user.getUsername()));
         data.put("followers", userService.getFollowersCount(user.getUsername()));
+        data.put("isFriend", isFriend);
+        data.put("isFollowee", isFollowee);
+
         return data;
     }
 
@@ -208,5 +229,6 @@ public class SpaceController {
     }
 
     private BiFunction<String, Object, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;
+    private Function<Principal, UserContext> getUserContext =  principal -> ((JwtAuthorizationToken) principal).getUserContext();
 
 }

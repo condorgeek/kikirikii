@@ -202,11 +202,11 @@ public class UserService {
     }
 
     public Long getFriendsCount(String username) {
-        return friendRepository.countByUsername(username);
+        return friendRepository.countActiveBlockedByUsername(username);
     }
 
     public Long getFollowersCount(String username) {
-        return followerRepository.countByUsername(username);
+        return followerRepository.countActiveBlockedFollowers(username);
     }
 
     public Friend addFriend(User user, User surrogate) {
@@ -227,8 +227,18 @@ public class UserService {
         return active.isPresent();
     }
 
+    public boolean isFriend(String username, User surrogate) {
+        Optional<Friend> active = friendRepository.findBySurrogateActiveState(username, surrogate.getUsername());
+        return active.isPresent();
+    }
+
     public boolean isFollowee(User user, User surrogate) {
         Optional<Follower> active = followerRepository.findByUserSurrogateActiveState(user.getUsername(), surrogate.getUsername());
+        return active.isPresent();
+    }
+
+    public boolean isFollowee(String username, User surrogate) {
+        Optional<Follower> active = followerRepository.findByUserSurrogateActiveState(username, surrogate.getUsername());
         return active.isPresent();
     }
 

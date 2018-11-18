@@ -52,6 +52,10 @@ public class JwtAuthorizationToken extends AbstractAuthenticationToken {
         super.setAuthenticated(false);
     }
 
+    public UserContext getUserContext() {
+        return userContext;
+    }
+
     @Override
     public Object getCredentials() {
         return bearerToken;

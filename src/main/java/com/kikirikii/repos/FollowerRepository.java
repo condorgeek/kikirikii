@@ -33,6 +33,9 @@ public interface FollowerRepository extends CrudRepository<Follower, Long> {
     @Query("select count(f) from Follower f where f.user.username = :username")
     Long countByUsername(@Param("username") String username);
 
+    @Query("select count(f) from Follower f where f.user.username = :username and f.state in ('ACTIVE', 'BLOCKED')")
+    Long countActiveBlockedFollowees(@Param("username") String username);
+
     @Query("select f from Follower f where f.user.username = :username and f.surrogate.username = :surrogate and f.state = :state")
     Optional<Follower> findByUserSurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") Follower.State state);
 
@@ -50,4 +53,7 @@ public interface FollowerRepository extends CrudRepository<Follower, Long> {
 
     @Query("select f from Follower f where f.surrogate.username = :username and f.state in('ACTIVE', 'BLOCKED')")
     List<Follower> findActiveBlockedFollowers(@Param("username") String username);
+
+    @Query("select count(f) from Follower f where f.surrogate.username = :username and f.state in('ACTIVE', 'BLOCKED')")
+    Long countActiveBlockedFollowers(@Param("username") String username);
 }

@@ -34,6 +34,9 @@ public interface FriendRepository extends CrudRepository<Friend, Long> {
     @Query("select count(f) from Friend f where f.user.username = :username")
     Long countByUsername(@Param("username") String username);
 
+    @Query("select count(f) from Friend f where f.user.username = :username and f.state in ('ACTIVE', 'BLOCKED')")
+    Long countActiveBlockedByUsername(@Param("username") String username);
+
     @Query("select f from Friend f where f.user.username = :username and f.surrogate.username = :surrogate and f.state = :state")
     Optional<Friend> findBySurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") Friend.State state);
 

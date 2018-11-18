@@ -29,6 +29,7 @@ import java.util.Date;
  * unblock follower    |   UNBLOCKED  <--  UNBLOCKING(*)   | ACTIVE      | ACTIVE
  * -------------------------------------------------------------------------------------------
  * see UserService for state logic implementation
+ * FOLLOWER - person that follows you, FOLLOWEE (surrogate) - person being followed by you
  */
 @Entity
 @Table(name = "followers")

@@ -18,12 +18,13 @@
 package com.kikirikii.security.model;
 
 import com.kikirikii.model.User;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
 import java.util.function.Function;
 
-public class UserContext {
+public class UserContext implements AuthenticatedPrincipal {
     private final String username;
     private User user;
     private final List<GrantedAuthority> authorities;
@@ -57,6 +58,11 @@ public class UserContext {
     }
 
     static private Function<String, Boolean> isBlank = s -> s == null || s.length() == 0;
+
+    @Override
+    public String getName() {
+        return username;
+    }
 }
 
 
