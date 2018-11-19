@@ -210,8 +210,9 @@ public class SpaceController {
 
     private Map<String, Object> homeSpaceDataAsMap(Space space, User user, Principal principal) {
 
-        boolean isFriend = user.getUsername().equals(principal.getName()) || userService.isFriend(principal.getName(), user);
-        boolean isFollowee = user.getUsername().equals(principal.getName()) || userService.isFollowee(principal.getName(), user);
+        boolean isOwner = user.getUsername().equals(principal.getName());
+        boolean isFriend = isOwner || userService.isFriend(principal.getName(), user);
+        boolean isFollowee = isOwner || userService.isFollowee(principal.getName(), user);
 
         Map<String, Object> data = new HashMap<>();
         data.put("space", space);
@@ -220,6 +221,7 @@ public class SpaceController {
         data.put("followers", userService.getFollowersCount(user.getUsername()));
         data.put("isFriend", isFriend);
         data.put("isFollowee", isFollowee);
+        data.put("isOwner", isOwner);
 
         return data;
     }
