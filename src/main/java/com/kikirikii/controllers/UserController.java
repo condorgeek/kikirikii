@@ -22,6 +22,7 @@ import com.kikirikii.services.ChatService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
+import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -133,8 +134,10 @@ public class UserController {
         return userService.getFriendsPending(user);
     }
 
+    private static final int REQUEST = 0, PENDING = 1;
+
     @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
-    public List<Friend> addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
@@ -144,14 +147,14 @@ public class UserController {
             throw new InvalidResourceException("Users are already friends");
         }
 
-        Friend requested = userService.addFriend(user, surrogate);
+        Friend[] friends = userService.addFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_REQUESTED.name()),
                 entry.apply("message", user.getUsername() + " is requesting your friendship"),
-                entry.apply("user", toJSON.apply(requested)));
+                entry.apply("user", toJSON.apply(friends[PENDING])));
 
-        return userService.getFriendsPending(user);
+        return friends[REQUEST];
     }
 
     /** returning single friend object ! friends(0) - active, friends(1) - passive */

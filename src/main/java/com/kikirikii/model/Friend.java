@@ -74,8 +74,10 @@ public class Friend {
     @NotNull
     private Date created;
 
+    @JsonIgnore
     private Date transitioned;
 
+    @JsonIgnore
     private Date actioned;
 
     private Friend(){}

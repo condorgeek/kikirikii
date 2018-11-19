@@ -13,6 +13,7 @@
 
 package com.kikirikii.controllers;
 
+import com.kikirikii.model.Friend;
 import com.kikirikii.model.Member;
 import com.kikirikii.model.Space;
 import com.kikirikii.model.User;
@@ -210,8 +211,9 @@ public class SpaceController {
 
     private Map<String, Object> homeSpaceDataAsMap(Space space, User user, Principal principal) {
 
+        Friend friend = userService.getFriend(principal.getName(), user);
         boolean isOwner = user.getUsername().equals(principal.getName());
-        boolean isFriend = isOwner || userService.isFriend(principal.getName(), user);
+        boolean isFriend = isOwner || friend != null;
         boolean isFollowee = isOwner || userService.isFollowee(principal.getName(), user);
 
         Map<String, Object> data = new HashMap<>();
@@ -220,6 +222,7 @@ public class SpaceController {
         data.put("friends", userService.getFriendsCount(user.getUsername()));
         data.put("followers", userService.getFollowersCount(user.getUsername()));
         data.put("isFriend", isFriend);
+        data.put("friend", friend);
         data.put("isFollowee", isFollowee);
         data.put("isOwner", isOwner);
 

@@ -209,7 +209,8 @@ public class UserService {
         return followerRepository.countActiveBlockedFollowers(username);
     }
 
-    public Friend addFriend(User user, User surrogate) {
+    /* 0 - request, 1- pending */
+    public Friend[] addFriend(User user, User surrogate) {
 
         Friend request = Friend.of(user, surrogate, Friend.State.PENDING, Friend.Action.REQUESTING);
         Friend pending = Friend.of(surrogate, user, Friend.State.PENDING, Friend.Action.REQUESTED);
@@ -218,8 +219,7 @@ public class UserService {
         request.setChat(chat);
         pending.setChat(chat);
 
-        friendRepository.save(request);
-        return friendRepository.save(pending);
+        return new Friend[]{friendRepository.save(request), friendRepository.save(pending)};
     }
 
     public boolean isFriend(User user, User surrogate) {
@@ -232,6 +232,11 @@ public class UserService {
         return active.isPresent();
     }
 
+    public Friend getFriend(String username, User surrogate) {
+        Optional<Friend> active = friendRepository.findBySurrogateActiveState(username, surrogate.getUsername());
+        return active.orElse(null);
+    }
+
     public boolean isFollowee(User user, User surrogate) {
         Optional<Follower> active = followerRepository.findByUserSurrogateActiveState(user.getUsername(), surrogate.getUsername());
         return active.isPresent();
@@ -240,6 +245,11 @@ public class UserService {
     public boolean isFollowee(String username, User surrogate) {
         Optional<Follower> active = followerRepository.findByUserSurrogateActiveState(username, surrogate.getUsername());
         return active.isPresent();
+    }
+
+    public Follower getFollowee(String username, User surrogate) {
+        Optional<Follower> active = followerRepository.findByUserSurrogateActiveState(username, surrogate.getUsername());
+        return active.orElse(null);
     }
 
     public List<Friend> acceptFriend(User user, User surrogate) {
