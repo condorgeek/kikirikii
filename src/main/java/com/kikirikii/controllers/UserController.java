@@ -134,7 +134,7 @@ public class UserController {
         return userService.getFriendsPending(user);
     }
 
-    private static final int REQUEST = 0, PENDING = 1;
+    private static final int REQUEST = 0, PENDING = 1, CANCELLED = 1, IGNORED = 1, ACCEPTED = 1, DELETED = 1;
 
     @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
     public Friend addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
@@ -157,50 +157,49 @@ public class UserController {
         return friends[REQUEST];
     }
 
-    /** returning single friend object ! friends(0) - active, friends(1) - passive */
     @RequestMapping(value = "/friend/accept", method = RequestMethod.PUT)
     public Friend acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        List<Friend> friends = userService.acceptFriend(user, surrogate);
+        Friend[] friends = userService.acceptFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_ACCEPTED.name()),
                 entry.apply("message", user.getUsername() + " has accepted your friendship"),
-                entry.apply("user", toJSON.apply(friends.get(1))));
+                entry.apply("user", toJSON.apply(friends[ACCEPTED])));
 
-        return friends.get(0);
+    return friends[REQUEST];
     }
 
     @RequestMapping(value = "/friend/ignore", method = RequestMethod.PUT)
-    public List<Friend> ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        Friend ignored = userService.ignoreFriendRequest(user, surrogate);
+        Friend[] friends = userService.ignoreFriendRequest(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_IGNORED.name()),
                 entry.apply("message", user.getUsername() + " has ignored your friendship request"),
-                entry.apply("user", toJSON.apply(ignored)));
+                entry.apply("user", toJSON.apply(friends[IGNORED])));
 
-        return userService.getFriendsPending(user);
+        return friends[REQUEST];
     }
 
     @RequestMapping(value = "/friend/cancel", method = RequestMethod.PUT)
-    public List<Friend> cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        Friend cancelled = userService.cancelFriendRequest(user, surrogate);
+        Friend[] friends = userService.cancelFriendRequest(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_CANCELLED.name()),
                 entry.apply("message", user.getUsername() + " has cancelled her friendship request"),
-                entry.apply("user", toJSON.apply(cancelled)));
+                entry.apply("user", toJSON.apply(friends[CANCELLED])));
 
-        return userService.getFriendsPending(user);
+        return friends[REQUEST];
     }
 
     @RequestMapping(value = "/friend/block", method = RequestMethod.PUT)
@@ -234,22 +233,22 @@ public class UserController {
     }
 
     @RequestMapping(value = "/friend/delete", method = RequestMethod.PUT)
-    public List<Friend> deleteFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend deleteFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        Friend deleted = userService.deleteFriend(user, surrogate);
+        Friend[] friends = userService.deleteFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_DELETED.name()),
                 entry.apply("message", user.getUsername() + " has deleted your friendship."),
-                entry.apply("user", toJSON.apply(deleted)));
+                entry.apply("user", toJSON.apply(friends[DELETED])));
 
-        return userService.getFriends(user);
+        return friends[REQUEST];
     }
 
     @RequestMapping(value = "/followee/add", method = RequestMethod.PUT)
-    public List<Follower> addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Follower addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("followee"));
 
@@ -266,11 +265,11 @@ public class UserController {
                 entry.apply("message", user.getUsername() + " is following you."),
                 entry.apply("follower", toJSON.apply(follower)));
 
-        return userService.getFollowees(user);
+        return follower;
     }
 
     @RequestMapping(value = "/followee/delete", method = RequestMethod.PUT)
-    public List<Follower> deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Follower deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("followee"));
 
@@ -281,7 +280,7 @@ public class UserController {
                 entry.apply("message", user.getUsername() + " has stopped following you."),
                 entry.apply("follower", toJSON.apply(follower)));
 
-        return userService.getFollowees(user);
+        return follower;
     }
 
     @RequestMapping(value = "/follower/block", method = RequestMethod.PUT)

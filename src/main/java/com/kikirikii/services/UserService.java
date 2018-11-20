@@ -252,23 +252,20 @@ public class UserService {
         return active.orElse(null);
     }
 
-    public List<Friend> acceptFriend(User user, User surrogate) {
+    public Friend[] acceptFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
+        Optional<Friend> accepted = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
-        if(active.isPresent() && passive.isPresent()) {
+        if(active.isPresent() && accepted.isPresent()) {
             if(active.get().getAction() == Friend.Action.REQUESTED) {
 
-                List<Friend> friends = new ArrayList<>();
                 active.get().setState(Friend.State.ACTIVE);
-                passive.get().setState(Friend.State.ACTIVE);
+                accepted.get().setState(Friend.State.ACTIVE);
 
                 active.get().setAction(Friend.Action.ACCEPTING);
-                passive.get().setAction(Friend.Action.ACCEPTED);
+                accepted.get().setAction(Friend.Action.ACCEPTED);
 
-                friends.add(friendRepository.save(active.get()));
-                friends.add(friendRepository.save(passive.get()));
-                return friends;
+                return new Friend[]{friendRepository.save(active.get()), friendRepository.save(accepted.get())};
             }
         }
 
@@ -311,61 +308,60 @@ public class UserService {
         return null;
     }
 
-    public Friend cancelFriendRequest(User user, User surrogate) {
+    public Friend[] cancelFriendRequest(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
+        Optional<Friend> cancelled = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
-        if(passive.isPresent() && active.isPresent()) {
+        if(cancelled.isPresent() && active.isPresent()) {
             if(active.get().getAction() == Friend.Action.REQUESTING) {
                 active.get().setState(Friend.State.CANCELLED);
-                passive.get().setState(Friend.State.CANCELLED);
+                cancelled.get().setState(Friend.State.CANCELLED);
 
                 active.get().setAction(Friend.Action.CANCELLING);
-                passive.get().setAction(Friend.Action.CANCELLED);
+                cancelled.get().setAction(Friend.Action.CANCELLED);
 
-                friendRepository.save(active.get());
-                return friendRepository.save(passive.get());
+                return new Friend[] {friendRepository.save(active.get()), friendRepository.save(cancelled.get())};
             }
         }
         return null;
     }
 
-    public Friend ignoreFriendRequest(User user, User surrogate) {
+    public Friend[] ignoreFriendRequest(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.PENDING);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
+        Optional<Friend> ignored = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.PENDING);
 
-        if(passive.isPresent() && active.isPresent()) {
+        if(ignored.isPresent() && active.isPresent()) {
             if(active.get().getAction() == Friend.Action.REQUESTED) {
                 active.get().setState(Friend.State.IGNORED);
-                passive.get().setState(Friend.State.IGNORED);
+                ignored.get().setState(Friend.State.IGNORED);
 
                 active.get().setAction(Friend.Action.IGNORING);
-                passive.get().setAction(Friend.Action.IGNORED);
+                ignored.get().setAction(Friend.Action.IGNORED);
 
-                friendRepository.save(active.get());
-                return friendRepository.save(passive.get());
+                return new Friend[] {friendRepository.save(active.get()), friendRepository.save(ignored.get())};
             }
         }
-        return null;
+
+        throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
-    public Friend deleteFriend(User user, User surrogate) {
+    public Friend[] deleteFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(),
                 surrogate.getUsername(), Friend.State.ACTIVE);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(),
+        Optional<Friend> deleted = friendRepository.findBySurrogateAndState(surrogate.getUsername(),
                 user.getUsername(), Friend.State.ACTIVE);
 
-        if(passive.isPresent() && active.isPresent()) {
-                active.get().setState(Friend.State.DELETED);
-                passive.get().setState(Friend.State.DELETED);
+        if (deleted.isPresent() && active.isPresent()) {
+            active.get().setState(Friend.State.DELETED);
+            deleted.get().setState(Friend.State.DELETED);
 
-                active.get().setAction(Friend.Action.DELETING);
-                passive.get().setAction(Friend.Action.DELETED);
+            active.get().setAction(Friend.Action.DELETING);
+            deleted.get().setAction(Friend.Action.DELETED);
 
-                friendRepository.save(active.get());
-                return friendRepository.save(passive.get());
+            return new Friend[]{friendRepository.save(active.get()), friendRepository.save(deleted.get())};
         }
-        return null;
+
+        throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
     public Follower addFollowee(User user, User surrogate) {
