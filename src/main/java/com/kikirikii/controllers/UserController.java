@@ -134,7 +134,7 @@ public class UserController {
         return userService.getFriendsPending(user);
     }
 
-    private static final int REQUEST = 0, PENDING = 1, CANCELLED = 1, IGNORED = 1, ACCEPTED = 1, DELETED = 1;
+    private static final int REQUEST = 0, PENDING = 1, CANCELLED = 1, IGNORED = 1, ACCEPTED = 1, DELETED = 1, BLOCKED = 1, UNBLOCKED = 1;
 
     @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
     public Friend addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
@@ -203,33 +203,33 @@ public class UserController {
     }
 
     @RequestMapping(value = "/friend/block", method = RequestMethod.PUT)
-    public List<Friend> blockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend blockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        Friend blocked = userService.blockFriend(user, surrogate);
+        Friend[] friends = userService.blockFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_BLOCKED.name()),
                 entry.apply("message", user.getUsername() + " has blocked you."),
-                entry.apply("user", toJSON.apply(blocked)));
+                entry.apply("user", toJSON.apply(friends[BLOCKED])));
 
-        return userService.getFriends(user);
+        return friends[REQUEST];
     }
 
     @RequestMapping(value = "/friend/unblock", method = RequestMethod.PUT)
-    public List<Friend> unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
+    public Friend unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         User surrogate = userService.getUser(values.get("friend"));
 
-        Friend unblocked = userService.unblockFriend(user, surrogate);
+        Friend[] friends = userService.unblockFriend(user, surrogate);
 
         websocketService.sendToUser(surrogate.getUsername(), Topic.GENERIC,
                 entry.apply("event", Event.EVENT_FRIEND_UNBLOCKED.name()),
                 entry.apply("message", user.getUsername() + " has unblocked you."),
-                entry.apply("user", toJSON.apply(unblocked)));
+                entry.apply("user", toJSON.apply(friends[UNBLOCKED])));
 
-        return userService.getFriends(user);
+        return friends[REQUEST];
     }
 
     @RequestMapping(value = "/friend/delete", method = RequestMethod.PUT)

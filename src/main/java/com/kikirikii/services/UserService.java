@@ -272,40 +272,40 @@ public class UserService {
         throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
-    public Friend blockFriend(User user, User surrogate) {
+    public Friend[] blockFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.ACTIVE);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.ACTIVE);
+        Optional<Friend> blocked = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.ACTIVE);
 
-        if(active.isPresent() && passive.isPresent()) {
+        if(active.isPresent() && blocked.isPresent()) {
             active.get().setState(Friend.State.BLOCKED);
-            passive.get().setState(Friend.State.BLOCKED);
+            blocked.get().setState(Friend.State.BLOCKED);
 
             active.get().setAction(Friend.Action.BLOCKING);
-            passive.get().setAction(Friend.Action.BLOCKED);
+            blocked.get().setAction(Friend.Action.BLOCKED);
 
-            friendRepository.save(active.get());
-            return friendRepository.save(passive.get());
+            return new Friend[] {friendRepository.save(active.get()), friendRepository.save(blocked.get())};
         }
-        return null;
+
+        throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
-    public Friend unblockFriend(User user, User surrogate) {
+    public Friend[] unblockFriend(User user, User surrogate) {
         Optional<Friend> active = friendRepository.findBySurrogateAndState(user.getUsername(), surrogate.getUsername(), Friend.State.BLOCKED);
-        Optional<Friend> passive = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.BLOCKED);
+        Optional<Friend> unblocked = friendRepository.findBySurrogateAndState(surrogate.getUsername(), user.getUsername(), Friend.State.BLOCKED);
 
-        if(active.isPresent() && passive.isPresent()) {
+        if(active.isPresent() && unblocked.isPresent()) {
             if(active.get().getAction() == Friend.Action.BLOCKING) {
                 active.get().setState(Friend.State.ACTIVE);
-                passive.get().setState(Friend.State.ACTIVE);
+                unblocked.get().setState(Friend.State.ACTIVE);
 
                 active.get().setAction(Friend.Action.UNBLOCKING);
-                passive.get().setAction(Friend.Action.UNBLOCKED);
+                unblocked.get().setAction(Friend.Action.UNBLOCKED);
 
-                friendRepository.save(active.get());
-                return friendRepository.save(passive.get());
+                return new Friend[] {friendRepository.save(active.get()), friendRepository.save(unblocked.get())};
             }
         }
-        return null;
+
+        throw new InvalidResourceException("Cannot find either user " + user.getUsername() + " or friend " + surrogate.getUsername());
     }
 
     public Friend[] cancelFriendRequest(User user, User surrogate) {
