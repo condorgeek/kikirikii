@@ -56,8 +56,15 @@ public class SpaceService {
         if (member.isPresent()) {
             return member.get();
         }
-
         throw new InvalidResourceException("Member Id " + id + " is invalid.");
+    }
+
+    public Member getMember(Long spaceId, String username) {
+        Optional<Member> member = memberRepository.findMemberByUsername(spaceId, username);
+        if (member.isPresent()) {
+            return member.get();
+        }
+        throw new InvalidResourceException("Member Id " + username + " and Space Id " + spaceId + " is invalid.");
     }
 
     public Space updateCoverPath(Space space, String path) {
@@ -221,6 +228,11 @@ public class SpaceService {
 
     public List<Space> getMemberOfSpacesByType(String type, Long userId) {
         return memberRepository.findMemberOfByTypeAndUserId(Space.Type.valueOf(type), userId).stream()
+                .map(Member::getSpace).collect(Collectors.toList());
+    }
+
+    public List<Space> getMemberOfSpacesByType(Space.Type type, Long userId) {
+        return memberRepository.findMemberOfByTypeAndUserId(type, userId).stream()
                 .map(Member::getSpace).collect(Collectors.toList());
     }
 

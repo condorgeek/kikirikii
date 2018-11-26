@@ -13,10 +13,7 @@
 
 package com.kikirikii.controllers;
 
-import com.kikirikii.model.Friend;
-import com.kikirikii.model.Member;
-import com.kikirikii.model.Space;
-import com.kikirikii.model.User;
+import com.kikirikii.model.*;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.SpaceService;
@@ -63,6 +60,17 @@ public class SpaceController {
         return spaceService.getMemberOfSpacesByType(spaceType, user.getId());
     }
 
+    @RequestMapping(value = "/spaces/*", method = RequestMethod.GET)
+    public Map<String, List<Space>> getAnyUserSpaces(@PathVariable String userName) {
+
+        User user = userService.getUser(userName);
+        List<Space> generic = spaceService.getMemberOfSpacesByType(Space.Type.GENERIC, user.getId());
+        List<Space> events = spaceService.getMemberOfSpacesByType(Space.Type.EVENT, user.getId());
+        List<Space> shops = spaceService.getMemberOfSpacesByType(Space.Type.SHOP, user.getId());
+
+        return spacesAsMap(generic, events, shops);
+    }
+
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)
     public List<Member> getSpaceMembers(@PathVariable String userName, @PathVariable Long spaceId) {
         return spaceService.getMembersBySpace(spaceId);
@@ -100,11 +108,21 @@ public class SpaceController {
 
     /* member itself leaves space */
     @RequestMapping(value = "/space/{spaceId}/leave/{memberId}", method = RequestMethod.POST)
-    public Member leaveSpace(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
+    public Member leaveSpaceById(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
 
         User user = userService.getUser(userName);
         Space space = spaceService.getSpace(spaceId);
         Member member = spaceService.getMember(memberId);
+
+        return spaceService.leaveSpace(space, member);
+    }
+
+    @RequestMapping(value = "/space/{spaceId}/leave", method = RequestMethod.POST)
+    public Member leaveSpace(@PathVariable String userName, @PathVariable Long spaceId) {
+
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+        Member member = spaceService.getMember(spaceId, userName);
 
         return spaceService.leaveSpace(space, member);
     }
@@ -225,6 +243,15 @@ public class SpaceController {
         data.put("friend", friend);
         data.put("isFollowee", isFollowee);
         data.put("isOwner", isOwner);
+
+        return data;
+    }
+
+    private Map<String, List<Space>> spacesAsMap(List<Space> generic, List<Space> events, List<Space> shops) {
+        Map<String, List<Space>> data = new HashMap<>();
+        data.put("generic", generic);
+        data.put("events", events);
+        data.put("shops", shops);
 
         return data;
     }
