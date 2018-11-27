@@ -93,6 +93,14 @@ public class UserController {
         return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
     }
 
+    @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.POST)
+    public Post addGenericPost(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody PostProspect postProspect) {
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
+    }
+
     @RequestMapping(value = "/posts/global", method = RequestMethod.POST)
     public Post addGlobalPost(@PathVariable String userName, @RequestBody PostProspect postProspect) {
         User user = userService.getUser(userName);
