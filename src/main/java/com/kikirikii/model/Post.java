@@ -25,7 +25,7 @@ import java.util.Set;
 @Entity
 @Table(name = "posts")
 public class Post {
-    public enum State {ACTIVE, BLOCKED, HIDDEN}
+    public enum State {ACTIVE, BLOCKED, DELETED, HIDDEN}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

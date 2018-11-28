@@ -93,6 +93,19 @@ public class UserController {
         return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
     }
 
+    @RequestMapping(value = "/posts/{postId}/delete", method = RequestMethod.DELETE)
+    public Post deletePost(@PathVariable String userName, @PathVariable Long postId) {
+        User user = userService.getUser(userName);
+        return userService.deletePostById(postId);
+    }
+
+    @RequestMapping(value = "/posts/{postId}/hide", method = RequestMethod.PUT)
+    public Post hidePost(@PathVariable String userName, @PathVariable Long postId) {
+        User user = userService.getUser(userName);
+        return userService.hidePostById(postId);
+    }
+
+
     @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.POST)
     public Post addGenericPost(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody PostProspect postProspect) {
         User user = userService.getUser(userName);

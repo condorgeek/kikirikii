@@ -133,7 +133,7 @@ public class UserService {
     public List<Post> getUserGlobalPosts(User user) {
         Optional<Space> global = userRepository.findGlobalSpace(user.getId());
         if(global.isPresent()) {
-            return postRepository.findAllBySpaceId(global.get().getId()).collect(Collectors.toList());
+            return postRepository.findActiveBySpaceId(global.get().getId()).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -141,7 +141,7 @@ public class UserService {
     public List<Post> getUserHomePosts(User user) {
         Optional<Space> home = userRepository.findHomeSpace(user.getId());
         if(home.isPresent()) {
-            return postRepository.findAllBySpaceId(home.get().getId()).collect(Collectors.toList());
+            return postRepository.findActiveBySpaceId(home.get().getId()).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -149,16 +149,40 @@ public class UserService {
     public List<Post> getSpacePosts(User user, Long spaceId) {
         Optional<Space> space = spaceRepository.findById(spaceId);
          if(space.isPresent()) {
-             return postRepository.findAllBySpaceId(space.get().getId()).collect(Collectors.toList());
+             return postRepository.findActiveBySpaceId(space.get().getId()).collect(Collectors.toList());
          }
          return Collections.emptyList();
     }
 
     public Post getPostById(Long postId) {
         Optional<Post> post = postRepository.findById(postId);
-        assert post.isPresent() : "Invalid postId " + postId;
 
-        return post.get();
+        if(post.isPresent()) {
+            return post.get();
+        }
+
+        throw new InvalidResourceException("Cannot find post with id " + postId);
+    }
+
+    public Post deletePostById(Long postId) {
+        Post post = getPostById(postId);
+        post.setState(Post.State.DELETED);
+
+        return postRepository.save(post);
+    }
+
+    public Post hidePostById(Long postId) {
+        Post post = getPostById(postId);
+        post.setState(Post.State.HIDDEN);
+
+        return postRepository.save(post);
+    }
+
+    public Post blockPostById(Long postId) {
+        Post post = getPostById(postId);
+        post.setState(Post.State.BLOCKED);
+
+        return postRepository.save(post);
     }
 
     public List<User> getUserFriends(User user) {

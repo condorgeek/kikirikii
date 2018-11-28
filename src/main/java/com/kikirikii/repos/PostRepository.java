@@ -24,6 +24,6 @@ import java.util.stream.Stream;
 
 public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
 
-    @Query("select p from Post p where p.space.id = :spaceId order by created desc")
-    Stream<Post> findAllBySpaceId(@Param("spaceId") Long spaceId);
+    @Query("select p from Post p where p.space.id = :spaceId and p.state = 'ACTIVE' order by created desc")
+    Stream<Post> findActiveBySpaceId(@Param("spaceId") Long spaceId);
 }
