@@ -96,6 +96,12 @@ public class UserController {
     @RequestMapping(value = "/posts/{postId}/delete", method = RequestMethod.DELETE)
     public Post deletePost(@PathVariable String userName, @PathVariable Long postId) {
         User user = userService.getUser(userName);
+        Post post = userService.getPostById(postId);
+
+        if(!user.getUsername().equals(post.getUser().getUsername())) {
+            throw new InvalidResourceException("User has not enough authority to delete post");
+        }
+
         return userService.deletePostById(postId);
     }
 
