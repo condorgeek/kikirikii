@@ -98,12 +98,16 @@ public class UserController {
         User user = userService.getUser(userName);
         Post post = userService.getPostById(postId);
 
-        if(!user.getUsername().equals(post.getUser().getUsername())) {
-            throw new InvalidResourceException("User has not enough authority to delete post");
+        if(isPostOwner.apply(post, user) || isSpaceOwner.apply(post.getSpace(), user)) {
+            return userService.deletePostById(postId);
         }
 
-        return userService.deletePostById(postId);
+        throw new InvalidResourceException("User has not enough authority to delete post");
     }
+
+    private BiFunction<Post, User, Boolean> isPostOwner = (p, u) -> p.getUser().getUsername().equals(u.getUsername());
+    private BiFunction<Space, User, Boolean> isSpaceOwner = (s, u) -> s.getUser().getUsername().equals(u.getUsername());
+
 
     @RequestMapping(value = "/posts/{postId}/hide", method = RequestMethod.PUT)
     public Post hidePost(@PathVariable String userName, @PathVariable Long postId) {
