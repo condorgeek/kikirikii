@@ -25,7 +25,7 @@ import java.util.Set;
 @Entity
 @Table(name = "posts")
 public class Post {
-    public enum State {ACTIVE, BLOCKED, DELETED, HIDDEN}
+    public enum State {ACTIVE, BLOCKED, DELETED, HIDDEN, SHARED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,14 +42,13 @@ public class Post {
     private User user;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Where(clause = "state = 'ACTIVE'")
+    @Where(clause = "state in ('ACTIVE', 'SHARED')")
     private Set<Media> media = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "state = 'ACTIVE'")
     private Set<Like> likes = new HashSet<>();
 
-    @JsonIgnore
     @NotNull
     @Enumerated(EnumType.STRING)
     private State state;

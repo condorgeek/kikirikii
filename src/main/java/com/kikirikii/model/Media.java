@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 public class Media {
 
     public enum Type {PICTURE, VIDEO, SOUND, YOUTUBE, VIMEO, SOUNDCLOUD, SPOTIFY}
-    public enum State {ACTIVE, DELETED}
+    public enum State {ACTIVE, DELETED, SHARED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

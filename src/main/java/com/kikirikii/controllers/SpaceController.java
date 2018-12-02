@@ -106,6 +106,17 @@ public class SpaceController {
         return spaceService.addMember(space, user, user, "MEMBER");
     }
 
+    @RequestMapping(value = "/space/{spaceId}/share/{postId}", method = RequestMethod.POST)
+    public Post sharePost(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long postId, @RequestBody Map<String, String> values) {
+
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+        Post post = userService.getPostById(postId);
+        String comment = values.get("comment");
+
+        return userService.sharePost(space, user, post, comment);
+    }
+
     /* member itself leaves space */
     @RequestMapping(value = "/space/{spaceId}/leave/{memberId}", method = RequestMethod.POST)
     public Member leaveSpaceById(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {

@@ -112,6 +112,25 @@ public class UserService {
         return postRepository.save(Post.of(space, user, title, text, media));
     }
 
+    // TODO 1) expand Post to have an own comment field 2) reference shared user
+    public Post sharePost(Space space, User user, Post post, String comment) {
+        String text = comment != null ? comment + post.getText() : post.getText();
+        Post shared = Post.of(space, user, post.getTitle(), text);
+        shared.setState(Post.State.SHARED);
+
+        Set<Media> medialist = post.getMedia().stream().map(m -> {
+            Media media = Media.of(shared, m.getUrl(), m.getType());
+            media.setThumbnail(m.getThumbnail());
+            media.setUsername(m.getUsername());
+            media.setState(Media.State.SHARED);
+            return media;
+        }).collect(Collectors.toSet());
+
+        shared.setMedia(medialist);
+
+        return postRepository.save(shared);
+    }
+
     public Space getHomeSpace(String name) {
         Optional<Space> home = userRepository.findHomeSpaceByName(name);
         assert home.isPresent() : "Invalid user name or user has no home space " + name;
