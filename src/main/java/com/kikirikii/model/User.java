@@ -145,6 +145,10 @@ public class User {
         this.lastname = lastname;
     }
 
+    public String getFullname() {
+        return firstname + " " + lastname;
+    }
+
     public UserData getUserData() {
         return userData;
     }

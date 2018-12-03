@@ -15,6 +15,7 @@ package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Where;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -41,6 +42,11 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Nullable
+    @OneToOne
+    @JoinColumn(name ="from_id")
+    private User from;          // shared from user
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "state in ('ACTIVE', 'SHARED')")
     private Set<Media> media = new HashSet<>();
@@ -57,6 +63,9 @@ public class Post {
 
     @Column(columnDefinition = "text", length = 10485760)
     private String text;
+
+    @Column(columnDefinition = "text", length = 10485760)
+    private String comment;     // shared comment
 
     @NotNull
     private Date created;
@@ -167,6 +176,23 @@ public class Post {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @Nullable
+    public User getFrom() {
+        return from;
+    }
+
+    public void setFrom(@Nullable User from) {
+        this.from = from;
     }
 
     public Date getCreated() {

@@ -112,11 +112,13 @@ public class UserService {
         return postRepository.save(Post.of(space, user, title, text, media));
     }
 
-    // TODO 1) expand Post to have an own comment field 2) reference shared user
     public Post sharePost(Space space, User user, Post post, String comment) {
-        String text = comment != null ? comment + post.getText() : post.getText();
+        String text = "** Post shared from " + post.getUser().getFullname() + " ** " + post.getText();
+
         Post shared = Post.of(space, user, post.getTitle(), text);
         shared.setState(Post.State.SHARED);
+        shared.setFrom(post.getUser());
+        shared.setComment(comment);
 
         Set<Media> medialist = post.getMedia().stream().map(m -> {
             Media media = Media.of(shared, m.getUrl(), m.getType());
@@ -186,6 +188,7 @@ public class UserService {
     public Post deletePostById(Long postId) {
         Post post = getPostById(postId);
         post.setState(Post.State.DELETED);
+        post.getMedia().forEach(media -> media.setState(Media.State.DELETED));
 
         return postRepository.save(post);
     }

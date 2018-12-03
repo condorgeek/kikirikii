@@ -245,7 +245,7 @@ public class PersistenceTests {
 
         Assert.assertEquals(5, post.getMedia().size());
 
-        List<Post> posts = postRepository.findAllBySpaceId(home.getId()).collect(Collectors.toList());
+        List<Post> posts = postRepository.findActiveBySpaceId(home.getId()).collect(Collectors.toList());
         Assert.assertEquals(3, posts.size());
 
         post = postRepository.save(post.removeMedia(media));
