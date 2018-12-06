@@ -4,7 +4,7 @@
  * Copyright (c) [2018] -  [] Marcelo H. Krebber - European Union 2018
  * All Rights Reserved.
  *
- * Dissemination or reproduction of this file [UserProspect.java] or parts within
+ * Dissemination or reproduction of this file [UserRequest.java] or parts within
  * via any medium is strictly forbidden unless prior written permission is obtained
  * from <marcelo.krebber@gmail.com>
  *
@@ -23,7 +23,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserProspect {
+public class UserRequest {
     @NotNull
     public String email;
     @NotNull

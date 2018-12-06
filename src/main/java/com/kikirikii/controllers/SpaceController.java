@@ -14,6 +14,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.SpaceRequest;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.SpaceService;
@@ -83,6 +84,16 @@ public class SpaceController {
         User user = userService.getUser(userName);
         return spaceService.createSpaceCombined(user, spaceType, values.get("name"),  values.get("description"),
                 values.get("access"));
+    }
+
+    @RequestMapping(value = "/space/{spaceId}/update", method = RequestMethod.POST)
+    public Space updateSpace(@PathVariable String userName, @PathVariable Long spaceId,
+                             @RequestBody SpaceRequest spaceRequest) {
+
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return  spaceService.save(spaceRequest.update(space));
     }
 
     @RequestMapping(value = "/space/{spaceId}/member/{memberName}/add", method = RequestMethod.POST)
@@ -226,19 +237,20 @@ public class SpaceController {
         return genericSpaceDataAsMap(space, user);
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> genericSpaceDataAsMap(Space space, User user) {
         Member member = spaceService.findMember(space.getId(), user);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("space", space);
-        data.put("spacedata", space.getSpaceData());
-        data.put("userdata", user.getUserData());
-        data.put("members", spaceService.getMembersCount(space.getId()));
-        data.put("isMember", member != null);
-        data.put("member", member);
-        return data;
+        return new DataMap<String, Object>().put("space", space)
+                .put("spacedata", space.getSpaceData())
+                .put("userdata", user.getUserData())
+                .put("members", spaceService.getMembersCount(space.getId()))
+                .put("isMember", member != null)
+                .put("member", member)
+                .get();
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> homeSpaceDataAsMap(Space space, User user, Principal principal) {
 
         Friend friend = userService.getFriend(principal.getName(), user);
@@ -246,27 +258,38 @@ public class SpaceController {
         boolean isFriend = isOwner || friend != null;
         boolean isFollowee = isOwner || userService.isFollowee(principal.getName(), user);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("space", space);
-        data.put("spacedata", space.getSpaceData());
-        data.put("userdata", user.getUserData());
-        data.put("friends", userService.getFriendsCount(user.getUsername()));
-        data.put("followers", userService.getFollowersCount(user.getUsername()));
-        data.put("isFriend", isFriend);
-        data.put("friend", friend);
-        data.put("isFollowee", isFollowee);
-        data.put("isOwner", isOwner);
-
-        return data;
+        return new DataMap<String, Object>().put("space", space)
+                .put("spacedata", space.getSpaceData())
+                .put("userdata", user.getUserData())
+                .put("friends", userService.getFriendsCount(user.getUsername()))
+                .put("followers", userService.getFollowersCount(user.getUsername()))
+                .put("isFriend", isFriend)
+                .put("friend", friend)
+                .put("isFollowee", isFollowee)
+                .put("isOwner", isOwner)
+                .get();
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, List<Space>> spacesAsMap(List<Space> generic, List<Space> events, List<Space> shops) {
-        Map<String, List<Space>> data = new HashMap<>();
-        data.put("generic", generic);
-        data.put("events", events);
-        data.put("shops", shops);
 
-        return data;
+        return new DataMap<String, List<Space>>().put("generic", generic)
+                .put("events", events)
+                .put("shops", shops)
+                .get();
+    }
+
+    private class DataMap <K, O>{
+        private Map<K, O> map = new HashMap<>();
+
+        DataMap() {}
+        DataMap put(K key, O data) {
+            this.map.put(key, data);
+            return this;
+        }
+        Map<K, O> get() {
+            return map;
+        }
     }
 
     private Map<String, Object> asMap(AbstractMap.SimpleEntry<String, Object>... entries) {

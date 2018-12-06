@@ -14,7 +14,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.User;
-import com.kikirikii.model.dto.UserProspect;
+import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +47,7 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/user/create/{username}", method = RequestMethod.POST)
-    public User createUser(@PathVariable String username, @RequestBody UserProspect prospect) {
+    public User createUser(@PathVariable String username, @RequestBody UserRequest prospect) {
 
         User user = userService.createUser(username, prospect);
         userService.createSpaces(user);

@@ -16,9 +16,8 @@ package com.kikirikii.services;
 import com.kikirikii.exceptions.DuplicateResourceException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
-import com.kikirikii.model.dto.UserProspect;
+import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.repos.*;
-import com.sun.corba.se.impl.resolver.FileResolverImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +69,7 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User createUser(String username, UserProspect prospect) {
+    public User createUser(String username, UserRequest prospect) {
         if(findByUsername(prospect.username).isPresent()) {
             throw new DuplicateResourceException("Username already exists.");
         }

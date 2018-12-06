@@ -74,17 +74,13 @@ public class SpaceData {
 
     private SpaceData() { /* empty */}
 
-    public static SpaceData of(Space space, LocalDate startDate, LocalDate endDate, String generalInformation,
-                               String theVenue) {
-        SpaceData data = new SpaceData();
-        data.space = space;
-        data.startDate = startDate;
-        data.endDate = endDate;
-        data.generalInformation = generalInformation;
-        data.theVenue = theVenue;
-        data.state = State.ACTIVE;
-        data.created = new Date();
-        return data;
+    public static SpaceData of(Address address, LocalDate startDate, LocalDate endDate,
+                               String generalInformation, String theVenue, String theCity,
+                               String travelInformation, String accommodation, String charityRun,
+                               String organization, String keyDates) {
+
+        return of(null, address, startDate, endDate, generalInformation, theVenue, theCity,
+                travelInformation, accommodation, charityRun, organization, keyDates);
     }
 
     public static SpaceData of(Space space, Address address, LocalDate startDate, LocalDate endDate,

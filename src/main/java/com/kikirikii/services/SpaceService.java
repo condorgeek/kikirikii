@@ -67,6 +67,10 @@ public class SpaceService {
         throw new InvalidResourceException("Member Id " + username + " and Space Id " + spaceId + " is invalid.");
     }
 
+    public Space save(Space space) {
+        return spaceRepository.save(space);
+    }
+
     public Space updateCoverPath(Space space, String path) {
         space.setCover(path);
         return spaceRepository.save(space);

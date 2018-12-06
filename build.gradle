@@ -37,8 +37,9 @@ dependencies {
     compile("org.springframework.boot:spring-boot-configuration-processor")
 	compile("org.springframework.boot:spring-boot-starter-websocket")
 
+    // TODO remove migrator
 	runtime("org.springframework.boot:spring-boot-properties-migrator")
-
+    
 	runtime('org.postgresql:postgresql')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.security:spring-security-test')
