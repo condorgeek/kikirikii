@@ -231,6 +231,7 @@ public class SpaceController {
 
         Map<String, Object> data = new HashMap<>();
         data.put("space", space);
+        data.put("spacedata", space.getSpaceData());
         data.put("userdata", user.getUserData());
         data.put("members", spaceService.getMembersCount(space.getId()));
         data.put("isMember", member != null);
@@ -247,6 +248,7 @@ public class SpaceController {
 
         Map<String, Object> data = new HashMap<>();
         data.put("space", space);
+        data.put("spacedata", space.getSpaceData());
         data.put("userdata", user.getUserData());
         data.put("friends", userService.getFriendsCount(user.getUsername()));
         data.put("followers", userService.getFollowersCount(user.getUsername()));

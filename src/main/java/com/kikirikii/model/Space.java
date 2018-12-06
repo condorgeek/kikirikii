@@ -57,6 +57,10 @@ public class Space {
     @NotNull
     private String description;
 
+    @JsonIgnore
+    @OneToOne(mappedBy = "space", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private SpaceData spaceData;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private Type type;
@@ -162,5 +166,13 @@ public class Space {
 
     public void setAccess(Access access) {
         this.access = access;
+    }
+
+    public SpaceData getSpaceData() {
+        return spaceData;
+    }
+
+    public void setSpaceData(SpaceData spaceData) {
+        this.spaceData = spaceData;
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+//@EnableConfigurationProperties({StorageProperties.class, SecurityProperties.class})
 public class KikirikiiApp {
 
 	public static void main(String[] args) {
