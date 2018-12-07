@@ -13,9 +13,6 @@
 
 package com.kikirikii.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -54,12 +51,11 @@ public class Space {
 
     private String cover;
 
-    @NotNull
+    @Column(columnDefinition = "text", length = 10485760)
     private String description;
 
-    @JsonIgnore
     @OneToOne(mappedBy = "space", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-    private SpaceData spaceData;
+    private SpaceData spacedata;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -168,11 +164,11 @@ public class Space {
         this.access = access;
     }
 
-    public SpaceData getSpaceData() {
-        return spaceData;
+    public SpaceData getSpacedata() {
+        return spacedata;
     }
 
-    public void setSpaceData(SpaceData spaceData) {
-        this.spaceData = spaceData;
+    public void setSpacedata(SpaceData spacedata) {
+        this.spacedata = spacedata;
     }
 }

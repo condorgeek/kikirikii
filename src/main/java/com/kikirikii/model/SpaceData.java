@@ -63,7 +63,13 @@ public class SpaceData {
     private String organization;
 
     @Column(columnDefinition = "text", length = 10485760)
+    private String dates;
+
+    @Column(columnDefinition = "text", length = 10485760)
     private String keyDates;
+
+    @Column(columnDefinition = "text", length = 10485760)
+    private String tickets;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -77,16 +83,16 @@ public class SpaceData {
     public static SpaceData of(Address address, LocalDate startDate, LocalDate endDate,
                                String generalInformation, String theVenue, String theCity,
                                String travelInformation, String accommodation, String charityRun,
-                               String organization, String keyDates) {
+                               String organization, String keyDates, String tickets, String dates) {
 
         return of(null, address, startDate, endDate, generalInformation, theVenue, theCity,
-                travelInformation, accommodation, charityRun, organization, keyDates);
+                travelInformation, accommodation, charityRun, organization, keyDates, tickets, dates);
     }
 
     public static SpaceData of(Space space, Address address, LocalDate startDate, LocalDate endDate,
                                String generalInformation, String theVenue, String theCity,
                                String travelInformation, String accommodation, String charityRun,
-                               String organization, String keyDates) {
+                               String organization, String keyDates, String tickets, String dates) {
         SpaceData data = new SpaceData();
         data.space = space;
         data.address = address;
@@ -100,6 +106,8 @@ public class SpaceData {
         data.charityRun = charityRun;
         data.organization = organization;
         data.keyDates = keyDates;
+        data.tickets = tickets;
+        data.dates = dates;
         data.state = State.ACTIVE;
         data.created = new Date();
         return data;
@@ -207,6 +215,22 @@ public class SpaceData {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public String getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(String tickets) {
+        this.tickets = tickets;
+    }
+
+    public String getDates() {
+        return dates;
+    }
+
+    public void setDates(String dates) {
+        this.dates = dates;
     }
 
     public Date getCreated() {

@@ -242,7 +242,7 @@ public class SpaceController {
         Member member = spaceService.findMember(space.getId(), user);
 
         return new DataMap<String, Object>().put("space", space)
-                .put("spacedata", space.getSpaceData())
+                .put("spacedata", space.getSpacedata())
                 .put("userdata", user.getUserData())
                 .put("members", spaceService.getMembersCount(space.getId()))
                 .put("isMember", member != null)
@@ -259,7 +259,7 @@ public class SpaceController {
         boolean isFollowee = isOwner || userService.isFollowee(principal.getName(), user);
 
         return new DataMap<String, Object>().put("space", space)
-                .put("spacedata", space.getSpaceData())
+                .put("spacedata", space.getSpacedata())
                 .put("userdata", user.getUserData())
                 .put("friends", userService.getFriendsCount(user.getUsername()))
                 .put("followers", userService.getFollowersCount(user.getUsername()))

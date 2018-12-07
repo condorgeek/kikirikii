@@ -38,6 +38,8 @@ public class SpaceRequest {
     private String charityRun;
     private String organization;
     private String keyDates;
+    private String tickets;
+    private String dates;
 
     public String getName() {
         return name;
@@ -143,6 +145,22 @@ public class SpaceRequest {
         this.keyDates = keyDates;
     }
 
+    public String getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(String tickets) {
+        this.tickets = tickets;
+    }
+
+    public String getDates() {
+        return dates;
+    }
+
+    public void setDates(String dates) {
+        this.dates = dates;
+    }
+
     public Space update(Space space) {
 
         if(name != null) { space.setName(name); }
@@ -152,13 +170,13 @@ public class SpaceRequest {
         LocalDate startDate = this.startDate != null ? LocalDate.parse(this.startDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null;
         LocalDate endDate = this.endDate != null ? LocalDate.parse(this.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null;
 
-        if(space.getSpaceData() == null) {
-            SpaceData spaceData = SpaceData.of(null, startDate, endDate, generalInformation,
+        if(space.getSpacedata() == null) {
+            SpaceData spaceData = SpaceData.of(space, null, startDate, endDate, generalInformation,
                     theVenue, theCity, travelInformation, accommodation, charityRun, organization,
-                    keyDates);
-            space.setSpaceData(spaceData);
+                    keyDates, tickets, dates);
+            space.setSpacedata(spaceData);
         } else {
-            SpaceData spaceData = space.getSpaceData();
+            SpaceData spaceData = space.getSpacedata();
             spaceData.setStartDate(startDate);
             spaceData.setEndDate(endDate);
             spaceData.setGeneralInformation(generalInformation);
@@ -169,6 +187,8 @@ public class SpaceRequest {
             spaceData.setCharityRun(charityRun);
             spaceData.setOrganization(organization);
             spaceData.setKeyDates(keyDates);
+            spaceData.setTickets(tickets);
+            spaceData.setDates(dates);
         }
 
         return space;
