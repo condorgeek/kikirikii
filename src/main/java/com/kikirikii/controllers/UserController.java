@@ -17,12 +17,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.PostRequest;
 import com.kikirikii.model.dto.Topic;
 import com.kikirikii.services.ChatService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
-import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,11 +86,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/posts/home", method = RequestMethod.POST)
-    public Post addHomePost(@PathVariable String userName, @RequestBody PostProspect postProspect) {
+    public Post addHomePost(@PathVariable String userName, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(userName);
 
-        return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
+        return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
+                postRequest.getMediaAsSet());
     }
 
     @RequestMapping(value = "/posts/{postId}/delete", method = RequestMethod.DELETE)
@@ -115,21 +116,22 @@ public class UserController {
         return userService.hidePostById(postId);
     }
 
-
     @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.POST)
-    public Post addGenericPost(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody PostProspect postProspect) {
+    public Post addGenericPost(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
         Space space = spaceService.getSpace(spaceId);
 
-        return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
+        return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
+                postRequest.getMediaAsSet());
     }
 
     @RequestMapping(value = "/posts/global", method = RequestMethod.POST)
-    public Post addGlobalPost(@PathVariable String userName, @RequestBody PostProspect postProspect) {
+    public Post addGlobalPost(@PathVariable String userName, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
         Space space = userService.getGlobalSpace(userName);
 
-        return userService.addPost(space, user, postProspect.title, postProspect.text, toSet.apply(postProspect.media));
+        return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
+                postRequest.getMediaAsSet());
     }
 
     @RequestMapping(value = "/user/friends", method = RequestMethod.GET)
@@ -395,37 +397,6 @@ public class UserController {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    static class PostProspect {
-        private String title;
-        private String text;
-        private Media[] media;
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
-        }
-
-        public Media[] getMedia() {
-            return media;
-        }
-
-        public void setMedia(Media[] media) {
-            this.media = media;
-        }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
     static class MediaProspect {
         private String url;
         private Media.Type type;
@@ -457,12 +428,12 @@ public class UserController {
         public String getValue() {return value;}
     }
 
-    private Function<MediaProspect[], Set<Media>> toMediaSet = media ->
+    private Function<MediaProspect[], Set<Media>> asMediaSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media)
                     .map(entry -> Media.of(entry.url, entry.type))
                     .collect(Collectors.toSet()) : null;
 
-    private Function<Media[], Set<Media>> toSet = media ->
+    private Function<Media[], Set<Media>> asSet = media ->
             (media != null && media.length > 0) ? Arrays.stream(media).collect(Collectors.toSet()) : null;
 
     private BiFunction<String, String, AbstractMap.SimpleEntry> entry = AbstractMap.SimpleEntry::new;

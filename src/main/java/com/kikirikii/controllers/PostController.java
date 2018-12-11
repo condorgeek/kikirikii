@@ -15,6 +15,7 @@ package com.kikirikii.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.PostRequest;
 import com.kikirikii.services.PostService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,15 @@ public class PostController {
         User user = userService.getUser(userName);
 
         return postService.removeCommentLike(user, commentId, likeId);
+    }
+
+    @RequestMapping(value = "/posts/{postId}/update", method = RequestMethod.POST)
+    public Post updatePost(@PathVariable String userName, @PathVariable Long postId, @RequestBody PostRequest postRequest) {
+        User user = userService.getUser(userName);
+        Post post = postService.getPost(postId);
+
+        return userService.updatePost(post, user, postRequest.getTitle(), postRequest.getText(),
+                postRequest.getMediaAsSet());
     }
 
     static class LikeRequest {

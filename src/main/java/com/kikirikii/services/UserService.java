@@ -14,6 +14,7 @@
 package com.kikirikii.services;
 
 import com.kikirikii.exceptions.DuplicateResourceException;
+import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.UserRequest;
@@ -109,6 +110,22 @@ public class UserService {
 
     public Post addPost(Space space, User user, String title, String text, Set<Media> media) {
         return postRepository.save(Post.of(space, user, title, text, media));
+    }
+
+    public Post updatePost(Post post, User user, String title, String text, Set<Media> media) {
+        if (post.getUser().getUsername().equals(user.getUsername())) {
+
+            post.setTitle(title);
+            post.setText(text);
+            if(media != null) media.forEach(post::addMedia);
+
+            return postRepository.save(post);
+        }
+        throw new InvalidAuthorizationException(user.getUsername() + " is not post author.");
+    }
+
+    public Post savePost(Post post) {
+        return postRepository.save(post);
     }
 
     public Post sharePost(Space space, User user, Post post, String comment) {
