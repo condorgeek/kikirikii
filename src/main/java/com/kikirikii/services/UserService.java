@@ -128,6 +128,11 @@ public class UserService {
         return postRepository.save(post);
     }
 
+    public Post deleteMedia(Post post, Media media) {
+        Post updated = post.removeMedia(media);
+        return postRepository.save(updated);
+    }
+
     public Post sharePost(Space space, User user, Post post, String comment) {
         String text = "** Post shared from " + post.getUser().getFullname() + " ** " + post.getText();
 

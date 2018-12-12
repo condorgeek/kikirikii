@@ -86,6 +86,15 @@ public class PostController {
                 postRequest.getMediaAsSet());
     }
 
+    @RequestMapping(value = "/posts/{postId}/media/{mediaId}/delete", method = RequestMethod.DELETE)
+    public Post deletePostMedia(@PathVariable String userName, @PathVariable Long postId, @PathVariable Long mediaId) {
+        User user = userService.getUser(userName);
+        Post post = postService.getPost(postId);
+        Media media = postService.getMedia(mediaId);
+
+        return userService.deleteMedia(post, media);
+    }
+
     static class LikeRequest {
         private String username;
 

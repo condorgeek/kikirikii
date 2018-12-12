@@ -15,10 +15,7 @@ package com.kikirikii.services;
 
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
-import com.kikirikii.repos.CommentLikeRepository;
-import com.kikirikii.repos.CommentRepository;
-import com.kikirikii.repos.LikeRepository;
-import com.kikirikii.repos.PostRepository;
+import com.kikirikii.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +41,9 @@ public class PostService {
     @Autowired
     private CommentLikeRepository commentLikeRepository;
 
+    @Autowired
+    private MediaRepository mediaRepository;
+
     public List<Comment> getCommentsByPostId(Long postId) {
         return commentRepository.findAllByPostId(postId).collect(Collectors.toList());
     }
@@ -61,6 +61,14 @@ public class PostService {
             return like.get();
         }
         throw new InvalidResourceException("Cannot find like " + likeId);
+    }
+
+    public Media getMedia(Long mediaId) {
+        Optional<Media> media = mediaRepository.findById(mediaId);
+        if(media.isPresent()) {
+            return  media.get();
+        }
+        throw new InvalidResourceException("Cannot find media " + mediaId);
     }
 
     public CommentLike getCommentLike(Long likeId) {
