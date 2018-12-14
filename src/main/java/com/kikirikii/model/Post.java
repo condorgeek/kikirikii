@@ -70,7 +70,7 @@ public class Post {
     @NotNull
     private Date created;
 
-    private Post() {
+    protected Post() {
     }
 
     public static Post of(Space space, User user, String title, String text) {

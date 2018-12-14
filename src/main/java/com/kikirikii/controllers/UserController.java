@@ -63,6 +63,22 @@ public class UserController {
         return userService.getUserHomePosts(user);
     }
 
+    @RequestMapping(value = "/posts/media/home", method = RequestMethod.GET)
+    List<Media> getUserHomeMedia(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+        Space space = userService.getHomeSpace(user.getUsername());
+
+        return userService.getUserSpaceMedia(user, space);
+    }
+
+    @RequestMapping(value = "/posts/media/generic/{spaceId}", method = RequestMethod.GET)
+    List<Media> getUserGenericMedia(@PathVariable String userName, @PathVariable Long spaceId) {
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return userService.getUserSpaceMedia(user, space);
+    }
+
     @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.GET)
     List<Post> getUserGenericPosts(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);

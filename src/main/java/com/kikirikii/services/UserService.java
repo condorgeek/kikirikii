@@ -22,6 +22,8 @@ import com.kikirikii.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.logging.Logger;
@@ -46,6 +48,10 @@ public class UserService {
 
     @Autowired
     private SpaceRepository spaceRepository;
+
+    @Autowired
+    private MediaRepository mediaRepository;
+
 
     public UserService() {
         logger.info("Initialized");
@@ -186,6 +192,10 @@ public class UserService {
             return postRepository.findActiveBySpaceId(home.get().getId()).collect(Collectors.toList());
         }
         return Collections.emptyList();
+    }
+
+    public List<Media> getUserSpaceMedia(User user, Space space) {
+        return mediaRepository.findMediaByUserIdAndSpaceId(user.getId(), space.getId());
     }
 
     public List<Post> getSpacePosts(User user, Long spaceId) {

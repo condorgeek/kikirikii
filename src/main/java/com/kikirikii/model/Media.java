@@ -49,7 +49,7 @@ public class Media {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    private Media() {}
+    protected Media() {}
 
     public static Media of(String url, Type type) {
         return Media.of(null, url, type);

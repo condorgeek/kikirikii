@@ -72,7 +72,7 @@ public class Space {
     @NotNull
     private Date created;
 
-    private Space() {
+    protected Space() {
     }
 
     public static Space of(User user, String name, String description, Type type) {

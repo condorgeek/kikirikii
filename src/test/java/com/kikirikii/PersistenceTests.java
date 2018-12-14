@@ -18,12 +18,15 @@ import com.kikirikii.repos.*;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
@@ -67,6 +70,29 @@ public class PersistenceTests {
 
     @Autowired
     private SpaceService spaceService;
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @Ignore
+    @Test
+    @Transactional
+    public void queryMedia() {
+        Optional<User> user = userRepository.findByUsername("amaru.london");
+        Assert.assertTrue(user.isPresent());
+
+        List matrix = em.createQuery("select m, p from Media m, Post p where p.user.id = :userId and m.state = 'ACTIVE' and p.state = 'ACTIVE' and m.post.id = p.id").
+                setParameter("userId", user.get().getId()).
+                getResultList();
+        Assert.assertTrue(matrix != null);
+
+        List<Media> media = em.createQuery("select m from Media m where m.post.user.id = :userId and m.state = 'ACTIVE' and m.post.state = 'ACTIVE'", Media.class).
+                setParameter("userId", user.get().getId()).
+                getResultList();
+
+        Assert.assertTrue(media != null);
+        Assert.assertEquals(matrix.size(), media.size());
+    }
 
     @Test
     @Transactional
