@@ -26,13 +26,13 @@ public interface MediaRepository extends CrudRepository<Media, Long> {
     @Query("select m from Media m where m.post.id = :postId")
     Stream<Media> findAllByPostId(@Param("postId") Long postId);
 
-    @Query("select m from Media m where m.post.user.id = :userId and m.state = 'ACTIVE' and m.post.state = 'ACTIVE'")
+    @Query("select m from Media m where m.post.user.id = :userId and m.state = 'ACTIVE' and m.post.state = 'ACTIVE' order by m.created desc")
     List<Media> findAllByUserId(@Param("userId") Long userId);
 
-    @Query("select m from Media m where m.post.user.id = :userId and m.post.space.id = :spaceId and m.state = 'ACTIVE' and m.post.state = 'ACTIVE'")
+    @Query("select m from Media m where m.post.user.id = :userId and m.post.space.id = :spaceId and m.state = 'ACTIVE' and m.post.state = 'ACTIVE' order by m.created desc")
     List<Media> findMediaByUserIdAndSpaceId(@Param("userId") Long userId, @Param("spaceId") Long spaceId);
 
-    @Query("select m from Media m where m.post.user.username = :username and m.state = 'ACTIVE' and m.post.state = 'ACTIVE'")
+    @Query("select m from Media m where m.post.user.username = :username and m.state = 'ACTIVE' and m.post.state = 'ACTIVE' order by m.created desc")
     List<Media> findAllByUsername(@Param("username") String username);
 
 }

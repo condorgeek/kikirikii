@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.Media;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,7 +53,11 @@ public class PostRequest {
     }
 
     public Set<Media> getMediaAsSet() {
-        return asSet.apply(media);
+        return media != null ? Arrays.stream(media).peek(m -> {
+            if(m.getState() == null) m.setState(Media.State.ACTIVE);
+            if(m.getCreated() == null) m.setCreated(new Date());
+        }).collect(Collectors.toSet()) : null;
+
     }
 
     private  Function<Media[], Set<Media>> asSet = media ->

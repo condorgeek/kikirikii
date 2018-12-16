@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "media")
@@ -49,6 +50,9 @@ public class Media {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @NotNull
+    private Date created;
+
     protected Media() {}
 
     public static Media of(String url, Type type) {
@@ -61,6 +65,7 @@ public class Media {
         media.url = url;
         media.type = type;
         media.state = State.ACTIVE;
+        media.created = new Date();
         return media;
     }
 
@@ -114,5 +119,13 @@ public class Media {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }
