@@ -22,7 +22,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface UserRepository extends CrudRepository<User, String> {
+public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);

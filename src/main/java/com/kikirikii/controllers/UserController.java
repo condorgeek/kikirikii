@@ -19,6 +19,7 @@ import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.PostRequest;
 import com.kikirikii.model.dto.Topic;
+import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.services.ChatService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
@@ -148,6 +149,13 @@ public class UserController {
 
         return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
                 postRequest.getMediaAsSet());
+    }
+
+    @RequestMapping(value = "/userdata/update", method = RequestMethod.POST)
+    public UserData updateUserData(@PathVariable String userName, @RequestBody UserRequest userRequest) {
+        User user = userService.getUser(userName);
+
+        return userService.updateUser(user, userRequest).getUserData();
     }
 
     @RequestMapping(value = "/user/friends", method = RequestMethod.GET)

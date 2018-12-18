@@ -11,7 +11,7 @@
  * Last modified: 04.10.18 11:34
  */
 
-package com.kikirikii.controllers;
+package com.kikirikii.controllers._deprecated;
 
 import com.kikirikii.exceptions.StorageFileNotFoundException;
 import com.kikirikii.storage.StorageService;

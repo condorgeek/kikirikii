@@ -58,14 +58,20 @@ public class UserService {
     }
 
     public User getUser(String username) {
-        try {
-            Optional<User> user = userRepository.findByUsername(username);
-            if (user.isPresent()) {
-                return user.get();
-            }
-        } catch (Exception e) { /*empty*/ }
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            return user.get();
+        }
 
         throw new InvalidResourceException("User " + username + " is invalid.");
+    }
+
+    public User getUser(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            return user.get();
+        }
+        throw new InvalidResourceException("User with id " + userId + " is invalid.");
     }
 
     public Optional<User> findByUsername(String username) {
@@ -76,22 +82,26 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User createUser(String username, UserRequest prospect) {
-        if(findByUsername(prospect.username).isPresent()) {
+    public User createUser(String username, UserRequest request) {
+        if(findByUsername(request.username).isPresent()) {
             throw new DuplicateResourceException("Username already exists.");
         }
 
-        if(findByEmail(prospect.email).isPresent()) {
+        if(findByEmail(request.email).isPresent()) {
             throw new DuplicateResourceException("Email already associated to user.");
         }
 
         try {
-            return userRepository.save(prospect.createUser());
+            return userRepository.save(request.createUser());
 
         } catch(Exception e) {
             throw new InvalidResourceException("User cannot be created. " + e.getMessage());
         }
+    }
 
+    public User updateUser(User user, UserRequest request) {
+        User updated = request.updateUser(user);
+        return userRepository.save(updated);
     }
 
     public User updateUser(User user) {

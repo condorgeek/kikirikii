@@ -47,9 +47,9 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/user/create/{username}", method = RequestMethod.POST)
-    public User createUser(@PathVariable String username, @RequestBody UserRequest prospect) {
+    public User createUser(@PathVariable String username, @RequestBody UserRequest userRequest) {
 
-        User user = userService.createUser(username, prospect);
+        User user = userService.createUser(username, userRequest);
         userService.createSpaces(user);
 
         return user;

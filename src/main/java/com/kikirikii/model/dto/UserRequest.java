@@ -21,18 +21,15 @@ import com.kikirikii.model.UserData;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Function;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRequest {
-    @NotNull
+    //user
     public String email;
-    @NotNull
     public String username;
-    @NotNull
     public String firstname;
-    @NotNull
     public String lastname;
-    @NotNull
     public String password;
 
     // user data
@@ -44,6 +41,9 @@ public class UserRequest {
 
     private String religion;
     private String politics;
+    private String work;
+    private String studies;
+    private String interests;
     private String telNumber;
 
     // address
@@ -207,14 +207,78 @@ public class UserRequest {
         this.optional = optional;
     }
 
+    public String getWork() {
+        return work;
+    }
+
+    public void setWork(String work) {
+        this.work = work;
+    }
+
+    public String getStudies() {
+        return studies;
+    }
+
+    public void setStudies(String studies) {
+        this.studies = studies;
+    }
+
+    public String getInterests() {
+        return interests;
+    }
+
+    public void setInterests(String interests) {
+        this.interests = interests;
+    }
+
     public User createUser() {
         LocalDate birthday = LocalDate.parse(this.birthday, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
         return User.of(this.email, this.username, this.firstname, this.lastname, this.password)
                 .setUserData(UserData.of(null, birthday, this.gender, this.marital, this.interest,
-                        this.aboutYou, this.religion, this.politics,
+                        this.aboutYou, this.religion, this.politics, this.work, this.studies, this.interests,
                         Address.of(this.street, this.number, this.optional, this.areacode,
                                 this.city, this.country)
                 ));
     }
+
+    public User updateUser(User user) {
+
+        UserData userData = user.getUserData();
+
+        if(this.firstname != null) user.setFirstname(this.firstname);
+        if(this.lastname != null) user.setLastname(this.lastname);
+        if(this.email != null) user.setEmail(this.email);
+
+        userData.setAboutYou(this.aboutYou);
+        userData.setPolitics(this.politics);
+        userData.setReligion(this.religion);
+        userData.setWork(this.work);
+        userData.setStudies(this.studies);
+        userData.setInterests(this.interests);
+
+        userData.setAddress(updateAddress(userData.getAddress()));
+        if(this.gender != null) userData.setGender(this.gender);
+        if(this.interest != null) userData.setInterest(this.interest);
+        if(this.marital != null) userData.setMarital(this.marital);
+        if(this.birthday != null) userData.setBirthday(asLocalDate.apply(this.birthday));
+
+        return user;
+    }
+
+    private Address updateAddress(Address address) {
+        if(address == null) {
+            return Address.of(this.street, this.number, this.optional, this.areacode,
+                    this.city, this.country);
+        }
+        if(this.street != null) address.setStreet(this.street);
+        if(this.number != null) address.setStreet(this.number);
+        if(this.optional != null) address.setStreet(this.optional);
+        if(this.areacode != null) address.setStreet(this.areacode);
+        if(this.city != null) address.setStreet(this.city);
+        if(this.country != null) address.setStreet(this.country);
+        return  address;
+    }
+
+    private Function<String, LocalDate> asLocalDate = birthday ->  LocalDate.parse(birthday, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 }

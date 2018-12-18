@@ -52,9 +52,20 @@ public class UserData {
     @Column(columnDefinition = "text", length = 10485760)
     private String aboutYou;
 
+    @Column(columnDefinition = "text", length = 10485760)
     private String religion;
 
+    @Column(columnDefinition = "text", length = 10485760)
     private String politics;
+
+    @Column(columnDefinition = "text", length = 10485760)
+    private String studies;
+
+    @Column(columnDefinition = "text", length = 10485760)
+    private String work;
+
+    @Column(columnDefinition = "text", length = 10485760)
+    private String interests;
 
     @Enumerated(EnumType.STRING)
     private Marital marital;
@@ -65,11 +76,15 @@ public class UserData {
     private UserData() {
     }
 
-    public static UserData of(LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, Address address) {
-        return of(null, birthday, gender, marital, interest, aboutYou, null, null, address);
+    public static UserData of(LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou,
+                              Address address) {
+        return of(null, birthday, gender, marital, interest, aboutYou,
+                null, null, null, null, null, address);
     }
 
-    public static UserData of(User user, LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou, String religion, String politics, Address address) {
+    public static UserData of(User user, LocalDate birthday, Gender gender, Marital marital, Interest interest,
+                              String aboutYou, String religion, String politics, String work, String studies,
+                              String interests, Address address) {
         UserData userData = new UserData();
         userData.user = user;
         userData.birthday = birthday;
@@ -80,6 +95,9 @@ public class UserData {
         userData.politics = politics;
         userData.marital = marital;
         userData.interest = interest;
+        userData.work = work;
+        userData.studies = studies;
+        userData.interests = interests;
         return userData;
     }
 
@@ -165,5 +183,29 @@ public class UserData {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public String getStudies() {
+        return studies;
+    }
+
+    public void setStudies(String studies) {
+        this.studies = studies;
+    }
+
+    public String getWork() {
+        return work;
+    }
+
+    public void setWork(String work) {
+        this.work = work;
+    }
+
+    public String getInterests() {
+        return interests;
+    }
+
+    public void setInterests(String interests) {
+        this.interests = interests;
     }
 }
