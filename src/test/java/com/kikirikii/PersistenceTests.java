@@ -127,7 +127,8 @@ public class PersistenceTests {
         Assert.assertTrue(user.verifyPassword("newpassword"));
 
         UserData userData = userDataRepository.save(UserData.of(user, LocalDate.of(1989, 06, 18),
-                UserData.Gender.FEMALE, UserData.Marital.SINGLE, UserData.Interest.NONE, "About me", "religion", "politics", Address.of("Victoria Street", "1A",
+                UserData.Gender.FEMALE, UserData.Marital.SINGLE, UserData.Interest.NONE, "About me", "religion", "politics",
+                "work", "studies", "interests", Address.of("Victoria Street", "1A",
                         "3th Floor", "C-12-999", "London", "UK")
         ));
         Assert.assertEquals("Victoria Street", userData.getAddress().getStreet());

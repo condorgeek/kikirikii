@@ -23,9 +23,9 @@ import java.time.LocalDate;
 @Table(name = "user_data")
 public class UserData {
 
-    public enum Gender {MALE, FEMALE}
+    public enum Gender {MALE, FEMALE, NONE}
 
-    public enum Marital {SINGLE, ENGAGED, MARRIED, DIVORCED, COMPLICATED}
+    public enum Marital {SINGLE, ENGAGED, MARRIED, DIVORCED, COMPLICATED, NONE}
 
     public enum Interest {MEN, WOMEN, BOTH, NONE}
 

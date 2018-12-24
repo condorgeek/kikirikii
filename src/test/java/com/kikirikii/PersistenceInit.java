@@ -17,12 +17,14 @@ import com.kikirikii.model.*;
 import com.kikirikii.repos.*;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -80,6 +82,7 @@ public class PersistenceInit {
     @Autowired
     private SpaceService spaceService;
 
+    @Ignore
     @Test
     public void init() {
         logger.info("Init database with test data");
@@ -334,12 +337,14 @@ public class PersistenceInit {
 
         public Media randomMedia() {
             int index = (int) Math.floor((Math.random() * medialist.size() + 1) - 1);
-            return Media.of(medialist.get(index), mediatype.apply(medialist.get(index)));
+            String[] media = medialist.get(index).split(", ");
+            return Media.of(media[0], Media.Type.valueOf(media[1]));
         }
 
         public Media randomImage() {
             int index = (int) Math.floor((Math.random() * imagelist.size() + 1) - 1);
-            return Media.of(imagelist.get(index), Media.Type.PICTURE);
+            String[] media = imagelist.get(index).split(", ");
+            return Media.of(media[0], Media.Type.valueOf(media[1]));
         }
     }
 

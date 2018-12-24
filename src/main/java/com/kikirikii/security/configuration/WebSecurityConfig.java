@@ -51,6 +51,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String VALIDATION_URL = "/public/validate/**";
     public static final String SECURE_ROOT_URL = "/user/**";
 
+//    public static final String ANONYMOUS_ROOT_URL = "/user/julia.jobs/**";
+
     @Autowired
     private DefaultEntryPoint defaultEntryPoint;
 
@@ -110,6 +112,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 PUBLIC_USER_URL,
                 VALIDATION_URL,
                 "/stomp/**"
+//                ANONYMOUS_ROOT_URL
         );
 
         http

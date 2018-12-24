@@ -34,6 +34,8 @@ public class StorageProperties {
         String root;
         String profile;
         String cover;
+        // --
+        String thumbs;
 
         public String getRoot() {
             return root;
@@ -57,6 +59,14 @@ public class StorageProperties {
 
         public void setCover(String cover) {
             this.cover = cover;
+        }
+
+        public String getThumbs() {
+            return thumbs;
+        }
+
+        public void setThumbs(String thumbs) {
+            this.thumbs = thumbs;
         }
     }
 }

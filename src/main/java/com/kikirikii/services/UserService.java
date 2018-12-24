@@ -84,15 +84,32 @@ public class UserService {
 
     public User createUser(String username, UserRequest request) {
         if(findByUsername(request.username).isPresent()) {
-            throw new DuplicateResourceException("Username already exists.");
+            throw new DuplicateResourceException(request.username + " Username already exists.");
         }
 
         if(findByEmail(request.email).isPresent()) {
-            throw new DuplicateResourceException("Email already associated to user.");
+            throw new DuplicateResourceException(request.email + " Email already associated to user.");
         }
 
         try {
             return userRepository.save(request.createUser());
+
+        } catch(Exception e) {
+            throw new InvalidResourceException("User cannot be created. " + e.getMessage());
+        }
+    }
+
+    public User createUser(User user) {
+        if(findByUsername(user.getUsername()).isPresent()) {
+            throw new DuplicateResourceException(user.getUsername() + " Username already exists.");
+        }
+
+        if(findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicateResourceException(user.getEmail() + " Email already associated to user.");
+        }
+
+        try {
+            return userRepository.save(user);
 
         } catch(Exception e) {
             throw new InvalidResourceException("User cannot be created. " + e.getMessage());

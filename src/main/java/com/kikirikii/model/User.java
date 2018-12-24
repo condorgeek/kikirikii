@@ -74,8 +74,8 @@ public class User {
 
     private User(){}
 
-    public static User of(String email, String userid, String firstname, String lastname, String password) {
-        return of(email, userid, firstname, lastname, password, null);
+    public static User of(String email, String username, String firstname, String lastname, String password) {
+        return of(email, username, firstname, lastname, password, null);
     }
 
     public static User of(String email, String username, String firstname, String lastname, String password, String avatar) {
