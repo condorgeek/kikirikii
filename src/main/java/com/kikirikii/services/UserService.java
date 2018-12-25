@@ -145,6 +145,10 @@ public class UserService {
         return postRepository.save(Post.of(space, user, title, text, media));
     }
 
+    public Post addPost(Space space, User user, String title, String text, Media media) {
+        return postRepository.save(Post.of(space, user, title, text, Collections.singleton(media)));
+    }
+
     public Post updatePost(Post post, User user, String title, String text, Set<Media> media) {
         if (post.getUser().getUsername().equals(user.getUsername())) {
 
@@ -225,7 +229,7 @@ public class UserService {
         return mediaRepository.findMediaByUserIdAndSpaceId(user.getId(), space.getId());
     }
 
-    public List<Post> getSpacePosts(User user, Long spaceId) {
+    public List<Post> getSpacePosts(Long spaceId) {
         Optional<Space> space = spaceRepository.findById(spaceId);
          if(space.isPresent()) {
              return postRepository.findActiveBySpaceId(space.get().getId()).collect(Collectors.toList());

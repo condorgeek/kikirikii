@@ -83,7 +83,7 @@ public class UserController {
     @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.GET)
     List<Post> getUserGenericPosts(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);
-        return userService.getSpacePosts(user, spaceId);
+        return userService.getSpacePosts(spaceId);
     }
 
     @RequestMapping(value = "/posts/event/{spaceId}", method = RequestMethod.GET)

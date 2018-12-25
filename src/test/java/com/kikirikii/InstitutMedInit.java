@@ -13,10 +13,7 @@
 
 package com.kikirikii;
 
-import com.kikirikii.model.Address;
-import com.kikirikii.model.Space;
-import com.kikirikii.model.User;
-import com.kikirikii.model.UserData;
+import com.kikirikii.model.*;
 import com.kikirikii.repos.SpaceRepository;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
@@ -44,6 +41,8 @@ import java.util.logging.Logger;
 public class InstitutMedInit {
     private Logger logger = Logger.getLogger("InstitutMedInit");
     final private int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+    final long TEAM_SPACE_ID = 138L;
+    final long REFERENTEN_SPACE_ID = 135L;
 
     @Autowired
     private SpaceRepository spaceRepository;
@@ -62,7 +61,7 @@ public class InstitutMedInit {
     @Test
     public void createTestUser() {
         createUsers("institutmed/test.csv", "team_profiles/thumbs",
-                spaceService.getSpace(138L));
+                spaceService.getSpace(TEAM_SPACE_ID));
     }
 
     @Ignore
@@ -75,7 +74,7 @@ public class InstitutMedInit {
     @Test
     public void createTeamMembers() {
         createUsers("institutmed/team.csv", "team_profiles/thumbs",
-                spaceService.getSpace(138L));
+                spaceService.getSpace(TEAM_SPACE_ID));
     }
 
     @Ignore
@@ -86,9 +85,29 @@ public class InstitutMedInit {
 
     @Ignore
     @Test
+    public void createTeamPosts() {
+        createPosts("institutmed/team.csv", "team_profiles/thumbs",
+                spaceService.getSpace(TEAM_SPACE_ID));
+    }
+
+    @Ignore
+    @Test
+    public void deleteSpacePosts() {
+        List<Post> posts = userService.getSpacePosts(TEAM_SPACE_ID);
+        posts.forEach(post -> userService.deletePostById(post.getId()));
+    }
+
+    @Ignore
+    @Test
     public void createReferenten() {
         createUsers("institutmed/referenten.csv", "referenten_profiles/thumbs",
-                spaceService.getSpace(135L));
+                spaceService.getSpace(REFERENTEN_SPACE_ID));
+    }
+
+    @Test
+    public void createReferentenPosts() {
+        createPosts("institutmed/referenten.csv", "referenten_profiles/thumbs",
+                spaceService.getSpace(REFERENTEN_SPACE_ID));
     }
 
     @Ignore
@@ -150,6 +169,27 @@ public class InstitutMedInit {
         });
     }
 
+
+    private void createPosts(String filename, String thumbspath, Space space) {
+        List<String> team = PersistenceInit.Loader.load(filename);
+        team.stream().map(member -> member.split("§"))
+                .sorted((attrs1, attrs2) -> attrs2[lastname].compareTo(attrs1[lastname]))
+                .forEach(attrs -> {
+                    try {
+                        Optional<User> user = userService.findByUsername(attrs[username]);
+                        if (user.isPresent()) {
+                            String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
+                            String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, attrs[username]);
+                            userService.addPost(space, user.get(), attrs[aboutYou], fullname + attrs[work],
+                                    Media.of(mediapath, Media.Type.PICTURE));
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
     private User createUser(String email, String username, String firstname, String lastname, String avatar,
                             String gender, String aboutYou, String work, String city, String country) {
 
@@ -186,6 +226,23 @@ public class InstitutMedInit {
 
         return Paths.get(username, location.getProfile()).
                 resolve(username + ".jpg").toString();
+    }
+
+    private String copyMedia(StorageProperties.Location location, String thumbspath, String username)
+            throws IOException {
+        Path root = Paths.get(location.getRoot(), username);
+        if (Files.notExists(root)) {
+            Files.createDirectories(root);
+        }
+
+        Path source = Paths.get(location.getThumbs(), thumbspath).resolve(username + ".jpg");
+        Path target = root.resolve(source.getFileName());
+
+        if (Files.notExists(target)) {
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        return Paths.get(username).resolve(username + ".jpg").toString();
     }
 
 }
