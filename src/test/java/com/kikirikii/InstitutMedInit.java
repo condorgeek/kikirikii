@@ -41,8 +41,8 @@ import java.util.logging.Logger;
 public class InstitutMedInit {
     private Logger logger = Logger.getLogger("InstitutMedInit");
     final private int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
-    final long TEAM_SPACE_ID = 138L;
-    final long REFERENTEN_SPACE_ID = 135L;
+    final private long TEAM_SPACE_ID = 138L;
+    final private long REFERENTEN_SPACE_ID = 135L;
 
     @Autowired
     private SpaceRepository spaceRepository;
