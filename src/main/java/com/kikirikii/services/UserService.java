@@ -20,6 +20,8 @@ import com.kikirikii.model.*;
 import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -225,6 +227,14 @@ public class UserService {
         return Collections.emptyList();
     }
 
+    public Page<Post> getPageableHomePosts(User user, int page, int size) {
+        Optional<Space> home = userRepository.findHomeSpace(user.getId());
+        if(home.isPresent()) {
+            return postRepository.findActivePageBySpaceId(home.get().getId(), PageRequest.of(page, size));
+        }
+        return Page.empty();
+    }
+
     public List<Media> getUserSpaceMedia(User user, Space space) {
         return mediaRepository.findMediaByUserIdAndSpaceId(user.getId(), space.getId());
     }
@@ -235,6 +245,14 @@ public class UserService {
              return postRepository.findActiveBySpaceId(space.get().getId()).collect(Collectors.toList());
          }
          return Collections.emptyList();
+    }
+
+    public Page<Post> getPageableSpacePosts(Long spaceId, int page, int size) {
+        Optional<Space> space = spaceRepository.findById(spaceId);
+        if(space.isPresent()) {
+            return postRepository.findActivePageBySpaceId(space.get().getId(), PageRequest.of(page, size));
+        }
+        return Page.empty();
     }
 
     public Post getPostById(Long postId) {

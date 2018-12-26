@@ -25,6 +25,7 @@ import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -64,6 +65,13 @@ public class UserController {
         return userService.getUserHomePosts(user);
     }
 
+    @RequestMapping(value = "/posts/home/page/{page}/{size}", method = RequestMethod.GET)
+    Page<Post> getPageableHomePosts(@PathVariable String userName, @PathVariable Integer page, @PathVariable Integer size) {
+
+        User user = userService.getUser(userName);
+        return userService.getPageableHomePosts(user, page, size);
+    }
+
     @RequestMapping(value = "/posts/media/home", method = RequestMethod.GET)
     List<Media> getUserHomeMedia(@PathVariable String userName) {
         User user = userService.getUser(userName);
@@ -84,6 +92,14 @@ public class UserController {
     List<Post> getUserGenericPosts(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);
         return userService.getSpacePosts(spaceId);
+    }
+
+    @RequestMapping(value = "/posts/generic/{spaceId}/page/{page}/{size}", method = RequestMethod.GET)
+    Page<Post> getPageableGenericPosts(@PathVariable String userName, @PathVariable Long spaceId,
+                                       @PathVariable Integer page, @PathVariable Integer size) {
+
+        User user = userService.getUser(userName);
+        return userService.getPageableSpacePosts(spaceId, page, size);
     }
 
     @RequestMapping(value = "/posts/event/{spaceId}", method = RequestMethod.GET)

@@ -14,9 +14,9 @@
 package com.kikirikii.repos;
 
 import com.kikirikii.model.Post;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
@@ -26,4 +26,7 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
 
     @Query("select p from Post p where p.space.id = :spaceId and p.state in ('ACTIVE', 'SHARED') order by created desc")
     Stream<Post> findActiveBySpaceId(@Param("spaceId") Long spaceId);
+
+    @Query("select p from Post p where p.space.id = :spaceId and p.state in ('ACTIVE', 'SHARED') order by created desc")
+    Page<Post> findActivePageBySpaceId(@Param("spaceId") Long spaceId, Pageable pageable);
 }
