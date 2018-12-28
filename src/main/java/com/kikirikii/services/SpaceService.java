@@ -23,6 +23,8 @@ import com.kikirikii.repos.SpaceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -213,6 +215,10 @@ public class SpaceService {
 
     public List<Member> getMembersBySpace(Long spaceId) {
         return memberRepository.findActiveBySpaceId(spaceId);
+    }
+
+    public Page<Member> getPageableMembersBySpace(Long spaceId, int page, int size) {
+        return memberRepository.findActivePageBySpaceId(spaceId, PageRequest.of(page, size));
     }
 
     /* returns ownership spaces only */

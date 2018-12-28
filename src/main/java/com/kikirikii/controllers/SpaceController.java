@@ -20,6 +20,7 @@ import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -75,6 +76,12 @@ public class SpaceController {
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)
     public List<Member> getSpaceMembers(@PathVariable String userName, @PathVariable Long spaceId) {
         return spaceService.getMembersBySpace(spaceId);
+    }
+
+    @RequestMapping(value = "/space/{spaceId}/members/{page}/{size}", method = RequestMethod.GET)
+    public Page<Member> getPageableSpaceMembers(@PathVariable String userName, @PathVariable Long spaceId,
+                                            @PathVariable Integer page, @PathVariable Integer size ) {
+        return spaceService.getPageableMembersBySpace(spaceId, page, size);
     }
 
     @SuppressWarnings("unchecked")

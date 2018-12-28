@@ -15,6 +15,8 @@ package com.kikirikii.repos;
 
 import com.kikirikii.model.Member;
 import com.kikirikii.model.Space;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -29,6 +31,9 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
 
     @Query("select m from Member m where m.space.id = :spaceId and state= 'ACTIVE'")
     List<Member> findActiveBySpaceId(@Param("spaceId") Long spaceId);
+
+    @Query("select m from Member m where m.space.id = :spaceId and state= 'ACTIVE' order by m.created asc")
+    Page<Member> findActivePageBySpaceId(@Param("spaceId") Long spaceId, Pageable page);
 
     @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
             "and m.space.type = 'GENERIC' and m.space.state = 'ACTIVE'")
