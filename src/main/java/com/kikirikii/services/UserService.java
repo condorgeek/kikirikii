@@ -16,6 +16,7 @@ package com.kikirikii.services;
 import com.kikirikii.exceptions.DuplicateResourceException;
 import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
+import com.kikirikii.exceptions.OpNotAllowedException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.repos.*;
@@ -24,10 +25,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -54,6 +56,8 @@ public class UserService {
     @Autowired
     private MediaRepository mediaRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
 
     public UserService() {
         logger.info("Initialized");
@@ -118,6 +122,38 @@ public class UserService {
         }
     }
 
+    /* Achtung - must delete associated entities ie. posts, comments, likes etc before this call */
+    public User deleteUser(User user) {
+
+        if(postRepository.countActiveByUserId(user.getId()) > 0) {
+            throw new OpNotAllowedException(user.getUsername() + " has post entries active. Delete those first.");
+        }
+
+        userRepository.findHomeSpaceById(user.getId()).ifPresent(home -> {
+            home.setState(Space.State.DELETED);
+            spaceRepository.save(home);
+        });
+
+        userRepository.findGlobalSpaceById(user.getId()).ifPresent(global -> {
+            global.setState(Space.State.DELETED);
+            spaceRepository.save(global);
+        });
+
+        user.getRoles().forEach(role -> {
+            role.setState(Role.State.DELETED);
+        });
+
+        user.getUserData().setState(UserData.State.DELETED);
+
+        spaceRepository.findActiveByUserId(user.getId()).forEach(space -> {
+            space.setState(Space.State.DELETED);
+            spaceRepository.save(space);
+        });
+
+        user.setState(User.State.DELETED);
+        return userRepository.save(user);
+    }
+
     public User updateUser(User user, UserRequest request) {
         User updated = request.updateUser(user);
         return userRepository.save(updated);
@@ -130,13 +166,24 @@ public class UserService {
     public void createSpaces(User user) {
         try {
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + "'s Home Space",
-                    "This is a personal place for me and friends",
-                    Space.Type.HOME));
+                    user.getUsername() + " Home",
+                    "This is a personal place for me and friends", Space.Type.HOME));
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + "'s Global Space",
-                    "This is a place for me, friends and followers",
-                    Space.Type.GLOBAL));
+                    user.getUsername() + " Global",
+                    "This is a place for me, friends and followers", Space.Type.GLOBAL));
+
+        } catch (Exception e) {
+            throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());
+        }
+    }
+
+
+    public void createPublicSpaces(User user, String cover, String description) {
+        try {
+            spaceRepository.save(Space.of(user,
+                    user.getUsername() + " Home", cover, description, Space.Type.HOME, Space.Access.PUBLIC));
+            spaceRepository.save(Space.of(user,
+                    user.getUsername() + " Global", cover, description, Space.Type.GLOBAL, Space.Access.PUBLIC));
 
         } catch (Exception e) {
             throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());
@@ -195,9 +242,18 @@ public class UserService {
 
     public Space getHomeSpace(String name) {
         Optional<Space> home = userRepository.findHomeSpaceByName(name);
-        assert home.isPresent() : "Invalid user name or user has no home space " + name;
+        if (home.isPresent()) {
+            return home.get();
+        }
+        throw new InvalidResourceException("Invalid user name or user has no home space " + name);
+    }
 
-        return home.get();
+    public Space getHomeSpace(Long id) {
+        Optional<Space> home = userRepository.findHomeSpaceById(id);
+        if (home.isPresent()) {
+            return home.get();
+        }
+        throw new InvalidResourceException("Invalid user name or user has no home space id=" + id);
     }
 
     public Space updateSpace(Space space) {
@@ -206,9 +262,18 @@ public class UserService {
 
     public Space getGlobalSpace(String name) {
         Optional<Space> global = userRepository.findGlobalSpaceByName(name);
-        assert global.isPresent() : "Invalid user name or user has no global space " + name;
+        if(global.isPresent()) {
+            return global.get();
+        }
+        throw new InvalidResourceException("Invalid user name or user has no global space " + name);
+    }
 
-        return global.get();
+    public Space getGlobalSpace(Long id) {
+        Optional<Space> global = userRepository.findGlobalSpaceById(id);
+        if(global.isPresent()) {
+            return global.get();
+        }
+        throw new InvalidResourceException("Invalid user name or user has no global space id=" + id);
     }
 
     public List<Post> getUserGlobalPosts(User user) {

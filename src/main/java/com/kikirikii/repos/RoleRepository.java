@@ -14,7 +14,14 @@
 package com.kikirikii.repos;
 
 import com.kikirikii.model.Role;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface RoleRepository extends CrudRepository<Role, Long> {
+
+    @Query("select r from Role r where r.user.id = :userId and r.state = 'ACTIVE'")
+    List<Role> findAllByUserId(@Param("userId") Long userId);
 }

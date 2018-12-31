@@ -39,6 +39,7 @@ public class UserRequest {
     private UserData.Interest interest;
     private UserData.Marital marital;
 
+    private String web;
     private String religion;
     private String politics;
     private String work;
@@ -231,13 +232,21 @@ public class UserRequest {
         this.interests = interests;
     }
 
+    public String getWeb() {
+        return web;
+    }
+
+    public void setWeb(String web) {
+        this.web = web;
+    }
+
     public User createUser() {
         LocalDate birthday = LocalDate.parse(this.birthday, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
         return User.of(this.email, this.username, this.firstname, this.lastname, this.password)
                 .setUserData(UserData.of(null, birthday, this.gender, this.marital, this.interest,
                         this.aboutYou, this.religion, this.politics, this.work, this.studies, this.interests,
-                        Address.of(this.street, this.number, this.optional, this.areacode,
+                        this.web, Address.of(this.street, this.number, this.optional, this.areacode,
                                 this.city, this.country)
                 ));
     }
@@ -256,6 +265,7 @@ public class UserRequest {
         userData.setWork(this.work);
         userData.setStudies(this.studies);
         userData.setInterests(this.interests);
+        userData.setWeb(this.web);
 
         userData.setAddress(updateAddress(userData.getAddress()));
         if(this.gender != null) userData.setGender(this.gender);

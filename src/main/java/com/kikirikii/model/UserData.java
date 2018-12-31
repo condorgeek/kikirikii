@@ -23,6 +23,8 @@ import java.time.LocalDate;
 @Table(name = "user_data")
 public class UserData {
 
+    public enum State {ACTIVE, DELETED}
+
     public enum Gender {MALE, FEMALE, NONE}
 
     public enum Marital {SINGLE, ENGAGED, MARRIED, DIVORCED, COMPLICATED, NONE}
@@ -49,6 +51,8 @@ public class UserData {
     @JsonIgnore
     private String telNumber;
 
+    private String web;
+
     @Column(columnDefinition = "text", length = 10485760)
     private String aboutYou;
 
@@ -73,18 +77,22 @@ public class UserData {
     @Enumerated(EnumType.STRING)
     private Interest interest;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     private UserData() {
     }
 
     public static UserData of(LocalDate birthday, Gender gender, Marital marital, Interest interest, String aboutYou,
                               Address address) {
         return of(null, birthday, gender, marital, interest, aboutYou,
-                null, null, null, null, null, address);
+                null, null, null, null, null, null, address);
     }
 
     public static UserData of(User user, LocalDate birthday, Gender gender, Marital marital, Interest interest,
                               String aboutYou, String religion, String politics, String work, String studies,
-                              String interests, Address address) {
+                              String interests, String web, Address address) {
         UserData userData = new UserData();
         userData.user = user;
         userData.birthday = birthday;
@@ -98,6 +106,8 @@ public class UserData {
         userData.work = work;
         userData.studies = studies;
         userData.interests = interests;
+        userData.web = web;
+        userData.state = State.ACTIVE;
         return userData;
     }
 
@@ -207,5 +217,21 @@ public class UserData {
 
     public void setInterests(String interests) {
         this.interests = interests;
+    }
+
+    public String getWeb() {
+        return web;
+    }
+
+    public void setWeb(String web) {
+        this.web = web;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 }

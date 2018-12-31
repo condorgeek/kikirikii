@@ -25,6 +25,12 @@ import java.util.stream.Stream;
 public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
+    @Query("select u from User u where u.username = :username and u.state = 'ACTIVE'")
+    Optional<User> findActiveByUsername(String username);
+
+    @Query("select u from User u where u.id = :userId and u.state = 'ACTIVE'")
+    Optional<User> findActiveByUserId(Long userId);
+
     Optional<User> findByEmail(String email);
 
     @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")
@@ -36,8 +42,14 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select s from Space s where s.user.username = :username and s.type = 'HOME'")
     Optional<Space> findHomeSpaceByName(@Param("username") String username);
 
+    @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")
+    Optional<Space> findHomeSpaceById(@Param("userId") Long userId);
+
     @Query("select s from Space s where s.user.username = :username and s.type = 'GLOBAL'")
     Optional<Space> findGlobalSpaceByName(@Param("username") String username);
+
+    @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL'")
+    Optional<Space> findGlobalSpaceById(@Param("userId") Long userId);
 
     @Query("select u from User u where u.state = 'ACTIVE'")
     Stream<User> findAllActiveUsers();

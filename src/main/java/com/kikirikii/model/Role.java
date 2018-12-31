@@ -20,8 +20,11 @@ import javax.validation.constraints.NotNull;
 @Table(name = "roles")
 public class Role {
 
+    public enum State {ACTIVE, DELETED}
+
     public enum Type {
         USER, SUPERUSER, ADMIN;
+
         public String authority() {
             return "ROLE_" + this.name();
         }
@@ -40,19 +43,22 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private State state;
+
     private Role() {
     }
 
     public static Role of(Type type) {
-        Role role = new Role();
-        role.type = type;
-        return role;
+        return of(null, type);
     }
 
     public static Role of(User user, Type type) {
         Role role = new Role();
         role.type = type;
         role.user = user;
+        role.state = State.ACTIVE;
         return role;
     }
 
@@ -74,5 +80,17 @@ public class Role {
 
     public String getAuthority() {
         return type.authority();
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public long getId() {
+        return id;
     }
 }

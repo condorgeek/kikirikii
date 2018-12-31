@@ -35,7 +35,7 @@ public class Space {
 
     public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, DATING}
     public enum State {ACTIVE, BLOCKED, DELETED}
-    public enum Access {PUBLIC, RESTRICTED}
+    public enum Access {PUBLIC, RESTRICTED, PRIVATE}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
