@@ -15,9 +15,11 @@ package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kikirikii.security.util.PasswordCrypt;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,10 +77,11 @@ public class User {
     private User(){}
 
     public static User of(String email, String username, String firstname, String lastname, String password) {
-        return of(email, username, firstname, lastname, password, null);
+        return of(email, username, firstname, lastname, password, null, Role.asArray(Role.Type.USER));
     }
 
-    public static User of(String email, String username, String firstname, String lastname, String password, String avatar) {
+    public static User of(String email, String username, String firstname, String lastname, String password,
+                          String avatar, Role[] roles) {
         User user = new User();
         user.email = email;
         user.username = username.toLowerCase();
@@ -86,7 +89,11 @@ public class User {
         user.lastname = lastname;
         user.state = State.ACTIVE;
         user.avatar = avatar;
-        user.addRole(Role.of(Role.Type.USER));
+        if(roles != null) {
+            Arrays.stream(roles).forEach(user::addRole);
+        } else {
+            user.addRole(Role.of(Role.Type.USER));
+        }
         user.salt = PasswordCrypt.getSalt(64);
         user.password = PasswordCrypt.encrypt(password, user.salt);
         user.created = new Date();

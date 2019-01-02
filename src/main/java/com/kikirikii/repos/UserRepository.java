@@ -19,6 +19,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -36,20 +37,24 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")
     Optional<Space> findHomeSpace(@Param("userId") Long userId);
 
-    @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL'")
+    @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL' and state = 'ACTIVE'")
     Optional<Space> findGlobalSpace(@Param("userId") Long userId);
 
-    @Query("select s from Space s where s.user.username = :username and s.type = 'HOME'")
+    @Query("select s from Space s where s.user.username = :username and s.type = 'HOME' and state='ACTIVE'")
     Optional<Space> findHomeSpaceByName(@Param("username") String username);
 
-    @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")
+    @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME' and state = 'ACTIVE'")
     Optional<Space> findHomeSpaceById(@Param("userId") Long userId);
 
-    @Query("select s from Space s where s.user.username = :username and s.type = 'GLOBAL'")
+    @Query("select s from Space s where s.user.username = :username and s.type = 'GLOBAL' and state = 'ACTIVE'")
     Optional<Space> findGlobalSpaceByName(@Param("username") String username);
 
     @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL'")
     Optional<Space> findGlobalSpaceById(@Param("userId") Long userId);
+
+    @Deprecated
+    @Query("select s from Space s where s.user.username = :username and s.type = :type")
+    List<Space> findAllByNameAndType(@Param("username") String username, @Param("type") Space.Type type);
 
     @Query("select u from User u where u.state = 'ACTIVE'")
     Stream<User> findAllActiveUsers();

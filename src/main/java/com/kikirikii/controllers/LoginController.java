@@ -50,7 +50,7 @@ public class LoginController {
     public User createUser(@PathVariable String username, @RequestBody UserRequest userRequest) {
 
         User user = userService.createUser(username, userRequest);
-        userService.createSpaces(user);
+        userService.createPublicSpaces(user);
 
         return user;
     }

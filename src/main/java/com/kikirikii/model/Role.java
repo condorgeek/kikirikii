@@ -13,8 +13,14 @@
 
 package com.kikirikii.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "roles")
@@ -34,6 +40,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @NotNull
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -52,6 +59,13 @@ public class Role {
 
     public static Role of(Type type) {
         return of(null, type);
+    }
+
+    public static Role[] asArray(Type type) {
+        return new Role[]{Role.of(type)};
+    }
+    public static Role[] of(Type... types) {
+        return (Role[]) Arrays.stream(types).map(Role::of).toArray();
     }
 
     public static Role of(User user, Type type) {

@@ -17,6 +17,7 @@ import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.Member;
 import com.kikirikii.model.Space;
+import com.kikirikii.model.SpaceData;
 import com.kikirikii.model.User;
 import com.kikirikii.repos.MemberRepository;
 import com.kikirikii.repos.SpaceRepository;
@@ -53,6 +54,11 @@ public class SpaceService {
         throw new InvalidResourceException("Space Id " + id + " is invalid.");
     }
 
+    /* Achtung! potentially dangerous call might return more than one result / for testing only */
+    public Optional<Space> findBySpacename(String spacename) {
+        return spaceRepository.findBySpacename(spacename);
+    }
+
     public Member getMember(Long id) {
         Optional<Member> member = memberRepository.findById(id);
         if (member.isPresent()) {
@@ -78,12 +84,29 @@ public class SpaceService {
         return spaceRepository.save(space);
     }
 
-    public Space createSpaceCombined(User user, String type, String name, String description, String access) {
+    public Space createSpaceAndJoin(User user, String type, String name, String description, String access) {
         try {
             Space space = spaceRepository.save(Space.of(user, name, description,
                     Space.Type.valueOf(type.toUpperCase()), Space.Access.valueOf(access)));
 
              memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
+
+            return space;
+
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        throw new InvalidResourceException("Cannot create space " + name);
+    }
+
+    public Space createSpaceAndJoin(User user, String type, String name, String description, String access,
+                                        SpaceData spaceData) {
+        try {
+            Space space = Space.of(user, name, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
+            space.setSpacedata(spaceData);
+            spaceRepository.save(space);
+
+            memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
 
             return space;
 

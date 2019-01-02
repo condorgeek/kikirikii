@@ -243,6 +243,7 @@ public class UserRequest {
     public User createUser() {
         LocalDate birthday = LocalDate.parse(this.birthday, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
+        // TODO support multiple roles for user
         return User.of(this.email, this.username, this.firstname, this.lastname, this.password)
                 .setUserData(UserData.of(null, birthday, this.gender, this.marital, this.interest,
                         this.aboutYou, this.religion, this.politics, this.work, this.studies, this.interests,

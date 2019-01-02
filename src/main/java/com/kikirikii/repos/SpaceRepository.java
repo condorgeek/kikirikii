@@ -30,6 +30,9 @@ public interface SpaceRepository extends CrudRepository<Space, Long> {
     @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL'")
     Optional<Space> findGlobalSpace(@Param("userId") Long userId);
 
+    @Query("select s from Space s where s.name = :spacename")
+    Optional<Space> findBySpacename(@Param("spacename") String spacename);
+
     @Query("select s from Space s where s.user.id = :userId and s.type not in ('GLOBAL', 'HOME')")
     Stream<Space> findAllByUserId(@Param("userId") Long userId);
 

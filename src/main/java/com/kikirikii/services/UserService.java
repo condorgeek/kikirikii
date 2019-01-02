@@ -89,20 +89,7 @@ public class UserService {
     }
 
     public User createUser(String username, UserRequest request) {
-        if(findByUsername(request.username).isPresent()) {
-            throw new DuplicateResourceException(request.username + " Username already exists.");
-        }
-
-        if(findByEmail(request.email).isPresent()) {
-            throw new DuplicateResourceException(request.email + " Email already associated to user.");
-        }
-
-        try {
-            return userRepository.save(request.createUser());
-
-        } catch(Exception e) {
-            throw new InvalidResourceException("User cannot be created. " + e.getMessage());
-        }
+        return createUser(request.createUser());
     }
 
     public User createUser(User user) {
@@ -163,14 +150,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void createSpaces(User user) {
+    public void createPublicSpaces(User user) {
+
+        if(spaceRepository.findHomeSpace(user.getId()).isPresent()) {
+            throw new OpNotAllowedException(user.getUsername() + " has already a home space");
+        }
+
         try {
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Home",
-                    "This is a personal place for me and friends", Space.Type.HOME));
+                    user.getUsername() + " Home", "", Space.Type.HOME));
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Global",
-                    "This is a place for me, friends and followers", Space.Type.GLOBAL));
+                    user.getUsername() + " Global", "", Space.Type.GLOBAL));
 
         } catch (Exception e) {
             throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());
@@ -179,6 +169,11 @@ public class UserService {
 
 
     public void createPublicSpaces(User user, String cover, String description) {
+
+        if(spaceRepository.findHomeSpace(user.getId()).isPresent()) {
+            throw new OpNotAllowedException(user.getUsername() + " has already a home space");
+        }
+
         try {
             spaceRepository.save(Space.of(user,
                     user.getUsername() + " Home", cover, description, Space.Type.HOME, Space.Access.PUBLIC));

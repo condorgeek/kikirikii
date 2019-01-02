@@ -89,7 +89,7 @@ public class SpaceController {
     public Space createSpace(@PathVariable String userName, @PathVariable String spaceType, @RequestBody Map<String, String> values) {
 
         User user = userService.getUser(userName);
-        return spaceService.createSpaceCombined(user, spaceType, values.get("name"),  values.get("description"),
+        return spaceService.createSpaceAndJoin(user, spaceType, values.get("name"),  values.get("description"),
                 values.get("access"));
     }
 

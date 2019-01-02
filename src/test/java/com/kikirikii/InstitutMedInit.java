@@ -36,6 +36,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+/**
+ * Collection of quick hacks for initializing the kikirikii database
+ */
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class InstitutMedInit {
@@ -58,17 +62,64 @@ public class InstitutMedInit {
     private StorageProperties storageProperties;
 
 
-    @Ignore
     @Test
-    public void createTestUser() {
-        createUsers("institutmed/test.csv", "team_profiles/thumbs",
-                spaceService.getSpace(TEAM_SPACE_ID));
+    public void createMain() {
+
+        /* step 1 - create superuser */
+        createSuperUser("institutmed/superuser.csv", "team_profiles/thumbs")
+                .ifPresent(user -> {
+                    createGenericSpaces(user, "institutmed/spaces.csv");
+                });
+
+        /* step 2 - create team users and join team space */
+        spaceService.findBySpacename("Team").ifPresent(space -> {
+            createUsers("institutmed/team.csv", "team_profiles/thumbs", space);
+        });
+
+        /* step 3 - create referenten and join to referenten space */
+        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+            createUsers("institutmed/referenten.csv", "referenten_profiles/thumbs",
+                    space);
+        });
+
+        /* step 4 - create partner and join to partner space */
+        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+            createPartners("institutmed/partner.csv", "partner_profiles/thumbs",
+                    "partner_profiles/cover", space);
+        });
     }
 
-    @Ignore
     @Test
-    public void createTestSpaces() {
-        createSpaces("institutmed/test.csv");
+    public void createPosts() {
+        /* step 1 - create team posts */
+//        spaceService.findBySpacename("Team").ifPresent(space -> {
+//            createUserPosts("institutmed/team.csv", "team_profiles/cover",
+//                    space);
+//        });
+
+        /* step 2 - create referenten posts */
+//        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+//            createUserPosts("institutmed/referenten.csv", "referenten_profiles/cover",
+//                    space);
+//        });
+
+        /* step 3 - create partner posts */
+        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+//            createPartnerPosts("institutmed/wk19.csv", "weltkongress-2019/cover",
+//                    "Vortrag", space);
+        });
+
+        /* step 4 - create weltkongress 2019 posts */
+        spaceService.findBySpacename("Weltkongress 2019").ifPresent(space -> {
+            createSpacePosts("institutmed/wk19.csv", "weltkongress-2019/cover",
+                    "Vortrag", space);
+        });
+
+        /* step 5 - create praxis posts */
+        spaceService.findBySpacename("Praxis Seminar").ifPresent(space -> {
+            createSpacePosts("institutmed/praxis19.csv", "praxis-seminar-2019/cover",
+                    "Praxis Heilworkshop", space);
+        });
     }
 
     @Ignore
@@ -78,10 +129,16 @@ public class InstitutMedInit {
                 spaceService.getSpace(TEAM_SPACE_ID));
     }
 
+    @Test
+    public void createUserSpaces() {
+        createPublicSpaces("institutmed/team.csv");
+    }
+
     @Ignore
     @Test
-    public void createTeamSpaces() {
-        createSpaces("institutmed/team.csv");
+    public void createTestUser() {
+        createUsers("institutmed/test.csv", "team_profiles/thumbs",
+                spaceService.getSpace(TEAM_SPACE_ID));
     }
 
     @Ignore
@@ -125,6 +182,7 @@ public class InstitutMedInit {
         joinWK19Space("institutmed/wk19.csv", spaceService.getSpace(WK19_SPACE_ID));
     }
 
+    @Ignore
     @Test
     public void createPraxis19Posts() {
         User user = userService.getUser("julia.jobs");
@@ -136,18 +194,20 @@ public class InstitutMedInit {
                 "Praxis Heilworkshop", space);
     }
 
+    @Ignore
     @Test
     public void createPartnersAndAusteller() {
         createPartners("institutmed/partner.csv", "partner_profiles/thumbs",
                 "partner_profiles/cover", spaceService.getSpace(PARTNER_AUSTELLER_SPACE_ID));
 
 //        deletePartners("institutmed/partner.csv", spaceService.getSpace(138L));
+//        verifyPartnerCover("institutmed/partner.csv", "partner_profiles/cover");
     }
 
     @Ignore
     @Test
     public void createReferentenSpaces() {
-        createSpaces("institutmed/referenten.csv");
+        createPublicSpaces("institutmed/referenten.csv");
     }
 
     @Ignore
@@ -160,13 +220,56 @@ public class InstitutMedInit {
                 s));
     }
 
+    private void createGenericSpaces(User user, String filename) {
+        int pos = 0, type = 1, name = 2, description = 3, start_date = 4, web = 5, general_information = 6,
+                key_dates = 7, city = 8, venue = 9, travel_information = 10, tickets = 11, dates = 12;
+
+        List<String> spaces = PersistenceInit.Loader.load(filename);
+
+        spaces.stream().map(line -> line.split("§"))
+                .filter(attrs -> attrs[type].equals("G"))
+                .forEach(attrs -> {
+
+                    spaceService.createSpaceAndJoin(user, "GENERIC", attrs[name],
+                            attrs[description], "PUBLIC",
+                            SpaceData.of(null, null, null, attrs[general_information],
+                                    attrs[venue], attrs[travel_information], attrs[venue], attrs[city],
+                                    null, null, attrs[key_dates], attrs[tickets],
+                                    attrs[dates]));
+
+                    System.out.println(attrs[pos] + " " + attrs[name]);
+                });
+    }
+
+    private Optional<User> createSuperUser(String filename, String thumbspath) {
+        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+
+        List<String> team = PersistenceInit.Loader.load(filename);
+        try {
+            String[] attrs = team.get(0).split("§");
+            String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
+
+            User user = populateUser(attrs[email].trim(), attrs[username].trim(), attrs[firstname].trim(),
+                    attrs[lastname].trim(), avatar, attrs[gender].trim(), attrs[aboutYou].trim(),
+                    attrs[work].trim(), null, attrs[city].trim(), attrs[country].trim());
+
+            user = userService.createUser(user);
+            userService.createPublicSpaces(user);
+
+            return Optional.of(user);
+
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
     private void createUsers(String filename, String thumbspath, Space space) {
         final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
 
         List<String> team = PersistenceInit.Loader.load(filename);
-        team.forEach(member -> {
+        int[] count = {0};
+        team.stream().map(line -> line.split("§")).forEach(attrs -> {
             try {
-                String[] attrs = member.split("§");
                 String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
 
                 User user = populateUser(attrs[email].trim(), attrs[username].trim(), attrs[firstname].trim(),
@@ -174,7 +277,13 @@ public class InstitutMedInit {
                         attrs[work].trim(), null, attrs[city].trim(), attrs[country].trim());
 
                 user = userService.createUser(user);
-                spaceService.addMember(space, user, user, "MEMBER");
+                userService.createPublicSpaces(user);
+
+                if (space != null) {
+                    spaceService.addMember(space, user, user, "MEMBER");
+                }
+
+                System.out.println(++count[0] + " " + attrs[username]);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -182,7 +291,8 @@ public class InstitutMedInit {
         });
     }
 
-    private void createSpaces(String filename) {
+
+    private void createPublicSpaces(String filename) {
         final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
 
         List<String> team = PersistenceInit.Loader.load(filename);
@@ -190,8 +300,9 @@ public class InstitutMedInit {
             try {
                 String[] attrs = member.split("§");
 
-                User user = userService.getUser(attrs[username]);
-                userService.createSpaces(user);
+                userService.findByUsername(attrs[username]).ifPresent(user -> {
+                    userService.createPublicSpaces(user);
+                });
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -202,33 +313,42 @@ public class InstitutMedInit {
 
     private void createUserPosts(String filename, String thumbspath, Space space) {
         final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
-
+        int[] count ={0};
         List<String> team = PersistenceInit.Loader.load(filename);
+
         team.stream().map(member -> member.split("§"))
                 .sorted((attrs1, attrs2) -> attrs2[lastname].compareTo(attrs1[lastname]))
                 .forEach(attrs -> {
-                    try {
-                        Optional<User> user = userService.findByUsername(attrs[username]);
-                        if (user.isPresent()) {
+                    userService.findByUsername(attrs[username]).ifPresent(user -> {
+                        try {
+                            String medianame = attrs[username];
                             String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
-                            String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, attrs[username]);
-                            userService.addPost(space, user.get(), attrs[aboutYou], fullname + attrs[work],
-                                    Media.of(mediapath, Media.Type.PICTURE));
-                        }
+                            String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, medianame);
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                            userService.addPost(space, user, attrs[aboutYou], fullname + attrs[work],
+                                    Media.of(mediapath, Media.Type.PICTURE));
+
+                            if(!spaceService.isMember(space.getId(), user)) {
+                                spaceService.addMember(space, user, user, "MEMBER");
+                            }
+
+                            System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
                 });
     }
 
     private void createSpacePosts(String filename, String thumbspath, String detail, Space space) {
         int index = 0, username = 1, cover = 2, title = 3, text = 4;
-        String defaultname = "julia.jobs";
+        String defaultname = "christine.herrera";
 
         List<String> posts = PersistenceInit.Loader.load(filename);
         User defaultuser = userService.getUser(defaultname);
 
+        System.out.println("*** Creating Posts from " + thumbspath);
         posts.stream().map(post -> post.split("§"))
                 .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[index]) > Integer.valueOf(attrs1[index]) ? 1 : -1)
                 .forEach(attrs -> {
@@ -238,10 +358,14 @@ public class InstitutMedInit {
                             String vortrag = "<h6>" + detail + "</h6> ";
                             String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, attrs[cover]);
 
-                            spaceService.addMember(space, user, user, "MEMBER");
+                            if(!spaceService.isMember(space.getId(), user)) {
+                                spaceService.addMember(space, user, user, "MEMBER");
+                            }
 
                             userService.addPost(space, user, attrs[title].trim(), vortrag + attrs[text],
                                     Media.of(mediapath, Media.Type.PICTURE));
+
+                            System.out.println(attrs[index] + " " + attrs[username]);
                         }
                     } catch (Exception e) {
                         logger.warning(e.getMessage());
@@ -261,19 +385,19 @@ public class InstitutMedInit {
                         /* copy resources */
                         String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
                         String cover = copyCover(storageProperties.getLocation(), coverpath, attrs[username].trim());
-//                        System.out.println(++idx[0] + "  " + cover + " " + attrs[text].trim());
 
                         /* create user */
                         User user = populateUser(null, attrs[username].trim(), attrs[firstname].trim(),
                                 attrs[lastname].trim(), avatar, attrs[gender].trim(), attrs[aboutYou].trim(),
                                 attrs[text].trim(), attrs[web].trim(), attrs[city].trim(), attrs[country].trim());
-                        user = userService.createUser(user);
 
-                        /* create user spaces */
+                        user = userService.createUser(user);
                         userService.createPublicSpaces(user, cover, attrs[aboutYou]);
 
                         /* add user to default space */
-                        spaceService.addMember(space, user, user, "MEMBER");
+                        if(space != null && !spaceService.isMember(space.getId(), user)) {
+                            spaceService.addMember(space, user, user, "MEMBER");
+                        }
 
                         System.out.println(++idx[0] + "  " + attrs[username].trim() + " created");
 
@@ -299,8 +423,29 @@ public class InstitutMedInit {
 
                             userService.deleteUser(user);
                             System.out.println("Deleted " + user.getUsername());
-                        } catch (Exception e) {System.out.println(e.getMessage());}
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
                     });
+                });
+    }
+
+    private void verifyPartnerCover(String filename, String coverpath) {
+        int firstname = 0, lastname = 1, username = 2, web = 3, gender = 4, city = 5, country = 6, aboutYou = 7, text = 8;
+        List<String> posts = PersistenceInit.Loader.load(filename);
+
+        posts.stream().filter(line -> line != null && !line.equals("")).map(post -> post.split("§"))
+                .forEach(attrs -> {
+                    try {
+                        String cover = copyCover(storageProperties.getLocation(), coverpath, attrs[username].trim());
+                        if (cover == null) {
+                            Space home = userService.getHomeSpace(attrs[username]);
+                            home.setCover(null);
+                            spaceRepository.save(home);
+                        }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                 });
     }
 
@@ -320,11 +465,28 @@ public class InstitutMedInit {
                 });
     }
 
+    private void joinTeamSpace(String filename, Space space) {
+        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+
+        List<String> posts = PersistenceInit.Loader.load(filename);
+        posts.stream().map(post -> post.split("§"))
+                .filter(attrs -> !attrs[username].equals(""))
+                .forEach(attrs -> {
+                    try {
+                        User user = userService.getUser(attrs[username]);
+                        spaceService.addMember(space, user, user, "MEMBER");
+
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
+                    }
+                });
+    }
+
     private User populateUser(String email, String username, String firstname, String lastname, String avatar,
                               String gender, String aboutYou, String work, String web, String city, String country) {
 
         return User.of((email == null || email.equals("")) ? username + "@institutmed.de" : email,
-                username, firstname, lastname, "password", avatar)
+                username, firstname, lastname, "password", avatar, Role.asArray(Role.Type.USER))
                 .setUserData(UserData.of(null,
                         LocalDate.of(1970, 1, 1),
                         getGender(gender),
@@ -350,7 +512,9 @@ public class InstitutMedInit {
         Path source = Paths.get(location.getThumbs(), thumbspath).resolve(username + ".jpg");
         Path target = root.resolve(source.getFileName());
 
-        if (Files.exists(source) && Files.notExists(target)) {
+        if (Files.notExists(source)) return null;
+
+        if (Files.notExists(target)) {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         }
 
@@ -368,7 +532,9 @@ public class InstitutMedInit {
         Path source = Paths.get(location.getThumbs(), coverpath).resolve(username + ".cover.jpg");
         Path target = root.resolve(source.getFileName());
 
-        if (Files.exists(source) && Files.notExists(target)) {
+        if (Files.notExists(source)) return null;
+
+        if (Files.notExists(target)) {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         }
 
@@ -385,6 +551,8 @@ public class InstitutMedInit {
 
         Path source = Paths.get(location.getThumbs(), thumbspath).resolve(filename + ".jpg");
         Path target = root.resolve(source.getFileName());
+
+        if (Files.notExists(source)) return null;
 
         if (Files.notExists(target)) {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
