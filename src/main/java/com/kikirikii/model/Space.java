@@ -51,6 +51,8 @@ public class Space {
 
     private String cover;
 
+    private String icon;
+
     @Column(columnDefinition = "text", length = 10485760)
     private String description;
 
@@ -76,20 +78,21 @@ public class Space {
     }
 
     public static Space of(User user, String name, String description, Type type) {
-        return of(user, name, null, description, type, Access.PUBLIC);
+        return of(user, name, null, null, description, type, Access.PUBLIC);
     }
 
     public static Space of(User user, String name, String description, Type type, Access access) {
-        return of(user, name, null, description, type, access);
+        return of(user, name, null, null, description, type, access);
     }
 
-    public static Space of(User user, String name, String cover, String description, Type type, Access access) {
+    public static Space of(User user, String name, String cover, String icon, String description, Type type, Access access) {
         Space space = new Space();
         space.user = user;
         space.name = name;
         space.cover = cover;
         space.description = description;
         space.type = type;
+        space.icon = icon;
         space.access = access;
         space.state = State.ACTIVE;
         space.created = new Date();
@@ -169,6 +172,15 @@ public class Space {
     }
 
     public void setSpacedata(SpaceData spacedata) {
+        spacedata.setSpace(this);
         this.spacedata = spacedata;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

@@ -176,9 +176,9 @@ public class UserService {
 
         try {
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Home", cover, description, Space.Type.HOME, Space.Access.PUBLIC));
+                    user.getUsername() + " Home", cover, null, description, Space.Type.HOME, Space.Access.PUBLIC));
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Global", cover, description, Space.Type.GLOBAL, Space.Access.PUBLIC));
+                    user.getUsername() + " Global", cover, null, description, Space.Type.GLOBAL, Space.Access.PUBLIC));
 
         } catch (Exception e) {
             throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());

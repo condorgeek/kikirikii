@@ -99,10 +99,10 @@ public class SpaceService {
         throw new InvalidResourceException("Cannot create space " + name);
     }
 
-    public Space createSpaceAndJoin(User user, String type, String name, String description, String access,
+    public Space createSpaceAndJoin(User user, String type, String name, String icon, String cover, String description, String access,
                                         SpaceData spaceData) {
         try {
-            Space space = Space.of(user, name, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
+            Space space = Space.of(user, name, cover, icon, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
             space.setSpacedata(spaceData);
             spaceRepository.save(space);
 
