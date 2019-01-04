@@ -92,34 +92,34 @@ public class InstitutMedInit {
 
     @Test
     public void createPosts() {
-        /* step 1 - create team posts */
-        spaceService.findBySpacename("Team").ifPresent(space -> {
-            createUserPosts("institutmed/team.csv", "team_profiles/cover",
-                    space);
-        });
+//        /* step 1 - create team posts */
+//        spaceService.findBySpacename("Team").ifPresent(space -> {
+//            createUserPosts("institutmed/team.csv", "team_profiles/cover",
+//                    space);
+//        });
 
-        /* step 2 - create referenten posts */
-        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
-            createUserPosts("institutmed/referenten.csv", "referenten_profiles/cover",
-                    space);
-        });
+//        /* step 2 - create referenten posts */
+//        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+//            createUserPosts("institutmed/referenten.csv", "referenten_profiles/cover",
+//                    space);
+//        });
 
-        /* step 3 - create partner posts */
-        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
-            createPartnerPosts("institutmed/partner.csv", "partner_profiles/thumbs", space);
-        });
+//        /* step 3 - create partner posts */
+//        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+//            createPartnerPosts("institutmed/partner.csv", "partner_profiles/thumbs", space);
+//        });
 
         /* step 4 - create weltkongress 2019 posts */
         spaceService.findBySpacename("Weltkongress 2019").ifPresent(space -> {
             createSpacePosts("institutmed/wk19.csv", "weltkongress-2019/cover",
                     "Vortrag", space);
         });
-
-        /* step 5 - create praxis posts */
-        spaceService.findBySpacename("Praxis Seminar").ifPresent(space -> {
-            createSpacePosts("institutmed/praxis19.csv", "praxis-seminar-2019/cover",
-                    "Praxis Heilworkshop", space);
-        });
+//
+//        /* step 5 - create praxis posts */
+//        spaceService.findBySpacename("Praxis Seminar").ifPresent(space -> {
+//            createSpacePosts("institutmed/praxis19.csv", "praxis-seminar-2019/cover",
+//                    "Praxis Heilworkshop", space);
+//        });
     }
 
     @Ignore
@@ -345,9 +345,8 @@ public class InstitutMedInit {
                 .forEach(attrs -> {
                     userService.findByUsername(attrs[username]).ifPresent(user -> {
                         try {
-                            String medianame = attrs[username];
                             String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
-                            String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, medianame);
+                            String mediapath = copyMedia(thumbspath, attrs[username], attrs[username]);
 
                             userService.addPost(space, user, attrs[aboutYou], fullname + attrs[work],
                                     Media.of(mediapath, Media.Type.PICTURE));
@@ -379,7 +378,8 @@ public class InstitutMedInit {
                         User user = !attrs[username].equals("") ? userService.getUser(attrs[username]) : defaultuser;
                         if (user != null) {
                             String vortrag = "<h6>" + detail + "</h6> ";
-                            String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, attrs[cover]);
+
+                            String mediapath = copyMedia(thumbspath, user.getUsername(), attrs[cover]);
 
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
@@ -388,7 +388,7 @@ public class InstitutMedInit {
                             userService.addPost(space, user, attrs[title].trim(), vortrag + attrs[text],
                                     Media.of(mediapath, Media.Type.PICTURE));
 
-                            System.out.println(attrs[index] + " " + attrs[username]);
+                            System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " " + mediapath);
                         }
                     } catch (Exception e) {
                         logger.warning(e.getMessage());
@@ -446,9 +446,8 @@ public class InstitutMedInit {
                     try {
                         User user = !attrs[username].equals("") ? userService.getUser(attrs[username]) : defaultuser;
 
-                        String medianame = attrs[username];
                         String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
-                        String mediapath = copyMedia(storageProperties.getLocation(), thumbspath, medianame);
+                        String mediapath = copyMedia(thumbspath, attrs[username], attrs[username]);
                         String webaddress = asUrl(attrs[web], attrs[firstname] + " " + attrs[lastname]);
 
                         userService.addPost(space, user, attrs[aboutYou], fullname + attrs[text] + webaddress,
@@ -467,7 +466,7 @@ public class InstitutMedInit {
     }
 
     private String asUrl(String url, String name) {
-        return "<p class='mt-2'>Web page: <a href='" + url + "' target='_blank'>" + name + "</a></p>";
+        return "<br><p class='mt-2'>Web page: <a href='" + url + "' target='_blank'>" + name + "</a></p>";
     }
 
     @Deprecated
@@ -612,14 +611,15 @@ public class InstitutMedInit {
                 resolve(source.getFileName()).toString();
     }
 
-    private String copyMedia(StorageProperties.Location location, String thumbspath, String filename)
-            throws IOException {
-        Path root = Paths.get(location.getRoot(), filename);
+    private String copyMedia(String sourcepath, String targetpath, String filename) throws IOException {
+        StorageProperties.Location location = storageProperties.getLocation();
+
+        Path root = Paths.get(location.getRoot(), targetpath);
         if (Files.notExists(root)) {
             Files.createDirectories(root);
         }
 
-        Path source = Paths.get(location.getThumbs(), thumbspath).resolve(filename + ".jpg");
+        Path source = Paths.get(location.getThumbs(), sourcepath).resolve(filename + ".jpg");
         Path target = root.resolve(source.getFileName());
 
         if (Files.notExists(source)) return null;
@@ -628,7 +628,7 @@ public class InstitutMedInit {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        return Paths.get(filename).resolve(filename + ".jpg").toString();
+        return Paths.get(targetpath).resolve(filename + ".jpg").toString();
     }
 
 }
