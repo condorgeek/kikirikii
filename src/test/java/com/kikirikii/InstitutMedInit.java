@@ -25,29 +25,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Collection of quick hacks for initializing the kikirikii database
+ * Collection of quick hacks for initializing the kikirikii database. Could be used as basis for some bot apis.
  */
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class InstitutMedInit {
     private Logger logger = Logger.getLogger("InstitutMedInit");
-    final private long TEAM_SPACE_ID = 138L;
-    final private long REFERENTEN_SPACE_ID = 135L;
-    final private long WK19_SPACE_ID = 127L;
-    final private long PARTNER_AUSTELLER_SPACE_ID = 139L;
     final private String SUPERUSER = "christine.herrera";
 
     @Autowired
@@ -64,7 +58,7 @@ public class InstitutMedInit {
 
 
     @Test
-    public void createMain() {
+    public void createUsersAndSpaces() {
 
         /* step 1 - create superuser */
         createSuperUser("institutmed/superuser.csv", "team_profiles/thumbs")
@@ -88,140 +82,80 @@ public class InstitutMedInit {
             createPartners("institutmed/partner.csv", "partner_profiles/thumbs",
                     "partner_profiles/cover", space);
         });
+
+    }
+
+    @Ignore
+    @Test
+    @Deprecated
+    public void createDeltas() {
+        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+            createPartners("institutmed/partner_delta.csv", "partner_profiles/thumbs",
+                    "partner_profiles/cover", space);
+        });
+
+        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+            createUsers("institutmed/referenten-delta.csv", "referenten_profiles/thumbs",
+                    space);
+        });
     }
 
     @Test
     public void createPosts() {
-//        /* step 1 - create team posts */
-//        spaceService.findBySpacename("Team").ifPresent(space -> {
-//            createUserPosts("institutmed/team.csv", "team_profiles/cover",
-//                    space);
-//        });
+        /* step 1 - create team posts */
+        spaceService.findBySpacename("Team").ifPresent(space -> {
+            createUserPosts("institutmed/team.csv", "team_profiles/cover",
+                    space);
+        });
 
-//        /* step 2 - create referenten posts */
-//        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
-//            createUserPosts("institutmed/referenten.csv", "referenten_profiles/cover",
-//                    space);
-//        });
+        /* step 2 - create referenten posts */
+        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+            createUserPosts("institutmed/referenten.csv", "referenten_profiles/cover",
+                    space);
+        });
 
-//        /* step 3 - create partner posts */
-//        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
-//            createPartnerPosts("institutmed/partner.csv", "partner_profiles/thumbs", space);
-//        });
+        /* step 3 - create partner posts */
+        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+            createPartnerPosts("institutmed/partner.csv", "partner_profiles/thumbs", space);
+        });
 
         /* step 4 - create weltkongress 2019 posts */
         spaceService.findBySpacename("Weltkongress 2019").ifPresent(space -> {
             createSpacePosts("institutmed/wk19.csv", "weltkongress-2019/cover",
-                    "Vortrag", space);
-        });
-//
-//        /* step 5 - create praxis posts */
-//        spaceService.findBySpacename("Praxis Seminar").ifPresent(space -> {
-//            createSpacePosts("institutmed/praxis19.csv", "praxis-seminar-2019/cover",
-//                    "Praxis Heilworkshop", space);
-//        });
-    }
-
-    @Ignore
-    @Test
-    public void createTeamMembers() {
-        createUsers("institutmed/team.csv", "team_profiles/thumbs",
-                spaceService.getSpace(TEAM_SPACE_ID));
-    }
-
-    @Test
-    public void createUserSpaces() {
-        createPublicSpaces("institutmed/team.csv");
-    }
-
-    @Ignore
-    @Test
-    public void createTestUser() {
-        createUsers("institutmed/test.csv", "team_profiles/thumbs",
-                spaceService.getSpace(TEAM_SPACE_ID));
-    }
-
-    @Ignore
-    @Test
-    public void createTeamPosts() {
-        createUserPosts("institutmed/team.csv", "team_profiles/thumbs",
-                spaceService.getSpace(121L));
-    }
-
-    @Ignore
-    @Test
-    public void deleteSpacePosts() {
-        List<Post> posts = userService.getSpacePosts(TEAM_SPACE_ID);
-        posts.forEach(post -> userService.deletePostById(post.getId()));
-    }
-
-    @Ignore
-    @Test
-    public void createReferenten() {
-        createUsers("institutmed/referenten.csv", "referenten_profiles/thumbs",
-                spaceService.getSpace(REFERENTEN_SPACE_ID));
-    }
-
-    @Ignore
-    @Test
-    public void createReferentenPosts() {
-        createUserPosts("institutmed/referenten.csv", "referenten_profiles/thumbs",
-                spaceService.getSpace(REFERENTEN_SPACE_ID));
-    }
-
-    @Ignore
-    @Test
-    public void createWK19Posts() {
-        createSpacePosts("institutmed/wk19.csv", "weltkongress-2019/cover",
-                "Vortrag", spaceService.getSpace(WK19_SPACE_ID));
-    }
-
-    @Ignore
-    @Test
-    public void joinWK19Users() {
-        joinWK19Space("institutmed/wk19.csv", spaceService.getSpace(WK19_SPACE_ID));
-    }
-
-    @Ignore
-    @Test
-    public void createPraxis19Posts() {
-        User user = userService.getUser("julia.jobs");
-        Space space = spaceService.createGenericSpace(user,
-                "Praxis Seminar",
-                "PRAXIS-SEMINAR ETHNOMEDIZIN. Von den Ethnotherapien zur Ganzheitsmedizin.",
-                "PUBLIC");
-        createSpacePosts("institutmed/praxis19.csv", "praxis-seminar-2019/cover",
-                "Praxis Heilworkshop", space);
-    }
-
-    @Test
-    public void dummyTester() {
-//        createPartners("institutmed/partner.csv", "partner_profiles/thumbs",
-//                "partner_profiles/cover", spaceService.getSpace(PARTNER_AUSTELLER_SPACE_ID));
-
-//        deletePartners("institutmed/partner.csv", spaceService.getSpace(138L));
-//        verifyPartnerCover("institutmed/partner.csv", "partner_profiles/cover");
-        userService.findByUsername(SUPERUSER).ifPresent(user -> {
-            createGenericSpaces(user, "institutmed/spaces.csv", "spaces/cover");
+                    "Weltkongress", space);
         });
 
+        /* step 5 - create gesundheitsmesse 2019 posts */
+        spaceService.findBySpacename("Gesundheitsmesse 2019").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/gm19.csv", "gesundheitsmesse-2019/cover",
+                    "Gesundheitsmesse", space);
+        });
+
+        /* step 6 - create praxis posts */
+        spaceService.findBySpacename("Praxis Seminar").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/praxis19.csv", "praxis-seminar-2019/cover",
+                    "Praxis Heilworkshop", space);
+        });
+
+        /* step 7 - create spenden posts */
+        spaceService.findBySpacename("Spenden-Projekte").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/spenden.csv", "spenden-projekte/cover",
+                    "Spenden Projekt", space);
+        });
+
+        /* step 8 - create sammelband 2019  posts */
+        spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/sammelband-19.csv", "sammelband-2019/cover",
+                    "Sammelband 2019", space);
+        });
+
+        /* step 9 - create presseschau  posts */
+        spaceService.findBySpacename("Presseschau").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/presseschau.csv", "presseschau/cover",
+                    "Presseschau", space);
+        });
     }
 
-    @Ignore
-    @Test
-    public void createReferentenSpaces() {
-        createPublicSpaces("institutmed/referenten.csv");
-    }
-
-    @Ignore
-    @Test
-    @Transactional
-    public void createPartner() {
-        Optional<Space> space = spaceRepository.findById(135L); // referenten space (create space instead)
-        space.ifPresent(s -> createUsers("institutmed/partner.csv",
-                "partner_profiles/thumbs",
-                s));
-    }
 
     private void createGenericSpaces(User user, String filename, String sourcepath) {
         int pos = 0, type = 1, name = 2, icon = 3, description = 4, start_date = 5, web = 6, general_information = 7,
@@ -364,6 +298,46 @@ public class InstitutMedInit {
                 });
     }
 
+    private void createSpacePostsMultiMedia(String filename, String thumbspath, String detail, Space space) {
+        int index = 0, username = 1, cover = 2, title = 3, text = 4;
+
+        List<String> posts = PersistenceInit.Loader.load(filename);
+        User defaultuser = userService.getUser(SUPERUSER);
+
+        System.out.println("****** Creating Posts from " + thumbspath);
+        posts.stream().map(post -> post.split("§"))
+                .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[index]) > Integer.valueOf(attrs1[index]) ? 1 : -1)
+                .forEach(attrs -> {
+                    try {
+                        User user = !attrs[username].equals("") ? userService.getUser(attrs[username]) : defaultuser;
+                        if (user != null) {
+                            String subtitle = "<h6>" + detail + "</h6> ";
+
+                            List<String> pathlist = copyMultiMedia(thumbspath, user.getUsername(), attrs[cover]);
+
+                            if (!spaceService.isMember(space.getId(), user)) {
+                                spaceService.addMember(space, user, user, "MEMBER");
+                            }
+
+                            userService.addPost(space, user, attrs[title].trim(), subtitle + attrs[text],
+                                    asMediaSet(pathlist));
+
+                            System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " ");
+                        }
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
+                    }
+                });
+    }
+
+    private Set<Media> asMediaSet(List<String> pathlist) {
+        Set<Media> set = new HashSet<>();
+        pathlist.forEach(m -> {
+            set.add(Media.of(m, m.startsWith("https://www.youtube.com") ? Media.Type.YOUTUBE : Media.Type.PICTURE));
+        });
+        return set;
+    }
+
     private void createSpacePosts(String filename, String thumbspath, String detail, Space space) {
         int index = 0, username = 1, cover = 2, title = 3, text = 4;
 
@@ -380,7 +354,6 @@ public class InstitutMedInit {
                             String vortrag = "<h6>" + detail + "</h6> ";
 
                             String mediapath = copyMedia(thumbspath, user.getUsername(), attrs[cover]);
-
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
                             }
@@ -388,7 +361,7 @@ public class InstitutMedInit {
                             userService.addPost(space, user, attrs[title].trim(), vortrag + attrs[text],
                                     Media.of(mediapath, Media.Type.PICTURE));
 
-                            System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " " + mediapath);
+                            System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " ");
                         }
                     } catch (Exception e) {
                         logger.warning(e.getMessage());
@@ -405,7 +378,7 @@ public class InstitutMedInit {
         posts.stream().filter(line -> line != null && !line.equals("")).map(post -> post.split("§"))
                 .forEach(attrs -> {
                     try {
-                        /* copy resources */
+//                        /* copy resources */
                         String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
 
                         /* create user */
@@ -424,7 +397,7 @@ public class InstitutMedInit {
                             spaceService.addMember(space, user, user, "MEMBER");
                         }
 
-                        System.out.println(++idx[0] + "  " + attrs[username].trim() + " created");
+                        System.out.println(++idx[0] + "  " + attrs[username].trim() + " " + avatar + " " + " created");
 
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -469,84 +442,7 @@ public class InstitutMedInit {
         return "<br><p class='mt-2'>Web page: <a href='" + url + "' target='_blank'>" + name + "</a></p>";
     }
 
-    @Deprecated
-    private void deletePartners(String filename, Space space) {
-        int firstname = 0, lastname = 1, username = 2, web = 3, gender = 4, city = 5, country = 6, aboutYou = 7, text = 8;
-        List<String> posts = PersistenceInit.Loader.load(filename);
 
-        posts.stream().filter(line -> line != null && !line.equals("")).map(post -> post.split("§"))
-                .forEach(attrs -> {
-                    Optional<User> opt = userService.findByUsername(attrs[username]);
-                    opt.ifPresent(user -> {
-                        try {
-                            if (spaceService.isMember(space.getId(), user)) {
-                                Member member = spaceService.getMember(space.getId(), user.getUsername());
-                                spaceService.leaveSpace(space, member);
-                            }
-
-                            userService.deleteUser(user);
-                            System.out.println("Deleted " + user.getUsername());
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-                    });
-                });
-    }
-
-//    @Deprecated
-//    private void verifyPartnerCover(String filename, String coverpath) {
-//        int firstname = 0, lastname = 1, username = 2, web = 3, gender = 4, city = 5, country = 6, aboutYou = 7, text = 8;
-//        List<String> posts = PersistenceInit.Loader.load(filename);
-//
-//        posts.stream().filter(line -> line != null && !line.equals("")).map(post -> post.split("§"))
-//                .forEach(attrs -> {
-//                    try {
-//                        String cover = copyCover(storageProperties.getLocation(), coverpath, attrs[username].trim());
-//                        if (cover == null) {
-//                            Space home = userService.getHomeSpace(attrs[username]);
-//                            home.setCover(null);
-//                            spaceRepository.save(home);
-//                        }
-//                    } catch (Exception e) {
-//                        System.out.println(e.getMessage());
-//                    }
-//                });
-//    }
-
-    @Deprecated
-    private void joinWK19Space(String filename, Space space) {
-        int index = 0, username = 1, cover = 2, title = 3, text = 4;
-        List<String> posts = PersistenceInit.Loader.load(filename);
-        posts.stream().map(post -> post.split("§"))
-                .filter(attrs -> !attrs[username].equals(""))
-                .forEach(attrs -> {
-                    try {
-                        User user = userService.getUser(attrs[username]);
-                        spaceService.addMember(space, user, user, "MEMBER");
-
-                    } catch (Exception e) {
-                        logger.warning(e.getMessage());
-                    }
-                });
-    }
-
-    @Deprecated
-    private void joinTeamSpace(String filename, Space space) {
-        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
-
-        List<String> posts = PersistenceInit.Loader.load(filename);
-        posts.stream().map(post -> post.split("§"))
-                .filter(attrs -> !attrs[username].equals(""))
-                .forEach(attrs -> {
-                    try {
-                        User user = userService.getUser(attrs[username]);
-                        spaceService.addMember(space, user, user, "MEMBER");
-
-                    } catch (Exception e) {
-                        logger.warning(e.getMessage());
-                    }
-                });
-    }
 
     private User populateUser(String email, String username, String firstname, String lastname, String avatar,
                               String gender, String aboutYou, String work, String web, String city, String country) {
@@ -629,6 +525,101 @@ public class InstitutMedInit {
         }
 
         return Paths.get(targetpath).resolve(filename + ".jpg").toString();
+    }
+
+    private List<String> copyMultiMedia(String sourcepath, String targetpath, String filename) throws IOException {
+        StorageProperties.Location location = storageProperties.getLocation();
+        List<String> media = new ArrayList<>();
+
+        if(filename.startsWith("https://www.youtube.com")) {
+            media.add(filename);
+            return media;
+        }
+
+        Path root = Paths.get(location.getRoot(), targetpath);
+        if (Files.notExists(root)) {
+            Files.createDirectories(root);
+        }
+
+
+        Path source = Paths.get(location.getThumbs(), sourcepath).resolve(filename + ".jpg");
+        Path target = root.resolve(source.getFileName());
+        int cnt = 0;
+
+        while(Files.exists(source)) {
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            media.add(Paths.get(targetpath).resolve(source.getFileName()).toString());
+
+            source = Paths.get(location.getThumbs(), sourcepath).resolve(filename + "-0" + ++cnt + ".jpg");
+            target = root.resolve(source.getFileName());
+        }
+
+        return media;
+
+    }
+
+    /*
+     * @Deprecated
+     */
+
+    @Deprecated
+    private void deletePartners(String filename, Space space) {
+        int firstname = 0, lastname = 1, username = 2, web = 3, gender = 4, city = 5, country = 6, aboutYou = 7, text = 8;
+        List<String> posts = PersistenceInit.Loader.load(filename);
+
+        posts.stream().filter(line -> line != null && !line.equals("")).map(post -> post.split("§"))
+                .forEach(attrs -> {
+                    Optional<User> opt = userService.findByUsername(attrs[username]);
+                    opt.ifPresent(user -> {
+                        try {
+                            if (spaceService.isMember(space.getId(), user)) {
+                                Member member = spaceService.getMember(space.getId(), user.getUsername());
+                                spaceService.leaveSpace(space, member);
+                            }
+
+                            userService.deleteUser(user);
+                            System.out.println("Deleted " + user.getUsername());
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                    });
+                });
+    }
+
+
+    @Deprecated
+    private void joinWK19Space(String filename, Space space) {
+        int index = 0, username = 1, cover = 2, title = 3, text = 4;
+        List<String> posts = PersistenceInit.Loader.load(filename);
+        posts.stream().map(post -> post.split("§"))
+                .filter(attrs -> !attrs[username].equals(""))
+                .forEach(attrs -> {
+                    try {
+                        User user = userService.getUser(attrs[username]);
+                        spaceService.addMember(space, user, user, "MEMBER");
+
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
+                    }
+                });
+    }
+
+    @Deprecated
+    private void joinTeamSpace(String filename, Space space) {
+        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+
+        List<String> posts = PersistenceInit.Loader.load(filename);
+        posts.stream().map(post -> post.split("§"))
+                .filter(attrs -> !attrs[username].equals(""))
+                .forEach(attrs -> {
+                    try {
+                        User user = userService.getUser(attrs[username]);
+                        spaceService.addMember(space, user, user, "MEMBER");
+
+                    } catch (Exception e) {
+                        logger.warning(e.getMessage());
+                    }
+                });
     }
 
 }
