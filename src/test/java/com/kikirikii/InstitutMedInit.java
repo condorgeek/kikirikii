@@ -85,20 +85,6 @@ public class InstitutMedInit {
 
     }
 
-    @Ignore
-    @Test
-    @Deprecated
-    public void createDeltas() {
-        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
-            createPartners("institutmed/partner_delta.csv", "partner_profiles/thumbs",
-                    "partner_profiles/cover", space);
-        });
-
-        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
-            createUsers("institutmed/referenten-delta.csv", "referenten_profiles/thumbs",
-                    space);
-        });
-    }
 
     @Test
     public void createPosts() {
@@ -153,6 +139,21 @@ public class InstitutMedInit {
         spaceService.findBySpacename("Presseschau").ifPresent(space -> {
             createSpacePostsMultiMedia("institutmed/presseschau.csv", "presseschau/cover",
                     "Presseschau", space);
+        });
+    }
+
+    @Ignore
+    @Test
+    @Deprecated
+    public void createDeltas() {
+        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+            createPartners("institutmed/partner_delta.csv", "partner_profiles/thumbs",
+                    "partner_profiles/cover", space);
+        });
+
+        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+            createUsers("institutmed/referenten-delta.csv", "referenten_profiles/thumbs",
+                    space);
         });
     }
 
