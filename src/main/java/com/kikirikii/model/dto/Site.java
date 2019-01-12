@@ -4,7 +4,7 @@
  * Copyright (c) [2018] -  [] Marcelo H. Krebber - European Union 2018
  * All Rights Reserved.
  *
- * Dissemination or reproduction of this file [Client.java] or parts within
+ * Dissemination or reproduction of this file [Site.java] or parts within
  * via any medium is strictly forbidden unless prior written permission is obtained
  * from <marcelo.krebber@gmail.com>
  *
@@ -15,24 +15,33 @@ package com.kikirikii.model.dto;
 
 import java.util.List;
 
-public class Client {
+public class Site {
     private String name;
     private String logo;
     private String style;
     private String homepage;
     private String superuser;
-    private Cover cover;
+    private Page cover;
+    private Page login;
+    private Page register;
 
-    public static Client of(String name, String logo, String style, String homepage, String superuser, Cover cover) {
-        Client client = new Client();
-        client.name = name;
-        client.logo = logo;
-        client.style = style;
-        client.homepage = homepage;
-        client.superuser = superuser;
-        client.cover = cover;
+    public static Site of(String name, String logo, String style, String homepage, String superuser) {
+        return of(name, logo, style, homepage, superuser, null, null, null);
+    }
 
-        return client;
+    public static Site of(String name, String logo, String style, String homepage, String superuser,
+                          Page cover, Page login, Page register) {
+        Site site = new Site();
+        site.name = name;
+        site.logo = logo;
+        site.style = style;
+        site.homepage = homepage;
+        site.superuser = superuser;
+        site.cover = cover;
+        site.login = login;
+        site.register = register;
+
+        return site;
     }
 
     public String getName() {
@@ -67,12 +76,28 @@ public class Client {
         this.superuser = superuser;
     }
 
-    public Cover getCover() {
+    public Page getCover() {
         return cover;
     }
 
-    public void setCover(Cover cover) {
+    public void setCover(Page cover) {
         this.cover = cover;
+    }
+
+    public Page getLogin() {
+        return login;
+    }
+
+    public void setLogin(Page login) {
+        this.login = login;
+    }
+
+    public Page getRegister() {
+        return register;
+    }
+
+    public void setRegister(Page register) {
+        this.register = register;
     }
 
     public String getStyle() {
@@ -83,23 +108,24 @@ public class Client {
         this.style = style;
     }
 
-    public static class Cover {
+    public static class Page {
         private String background;
         private String title;
         private String subtitle;
         private List<String> text;
-        private String footer;
+        private List<String> footer;
         private String style;
 
-        public static Cover of(String background, String title, String subtitle, List<String> text, String style, String footer) {
-           Cover cover = new Cover();
-           cover.background = background;
-           cover.title = title;
-           cover.subtitle = subtitle;
-           cover.text = text;
-           cover.style = style;
-           cover.footer = footer;
-           return cover;
+        public static Page of(String background, String title, String subtitle, List<String> text, String style,
+                              List<String> footer) {
+           Page page = new Page();
+           page.background = background;
+           page.title = title;
+           page.subtitle = subtitle;
+           page.text = text;
+           page.style = style;
+           page.footer = footer;
+           return page;
         }
 
         public String getBackground() {
@@ -134,11 +160,11 @@ public class Client {
             this.style = style;
         }
 
-        public String getFooter() {
+        public List<String> getFooter() {
             return footer;
         }
 
-        public void setFooter(String footer) {
+        public void setFooter(List<String> footer) {
             this.footer = footer;
         }
 

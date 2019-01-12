@@ -13,7 +13,7 @@
 
 package com.kikirikii.storage;
 
-import com.kikirikii.model.dto.Client;
+import com.kikirikii.model.dto.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -23,18 +23,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@PropertySource("classpath:client.properties")
-public class ClientProperties {
+@PropertySource("classpath:site.properties")
+public class SiteProperties {
 
     @Autowired
     private Environment env;
 
-    public Client getClientConfiguration() {
-        return Client.of(prop.get("name"), prop.get("logo"), prop.get("style"), prop.get("homepage"), prop.get("superuser"),
-                Client.Cover.of(cover.get("background"), cover.get("title"), cover.get("subtitle"),
-                        asList("client.config.cover.text"), cover.get("style"), cover.get("footer")));
+    public Site getSiteConfiguration() {
+        return Site.of(prop.get("name"), prop.get("logo"), prop.get("style"), prop.get("homepage"), prop.get("superuser"),
+                Site.Page.of(cover.get("background"), cover.get("title"), cover.get("subtitle"),
+                        asList("client.config.cover.text"), cover.get("style"),
+                        asList("client.config.cover.footer")),
+                Site.Page.of(login.get("background"), login.get("title"), login.get("subtitle"),
+                        asList("client.config.cover.text"), login.get("style"),
+                        asList("client.config.login.footer")),
+                Site.Page.of(register.get("background"), register.get("title"), register.get("subtitle"),
+                        asList("client.config.cover.text"), register.get("style"),
+                        asList("client.config.register.footer"))
+        );
     }
-
 
     private List<String> asList(String base) {
         String result;
@@ -50,6 +57,8 @@ public class ClientProperties {
 
     private Getter<String> prop = name -> env.getProperty("client.config." + name);
     private Getter<String> cover = name -> env.getProperty("client.config.cover." + name);
+    private Getter<String> login = name -> env.getProperty("client.config.login." + name);
+    private Getter<String> register = name -> env.getProperty("client.config.register." + name);
 //    private Getter<List<String>> asList = name -> env.getProperty("client.config.cover." + name, List.class);
 
 }

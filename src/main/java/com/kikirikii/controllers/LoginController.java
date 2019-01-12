@@ -14,10 +14,10 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.User;
-import com.kikirikii.model.dto.Client;
+import com.kikirikii.model.dto.Site;
 import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.services.UserService;
-import com.kikirikii.storage.ClientProperties;
+import com.kikirikii.storage.SiteProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +30,7 @@ public class LoginController {
     private UserService userService;
 
     @Autowired
-    private ClientProperties configuration;
+    private SiteProperties configuration;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public User login(@RequestParam("username") String username, @RequestParam("password") String password) {
@@ -61,8 +61,8 @@ public class LoginController {
     }
 
     @RequestMapping(value = "/app/configuration", method = RequestMethod.GET)
-    public Client getAppConfiguration() {
-        return configuration.getClientConfiguration();
+    public Site getSiteConfiguration() {
+        return configuration.getSiteConfiguration();
     }
 
 }
