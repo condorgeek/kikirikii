@@ -21,6 +21,7 @@ import com.kikirikii.model.SpaceData;
 import com.kikirikii.model.User;
 import com.kikirikii.repos.MemberRepository;
 import com.kikirikii.repos.SpaceRepository;
+import org.hibernate.boot.spi.InFlightMetadataCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -90,13 +94,26 @@ public class SpaceService {
                     Space.Type.valueOf(type.toUpperCase()), Space.Access.valueOf(access)));
 
              memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
-
             return space;
 
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
         throw new InvalidResourceException("Cannot create space " + name);
+    }
+
+    public Space createSpaceAndJoin(User user, String type, String name, String description,
+                                    String access, String startdate, String enddate) {
+        try {
+            LocalDate start = LocalDate.parse(startdate, DateTimeFormatter.ISO_DATE); // YYYY-MM-DD
+            LocalDate end = LocalDate.parse(enddate, DateTimeFormatter.ISO_DATE); // YYYY-MM-DD
+
+            return createSpaceAndJoin(user, type, name, null, null, description, access,
+                    SpaceData.of(null, start, end));
+
+        } catch (DateTimeParseException e) {
+            throw new InvalidResourceException("Start date or End date invalid. Cannot create space " + name);
+        }
     }
 
     public Space createSpaceAndJoin(User user, String type, String name, String icon, String cover, String description, String access,

@@ -89,8 +89,14 @@ public class SpaceController {
     public Space createSpace(@PathVariable String userName, @PathVariable String spaceType, @RequestBody Map<String, String> values) {
 
         User user = userService.getUser(userName);
-        return spaceService.createSpaceAndJoin(user, spaceType, values.get("name"),  values.get("description"),
-                values.get("access"));
+
+        if(Space.Type.valueOf(spaceType) == Space.Type.EVENT) {
+            return spaceService.createSpaceAndJoin(user, spaceType, values.get("name"),  values.get("description"),
+                    values.get("access"), values.get("start"), values.get("end"));
+        } else {
+            return spaceService.createSpaceAndJoin(user, spaceType, values.get("name"),  values.get("description"),
+                    values.get("access"));
+        }
     }
 
     @RequestMapping(value = "/space/{spaceId}/update", method = RequestMethod.POST)

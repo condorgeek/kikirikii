@@ -15,6 +15,7 @@ package com.kikirikii.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
