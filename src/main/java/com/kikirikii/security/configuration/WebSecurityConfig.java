@@ -47,7 +47,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String AUTHENTICATION_URL = "/public/login";
     public static final String REFRESH_TOKEN_URL = "/public/token";
-    public static final String PUBLIC_USER_URL = "/public/user/**";
+//    public static final String PUBLIC_USER_URL = "/public/user/**";
+    public static final String PUBLIC_USER_URL = "/public/**";
     public static final String VALIDATION_URL = "/public/validate/**";
     public static final String SECURE_ROOT_URL = "/user/**";
 

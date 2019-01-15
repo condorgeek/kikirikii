@@ -54,6 +54,9 @@ public class SpaceController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private Utils utils;
+
     /*  active, generic|shop|event and restricted spaces */
     @RequestMapping(value = "/spaces/{spaceType}", method = RequestMethod.GET)
     public List<Space> getUserSpaces(@PathVariable String userName, @PathVariable String spaceType) {
@@ -62,6 +65,9 @@ public class SpaceController {
         return spaceService.getMemberOfSpacesByType(spaceType, user.getId());
     }
 
+    // TODO is this API still relevant ?
+
+    @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/spaces/*", method = RequestMethod.GET)
     public Map<String, List<Space>> getAnyUserSpaces(@PathVariable String userName) {
 
@@ -70,7 +76,7 @@ public class SpaceController {
         List<Space> events = spaceService.getMemberOfSpacesByType(Space.Type.EVENT, user.getId());
         List<Space> shops = spaceService.getMemberOfSpacesByType(Space.Type.SHOP, user.getId());
 
-        return spacesAsMap(generic, events, shops);
+        return utils.spacesAsMap(generic, events, shops);
     }
 
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)
@@ -214,7 +220,7 @@ public class SpaceController {
         Space space = userService.getHomeSpace(userName);
         space = spaceService.updateCoverPath(space, values.get("path"));
 
-        return homeSpaceDataAsMap(space, user, principal);
+        return utils.homeSpaceDataAsMap(space, user, principal.getName());
     }
 
     @RequestMapping(value = "/space/cover/generic/{spaceId}", method = RequestMethod.PUT)
@@ -224,7 +230,7 @@ public class SpaceController {
         Space space = spaceService.getSpace(spaceId);
         space = spaceService.updateCoverPath(space, values.get("path"));
 
-        return genericSpaceDataAsMap(space, user);
+        return utils.genericSpaceDataAsMap(space, user);
     }
 
     /* userName is the id of the home page to get the data for!! and is not the id of the authorized
@@ -239,7 +245,7 @@ public class SpaceController {
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(user.getUsername());
 
-        return homeSpaceDataAsMap(space, user, principal);
+        return utils.homeSpaceDataAsMap(space, user, principal.getName());
     }
 
     @RequestMapping(value = "/space/generic/{spaceId}", method = RequestMethod.GET)
@@ -247,63 +253,9 @@ public class SpaceController {
         User user = userService.getUser(userName);
         Space space = spaceService.getSpace(spaceId);
 
-        return genericSpaceDataAsMap(space, user);
+        return utils.genericSpaceDataAsMap(space, user);
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> genericSpaceDataAsMap(Space space, User user) {
-        Member member = spaceService.findMember(space.getId(), user);
-
-        return new DataMap<String, Object>().put("space", space)
-                .put("spacedata", space.getSpacedata())
-                .put("userdata", user.getUserData())
-                .put("members", spaceService.getMembersCount(space.getId()))
-                .put("isMember", member != null)
-                .put("member", member)
-                .get();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> homeSpaceDataAsMap(Space space, User user, Principal principal) {
-
-        Friend friend = userService.getFriend(principal.getName(), user);
-        boolean isOwner = user.getUsername().equals(principal.getName());
-        boolean isFriend = isOwner || friend != null;
-        boolean isFollowee = isOwner || userService.isFollowee(principal.getName(), user);
-
-        return new DataMap<String, Object>().put("space", space)
-                .put("spacedata", space.getSpacedata())
-                .put("userdata", user.getUserData())
-                .put("friends", userService.getFriendsCount(user.getUsername()))
-                .put("followers", userService.getFollowersCount(user.getUsername()))
-                .put("isFriend", isFriend)
-                .put("friend", friend)
-                .put("isFollowee", isFollowee)
-                .put("isOwner", isOwner)
-                .get();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, List<Space>> spacesAsMap(List<Space> generic, List<Space> events, List<Space> shops) {
-
-        return new DataMap<String, List<Space>>().put("generic", generic)
-                .put("events", events)
-                .put("shops", shops)
-                .get();
-    }
-
-    private class DataMap <K, O>{
-        private Map<K, O> map = new HashMap<>();
-
-        DataMap() {}
-        DataMap put(K key, O data) {
-            this.map.put(key, data);
-            return this;
-        }
-        Map<K, O> get() {
-            return map;
-        }
-    }
 
     private Map<String, Object> asMap(AbstractMap.SimpleEntry<String, Object>... entries) {
         return Arrays.stream(entries).collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue()));
