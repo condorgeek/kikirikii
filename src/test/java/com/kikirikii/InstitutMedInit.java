@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -55,7 +56,6 @@ public class InstitutMedInit {
 
     @Autowired
     private StorageProperties storageProperties;
-
 
     @Test
     public void createUsersAndSpaces() {
@@ -82,12 +82,18 @@ public class InstitutMedInit {
             createPartners("institutmed/partner.csv", "partner_profiles/thumbs",
                     "partner_profiles/cover", space);
         });
-
     }
-
 
     @Test
     public void createPosts() {
+
+        /* step 0 - create superuser posts */
+        userService.findHomeSpace(SUPERUSER).ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/superuser_posts.csv",
+                    "superuser/cover", "Institut für Ganzheitsmedizin", space);
+        });
+
+
         /* step 1 - create team posts */
         spaceService.findBySpacename("Team").ifPresent(space -> {
             createUserPosts("institutmed/team.csv", "team_profiles/cover",
@@ -142,19 +148,32 @@ public class InstitutMedInit {
         });
     }
 
-    @Ignore
+//    @Ignore
     @Test
     @Deprecated
     public void createDeltas() {
-        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
-            createPartners("institutmed/partner_delta.csv", "partner_profiles/thumbs",
-                    "partner_profiles/cover", space);
+//        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
+//            createPartners("institutmed/partner_delta.csv", "partner_profiles/thumbs",
+//                    "partner_profiles/cover", space);
+//        });
+//
+//        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
+//            createUsers("institutmed/referenten-delta.csv", "referenten_profiles/thumbs",
+//                    space);
+//        });
+
+//        createUserIntroductoryPost("institutmed/referenten.csv");
+
+//        userService.findHomeSpace(SUPERUSER).ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/superuser_posts.csv",
+//                    "superuser/cover", "Institut für Ganzheitsmedizin", space);
+//        });
+
+
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            createGenericSpaces(user, "institutmed/spaces.csv", "spaces/cover");
         });
 
-        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
-            createUsers("institutmed/referenten-delta.csv", "referenten_profiles/thumbs",
-                    space);
-        });
     }
 
 
@@ -170,10 +189,11 @@ public class InstitutMedInit {
                     try {
                         Space space = spaceService.createSpaceAndJoin(user, getType(attrs[type]), attrs[name],
                                 getIcon(attrs[icon]), null, attrs[description], "PUBLIC",
-                                SpaceData.of(null, null, null, attrs[general_information],
-                                        attrs[venue], attrs[travel_information], attrs[venue], attrs[city],
-                                        null, null, attrs[key_dates], attrs[tickets],
-                                        attrs[dates]));
+                                SpaceData.of(null, getLocalDate(attrs[type], attrs[start_date]),
+                                        getLocalDate(attrs[type], attrs[start_date]),
+                                        attrs[general_information], attrs[venue], attrs[travel_information],
+                                        attrs[venue], attrs[city], null, null,
+                                        attrs[key_dates], attrs[tickets], attrs[dates]));
 
                         String targetpath = user.getUsername() + "/generic/" + space.getId();
                         String cover = copyCover(sourcepath, targetpath, asCover(attrs[name]));
@@ -193,6 +213,13 @@ public class InstitutMedInit {
 
     private String getIcon(String icon) {
         return icon == null || icon.equals("") ? null : icon.trim();
+    }
+
+    private LocalDate getLocalDate(String type, String date) {
+        if(type.equals("E")) {
+            return LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+        }
+        return null;
     }
 
     String asCover(String name) {  // some convention for cover file names
@@ -283,12 +310,19 @@ public class InstitutMedInit {
                             String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
                             String mediapath = copyMedia(thumbspath, attrs[username], attrs[username]);
 
+                            // create post in generic space
                             userService.addPost(space, user, attrs[aboutYou], fullname + attrs[work],
                                     Media.of(mediapath, Media.Type.PICTURE));
 
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
                             }
+
+                            // create post in home space
+                            userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
+                                userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[work],
+                                        Media.of(mediapath, Media.Type.PICTURE));
+                            });
 
                             System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
 
@@ -431,6 +465,12 @@ public class InstitutMedInit {
                             spaceService.addMember(space, user, user, "MEMBER");
                         }
 
+                        // create post in home space
+                        userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
+                            userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[text] + webaddress,
+                                    Media.of(mediapath, Media.Type.PICTURE));
+                        });
+
                         System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
 
                     } catch (Exception e) {
@@ -528,6 +568,10 @@ public class InstitutMedInit {
         return Paths.get(targetpath).resolve(filename + ".jpg").toString();
     }
 
+    private String resolveMediaTarget(String targetpath, String filename) {
+        return Paths.get(targetpath).resolve(filename + ".jpg").toString();
+    }
+
     private List<String> copyMultiMedia(String sourcepath, String targetpath, String filename) throws IOException {
         StorageProperties.Location location = storageProperties.getLocation();
         List<String> media = new ArrayList<>();
@@ -562,6 +606,35 @@ public class InstitutMedInit {
     /*
      * @Deprecated
      */
+
+    @Deprecated
+    /** Achtung: this function assumes media has been already copied */
+    private void createUserIntroductoryPost(String filename) {
+        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+        int[] count = {0};
+        List<String> team = PersistenceInit.Loader.load(filename);
+
+        team.stream().map(member -> member.split("§"))
+                .sorted((attrs1, attrs2) -> attrs2[lastname].compareTo(attrs1[lastname]))
+                .forEach(attrs -> {
+                    userService.findByUsername(attrs[username]).ifPresent(user -> {
+                        try {
+                            userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
+                                String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
+                                String mediapath = resolveMediaTarget(attrs[username], attrs[username]);
+
+                                userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[work],
+                                        Media.of(mediapath, Media.Type.PICTURE));
+
+                                System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
+                            });
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                });
+    }
 
     @Deprecated
     private void deletePartners(String filename, Space space) {

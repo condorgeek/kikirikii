@@ -243,6 +243,10 @@ public class UserService {
         throw new InvalidResourceException("Invalid user name or user has no home space " + name);
     }
 
+    public Optional<Space> findHomeSpace(String name) {
+        return userRepository.findHomeSpaceByName(name);
+    }
+
     public Space getHomeSpace(Long id) {
         Optional<Space> home = userRepository.findHomeSpaceById(id);
         if (home.isPresent()) {
