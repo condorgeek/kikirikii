@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/public/{userName}")
 public class PublicController {
-    public static Logger logger = Logger.getLogger("SpaceController");
+    public static Logger logger = Logger.getLogger("PublicController");
 
     @Autowired
     private SpaceService spaceService;

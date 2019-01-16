@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -43,6 +44,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String AUTHENTICATION_HEADER_NAME = "Authorization";
     public static final String AUTHENTICATION_URL = "/public/login";
@@ -51,8 +53,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public static final String PUBLIC_USER_URL = "/public/**";
     public static final String VALIDATION_URL = "/public/validate/**";
     public static final String SECURE_ROOT_URL = "/user/**";
-
-//    public static final String ANONYMOUS_ROOT_URL = "/user/julia.jobs/**";
 
     @Autowired
     private DefaultEntryPoint defaultEntryPoint;

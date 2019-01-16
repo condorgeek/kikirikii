@@ -21,6 +21,7 @@ import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -91,6 +92,7 @@ public class SpaceController {
     }
 
     @SuppressWarnings("unchecked")
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceType}/create", method = RequestMethod.POST)
     public Space createSpace(@PathVariable String userName, @PathVariable String spaceType, @RequestBody Map<String, String> values) {
 
@@ -105,6 +107,7 @@ public class SpaceController {
         }
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/update", method = RequestMethod.POST)
     public Space updateSpace(@PathVariable String userName, @PathVariable Long spaceId,
                              @RequestBody SpaceRequest spaceRequest) {
@@ -115,6 +118,7 @@ public class SpaceController {
         return  spaceService.save(spaceRequest.update(space));
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/member/{memberName}/add", method = RequestMethod.POST)
     public Member addMember(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable String memberName,
                             @RequestBody Map<String, String> values) {
@@ -127,6 +131,7 @@ public class SpaceController {
         return spaceService.addMember(space, member, referer, values.get("role"));
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/join", method = RequestMethod.POST)
     public Member joinSpace(@PathVariable String userName, @PathVariable Long spaceId) {
 
@@ -136,6 +141,7 @@ public class SpaceController {
         return spaceService.addMember(space, user, user, "MEMBER");
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/share/{postId}", method = RequestMethod.POST)
     public Post sharePost(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long postId, @RequestBody Map<String, String> values) {
 
@@ -148,6 +154,7 @@ public class SpaceController {
     }
 
     /* member itself leaves space */
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/leave/{memberId}", method = RequestMethod.POST)
     public Member leaveSpaceById(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
 
@@ -158,6 +165,7 @@ public class SpaceController {
         return spaceService.leaveSpace(space, member);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/leave", method = RequestMethod.POST)
     public Member leaveSpace(@PathVariable String userName, @PathVariable Long spaceId) {
 
@@ -169,6 +177,7 @@ public class SpaceController {
     }
 
     /* owner ie. admin removes some member from space */
+    @Secured("ROLE_USER")
     @RequestMapping(value = "space/{spaceId}/delete/{memberId}", method = RequestMethod.DELETE)
     public Member deleteMember(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
 
@@ -180,6 +189,7 @@ public class SpaceController {
     }
 
     /* owner ie. admin blocks some member from space */
+    @Secured("ROLE_USER")
     @RequestMapping(value = "space/{spaceId}/block/{memberId}", method = RequestMethod.DELETE)
     public Member blockMember(@PathVariable String userName, @PathVariable Long spaceId, @PathVariable Long memberId) {
 
@@ -190,6 +200,7 @@ public class SpaceController {
         return spaceService.blockMember(space, admin, member);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/delete", method = RequestMethod.DELETE)
     public Space deleteSpace(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);
@@ -198,6 +209,7 @@ public class SpaceController {
         return spaceService.deleteSpace(space);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/block", method = RequestMethod.PUT)
     public Space blockSpace(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);
@@ -206,6 +218,7 @@ public class SpaceController {
         return spaceService.blockSpace(space);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/{spaceId}/unblock", method = RequestMethod.PUT)
     public Space unblockSpace(@PathVariable String userName, @PathVariable Long spaceId) {
         User user = userService.getUser(userName);
@@ -214,6 +227,7 @@ public class SpaceController {
         return spaceService.unblockSpace(space);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/cover/home", method = RequestMethod.PUT)
     public Map<String, Object> updateHomeCover(Principal principal, @PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -223,6 +237,7 @@ public class SpaceController {
         return utils.homeSpaceDataAsMap(space, user, principal.getName());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/space/cover/generic/{spaceId}", method = RequestMethod.PUT)
     public Map<String, Object> updateGenericSpaceCover(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody Map<String, String> values) {
 

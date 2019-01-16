@@ -26,6 +26,8 @@ import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -118,6 +120,7 @@ public class UserController {
         return userService.getPostById(postId);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/home", method = RequestMethod.POST)
     public Post addHomePost(@PathVariable String userName, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
@@ -127,6 +130,7 @@ public class UserController {
                 postRequest.getMediaAsSet());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/{postId}/delete", method = RequestMethod.DELETE)
     public Post deletePost(@PathVariable String userName, @PathVariable Long postId) {
         User user = userService.getUser(userName);
@@ -143,12 +147,14 @@ public class UserController {
     private BiFunction<Space, User, Boolean> isSpaceOwner = (s, u) -> s.getUser().getUsername().equals(u.getUsername());
 
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/{postId}/hide", method = RequestMethod.PUT)
     public Post hidePost(@PathVariable String userName, @PathVariable Long postId) {
         User user = userService.getUser(userName);
         return userService.hidePostById(postId);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/generic/{spaceId}", method = RequestMethod.POST)
     public Post addGenericPost(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
@@ -158,6 +164,7 @@ public class UserController {
                 postRequest.getMediaAsSet());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/global", method = RequestMethod.POST)
     public Post addGlobalPost(@PathVariable String userName, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
@@ -167,6 +174,7 @@ public class UserController {
                 postRequest.getMediaAsSet());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/userdata/update", method = RequestMethod.POST)
     public UserData updateUserData(@PathVariable String userName, @RequestBody UserRequest userRequest) {
         User user = userService.getUser(userName);
@@ -209,6 +217,7 @@ public class UserController {
 
     private static final int REQUEST = 0, PENDING = 1, CANCELLED = 1, IGNORED = 1, ACCEPTED = 1, DELETED = 1, BLOCKED = 1, UNBLOCKED = 1;
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/add", method = RequestMethod.PUT)
     public Friend addFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -230,6 +239,7 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/accept", method = RequestMethod.PUT)
     public Friend acceptFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -245,6 +255,7 @@ public class UserController {
     return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/ignore", method = RequestMethod.PUT)
     public Friend ignoreFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -260,6 +271,7 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/cancel", method = RequestMethod.PUT)
     public Friend cancelFriendRequest(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -275,6 +287,7 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/block", method = RequestMethod.PUT)
     public Friend blockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -290,6 +303,7 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/unblock", method = RequestMethod.PUT)
     public Friend unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -305,6 +319,7 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/delete", method = RequestMethod.PUT)
     public Friend deleteFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -320,6 +335,7 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/followee/add", method = RequestMethod.PUT)
     public Follower addFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -341,6 +357,7 @@ public class UserController {
         return follower;
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/followee/delete", method = RequestMethod.PUT)
     public Follower deleteFollowee(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -356,6 +373,7 @@ public class UserController {
         return follower;
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/follower/block", method = RequestMethod.PUT)
     public List<Follower> blockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -371,6 +389,7 @@ public class UserController {
         return userService.getFollowers(user);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/follower/unblock", method = RequestMethod.PUT)
     public List<Follower> unblockFollower(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
@@ -424,6 +443,7 @@ public class UserController {
         return data;
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/userdata/avatar", method = RequestMethod.PUT)
     public Map<String, Object> updateUserAvatar(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);

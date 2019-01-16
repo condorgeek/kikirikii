@@ -19,6 +19,7 @@ import com.kikirikii.model.dto.PostRequest;
 import com.kikirikii.services.PostService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EnumType;
@@ -42,12 +43,14 @@ public class PostController {
         return postService.getCommentsByPostId(postId);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/comments/{postId}", method = RequestMethod.POST)
     public Comment addComment(@PathVariable String userName, @PathVariable Long postId, @RequestBody CommentRequest commentRequest) {
         User user = userService.getUser(commentRequest.getUsername());
         return postService.addComment(user, postId, commentRequest.text);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/likes/{postId}", method = RequestMethod.POST)
     public List<Like> addLike(@PathVariable String userName, @PathVariable Long postId, @RequestBody LikeRequest addLike) {
         User user = userService.getUser(addLike.getUsername());
@@ -55,6 +58,7 @@ public class PostController {
         return postService.addLike(user, postId, addLike.getReaction());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/likes/{postId}/remove/{likeId}", method = RequestMethod.DELETE)
     public List<Like> removeLike(@PathVariable String userName, @PathVariable Long postId,
                                  @PathVariable Long likeId) {
@@ -63,6 +67,7 @@ public class PostController {
         return postService.removeLike(user, postId, likeId);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/commentlikes/{commentId}", method =  RequestMethod.POST)
     public List<CommentLike> addCommentLike(@PathVariable String userName, @PathVariable Long commentId, @RequestBody LikeRequest addCommentLike) {
         User user = userService.getUser(addCommentLike.getUsername());
@@ -70,6 +75,7 @@ public class PostController {
         return postService.addCommentLike(user, commentId, addCommentLike.getReaction());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/commentlikes/{commentId}/remove/{likeId}", method = RequestMethod.DELETE)
     public List<CommentLike> removeCommentLike(@PathVariable String userName, @PathVariable Long commentId, @PathVariable Long likeId) {
         User user = userService.getUser(userName);
@@ -77,6 +83,7 @@ public class PostController {
         return postService.removeCommentLike(user, commentId, likeId);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/{postId}/update", method = RequestMethod.POST)
     public Post updatePost(@PathVariable String userName, @PathVariable Long postId, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);
@@ -86,6 +93,7 @@ public class PostController {
                 postRequest.getMediaAsSet());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/{postId}/media/{mediaId}/delete", method = RequestMethod.DELETE)
     public Post deletePostMedia(@PathVariable String userName, @PathVariable Long postId, @PathVariable Long mediaId) {
         User user = userService.getUser(userName);
