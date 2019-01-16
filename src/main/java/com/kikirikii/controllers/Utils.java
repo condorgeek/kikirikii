@@ -37,7 +37,7 @@ public class Utils {
 
     /* alternative - create a class for this stuff */
     @SuppressWarnings("Duplicates")
-    public Map<String, Object> genericSpaceDataAsMap(Space space, User user) {
+    Map<String, Object> genericSpaceDataAsMap(Space space, User user) {
         Member member = spaceService.findMember(space.getId(), user);
 
         Map<String, Object> data = new HashMap<>();
@@ -54,7 +54,7 @@ public class Utils {
     /* alternative - create a class for this stuff */
     /* ACHTUNG: principal is the username of the logged in, authenticated user */
     @SuppressWarnings("Duplicates")
-    public Map<String, Object> homeSpaceDataAsMap(Space space, User user, String principal) {
+    Map<String, Object> homeSpaceDataAsMap(Space space, User user, String principal) {
 
         Friend friend = null;
         boolean isOwner = false;
@@ -84,11 +84,20 @@ public class Utils {
     }
 
     /* alternative - create a class for this stuff */
-    public Map<String, List<Space>> spacesAsMap(List<Space> generic, List<Space> events, List<Space> shops) {
+    Map<String, List<Space>> spacesAsMap(List<Space> generic, List<Space> events, List<Space> shops) {
         Map<String, List<Space>> data = new HashMap<>();
         data.put("generic", generic);
         data.put("events", events);
         data.put("shops", shops);
+
+        return data;
+    }
+
+    /* alternative - create a class for this stuff */
+    Map<String, Object> userDataAsMap(User user) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user);
+        data.put("userdata", user.getUserData());
 
         return data;
     }

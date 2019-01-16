@@ -185,16 +185,10 @@ public class PublicController {
         return Collections.emptyList();
     }
 
-
-    @SuppressWarnings("Duplicates")
     @RequestMapping(value = "/userdata", method = RequestMethod.GET)
     public Map<String, Object> getUserData(@PathVariable String userName) {
         User user = userService.getUser(userName);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("user", user);
-        data.put("userdata", user.getUserData());
-        return data;
+        return utils.userDataAsMap(user);
     }
 
     /**********************

@@ -27,7 +27,6 @@ import com.kikirikii.services.WebsocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -54,6 +53,9 @@ public class UserController {
 
     @Autowired
     private ObjectMapper mapper;
+
+    @Autowired
+    private Utils utils;
 
     @RequestMapping(value = "/posts/global", method = RequestMethod.GET)
     List<Post> getUserGlobalPosts(@PathVariable String userName) {
@@ -436,11 +438,7 @@ public class UserController {
     @RequestMapping(value = "/userdata", method = RequestMethod.GET)
     public Map<String, Object> getUserData(@PathVariable String userName) {
         User user = userService.getUser(userName);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("user", user);
-        data.put("userdata", user.getUserData());
-        return data;
+        return utils.userDataAsMap(user);
     }
 
     @Secured("ROLE_USER")

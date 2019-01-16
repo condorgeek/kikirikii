@@ -19,23 +19,23 @@ public class Site {
     private String name;
     private String logo;
     private String style;
-    private String homepage;
+    private String publicpage;
     private String superuser;
     private Page cover;
     private Page login;
     private Page register;
 
-    public static Site of(String name, String logo, String style, String homepage, String superuser) {
-        return of(name, logo, style, homepage, superuser, null, null, null);
+    public static Site of(String name, String logo, String style, String publicpage, String superuser) {
+        return of(name, logo, style, publicpage, superuser, null, null, null);
     }
 
-    public static Site of(String name, String logo, String style, String homepage, String superuser,
+    public static Site of(String name, String logo, String style, String publicpage, String superuser,
                           Page cover, Page login, Page register) {
         Site site = new Site();
         site.name = name;
         site.logo = logo;
         site.style = style;
-        site.homepage = homepage;
+        site.publicpage = publicpage;
         site.superuser = superuser;
         site.cover = cover;
         site.login = login;
@@ -60,12 +60,12 @@ public class Site {
         this.logo = logo;
     }
 
-    public String getHomepage() {
-        return homepage;
+    public String getPublicpage() {
+        return publicpage;
     }
 
-    public void setHomepage(String homepage) {
-        this.homepage = homepage;
+    public void setPublicpage(String publicpage) {
+        this.publicpage = publicpage;
     }
 
     public String getSuperuser() {
