@@ -20,6 +20,7 @@ import com.kikirikii.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,7 @@ public class FileUploadController {
     @Autowired
     private StorageProperties storageProperties;
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/upload", method = RequestMethod.POST)
     public Media handleFileUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file,
                                   @RequestParam("text") String text) {
@@ -45,18 +47,21 @@ public class FileUploadController {
         return Media.of(location, Media.Type.PICTURE);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value ="/avatar/upload", method = RequestMethod.POST)
     public String handleProfileUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
         return storageService.storeAtLocation(file, userName + storageProperties
                 .getLocation().getProfile());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value ="/cover/upload/home", method = RequestMethod.POST)
     public String handleCoverUpload(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
         return storageService.storeAtLocation(file,
                 userName + storageProperties.getLocation().getCover());
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value ="/cover/upload/generic/{spaceId}", method = RequestMethod.POST)
     public String handleGenericCoverUpload(@PathVariable String userName, @PathVariable String spaceId, @RequestParam("file") MultipartFile file) {
         return storageService.storeAtLocation(file,

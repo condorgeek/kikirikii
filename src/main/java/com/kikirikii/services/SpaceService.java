@@ -21,7 +21,6 @@ import com.kikirikii.model.SpaceData;
 import com.kikirikii.model.User;
 import com.kikirikii.repos.MemberRepository;
 import com.kikirikii.repos.SpaceRepository;
-import org.hibernate.boot.spi.InFlightMetadataCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
