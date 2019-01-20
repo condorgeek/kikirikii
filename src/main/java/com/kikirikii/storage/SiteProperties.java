@@ -31,6 +31,8 @@ public class SiteProperties {
 
     public Site getSiteConfiguration() {
         return Site.of(prop.get("name"), prop.get("logo"), prop.get("style"), prop.get("publicpage"), prop.get("superuser"),
+                Site.Public.of(publicmode.get("homepage"), publicmode.get("landingpage"),
+                        publicmode.get("likes"), publicmode.get("comments"), publicmode.get("registration")),
                 Site.Page.of(cover.get("background"), cover.get("title"), cover.get("subtitle"),
                         asList("client.config.cover.text"), cover.get("style"),
                         asList("client.config.cover.footer")),
@@ -59,6 +61,7 @@ public class SiteProperties {
     private Getter<String> cover = name -> env.getProperty("client.config.cover." + name);
     private Getter<String> login = name -> env.getProperty("client.config.login." + name);
     private Getter<String> register = name -> env.getProperty("client.config.register." + name);
+    private Getter<String>publicmode = name -> env.getProperty("client.config.public." + name);
 //    private Getter<List<String>> asList = name -> env.getProperty("client.config.cover." + name, List.class);
 
 }

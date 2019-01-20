@@ -13,6 +13,8 @@
 
 package com.kikirikii.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class Site {
@@ -21,22 +23,27 @@ public class Site {
     private String style;
     private String publicpage;
     private String superuser;
+
+    @JsonProperty("public")
+    private Public publicmode;
+
     private Page cover;
     private Page login;
     private Page register;
 
     public static Site of(String name, String logo, String style, String publicpage, String superuser) {
-        return of(name, logo, style, publicpage, superuser, null, null, null);
+        return of(name, logo, style, publicpage, superuser, null, null, null, null);
     }
 
     public static Site of(String name, String logo, String style, String publicpage, String superuser,
-                          Page cover, Page login, Page register) {
+                          Public publicmode, Page cover, Page login, Page register) {
         Site site = new Site();
         site.name = name;
         site.logo = logo;
         site.style = style;
         site.publicpage = publicpage;
         site.superuser = superuser;
+        site.publicmode = publicmode;
         site.cover = cover;
         site.login = login;
         site.register = register;
@@ -174,6 +181,65 @@ public class Site {
 
         public void setText(List<String> text) {
             this.text = text;
+        }
+    }
+
+    public static class Public {
+        private String homepage;
+        private boolean landingpage;
+        private boolean likes;
+        private boolean comments;
+        private boolean registration;
+
+        public static Public of(String homepage, String landingpage, String likes, String comments, String registration) {
+            Public publicmode = new Public();
+            publicmode.homepage = homepage;
+            publicmode.landingpage = Boolean.valueOf(landingpage);
+            publicmode.likes = Boolean.valueOf(likes);
+            publicmode.comments = Boolean.valueOf(comments);
+            publicmode.registration = Boolean.valueOf(registration);
+
+            return publicmode;
+        }
+
+        public String getHomepage() {
+            return homepage;
+        }
+
+        public void setHomepage(String homepage) {
+            this.homepage = homepage;
+        }
+
+        public Boolean isLandingpage() {
+            return landingpage;
+        }
+
+        public void setLandingpage(Boolean landingpage) {
+            this.landingpage = landingpage;
+        }
+
+        public boolean isLikes() {
+            return likes;
+        }
+
+        public void setLikes(boolean likes) {
+            this.likes = likes;
+        }
+
+        public boolean isComments() {
+            return comments;
+        }
+
+        public void setComments(boolean comments) {
+            this.comments = comments;
+        }
+
+        public boolean isRegistration() {
+            return registration;
+        }
+
+        public void setRegistration(boolean registration) {
+            this.registration = registration;
         }
     }
 }
