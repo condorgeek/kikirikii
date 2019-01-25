@@ -30,7 +30,7 @@ public class SiteProperties {
     private Environment env;
 
     public Site getSiteConfiguration() {
-        return Site.of(prop.get("name"), prop.get("logo"), prop.get("style"), prop.get("publicpage"), prop.get("superuser"),
+        return Site.of(prop.get("name"), prop.get("logo"), prop.get("style"), prop.get("theme"), prop.get("publicpage"), prop.get("superuser"),
                 Site.Public.of(publicmode.get("homepage"), publicmode.get("landingpage"),
                         publicmode.get("likes"), publicmode.get("comments"), publicmode.get("registration")),
                 Site.Page.of(cover.get("background"), cover.get("title"), cover.get("subtitle"),

@@ -13,6 +13,7 @@
 
 package com.kikirikii.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -20,8 +21,12 @@ import java.util.List;
 public class Site {
     private String name;
     private String logo;
+    @Deprecated
     private String style;
+    private String theme;
+    @JsonIgnore
     private String publicpage;
+    @JsonIgnore
     private String superuser;
 
     @JsonProperty("public")
@@ -31,16 +36,17 @@ public class Site {
     private Page login;
     private Page register;
 
-    public static Site of(String name, String logo, String style, String publicpage, String superuser) {
-        return of(name, logo, style, publicpage, superuser, null, null, null, null);
+    public static Site of(String name, String logo, String style, String theme, String publicpage, String superuser) {
+        return of(name, logo, style, theme, publicpage, superuser, null, null, null, null);
     }
 
-    public static Site of(String name, String logo, String style, String publicpage, String superuser,
+    public static Site of(String name, String logo, String style, String theme, String publicpage, String superuser,
                           Public publicmode, Page cover, Page login, Page register) {
         Site site = new Site();
         site.name = name;
         site.logo = logo;
         site.style = style;
+        site.theme = theme;
         site.publicpage = publicpage;
         site.superuser = superuser;
         site.publicmode = publicmode;
@@ -49,6 +55,15 @@ public class Site {
         site.register = register;
 
         return site;
+    }
+
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
     }
 
     public String getName() {
@@ -121,6 +136,7 @@ public class Site {
         private String subtitle;
         private List<String> text;
         private List<String> footer;
+        @Deprecated
         private String style;
 
         public static Page of(String background, String title, String subtitle, List<String> text, String style,
@@ -185,6 +201,7 @@ public class Site {
     }
 
     public static class Public {
+        @Deprecated
         private String homepage;
         private boolean landingpage;
         private boolean likes;
