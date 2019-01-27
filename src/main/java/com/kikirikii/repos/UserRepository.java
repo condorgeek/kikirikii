@@ -59,4 +59,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select u from User u where u.state = 'ACTIVE'")
     Stream<User> findAllActiveUsers();
 
+    @Query("select u from User u where u.firstname like %:term% or u.lastname like %:term% or u.username like %:term% and u.state = 'ACTIVE'")
+    Stream<User> searchActiveByTerm(@Param("term") String term);
+
 }

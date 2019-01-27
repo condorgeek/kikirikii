@@ -17,6 +17,7 @@ import com.kikirikii.model.*;
 import com.kikirikii.model.dto.SpaceRequest;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
+import com.kikirikii.services.SearchService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Space is essentially grounded on our individual and collective self, where functionality, ornament and beauty are
@@ -54,6 +56,9 @@ public class SpaceController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SearchService searchService;
 
     @Autowired
     private Utils utils;
@@ -89,6 +94,13 @@ public class SpaceController {
     public Page<Member> getPageableSpaceMembers(@PathVariable String userName, @PathVariable Long spaceId,
                                             @PathVariable Integer page, @PathVariable Integer size ) {
         return spaceService.getPageableMembersBySpace(spaceId, page, size);
+    }
+
+    /* no '/space' in this one */
+    @RequestMapping(value = "/search/{term}/{size}", method = RequestMethod.GET)
+    public List<Map<String, Object>> searchByTerm(@PathVariable String userName, @PathVariable String term,
+                                            @PathVariable Integer size) {
+        return searchService.searchGlobalByTerm(term, size);
     }
 
     @SuppressWarnings("unchecked")

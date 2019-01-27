@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -148,6 +149,10 @@ public class UserService {
 
     public User updateUser(User user) {
         return userRepository.save(user);
+    }
+
+    public Stream<User> searchByTermAsStream(String term, Integer size) {
+        return userRepository.searchActiveByTerm(term);
     }
 
     public void createPublicSpaces(User user) {

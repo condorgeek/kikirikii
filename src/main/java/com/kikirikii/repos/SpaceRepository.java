@@ -54,5 +54,8 @@ public interface SpaceRepository extends CrudRepository<Space, Long> {
     @Query("select count(m) from Member m where m.space.id = :spaceId and m.state='ACTIVE'")
     Long countActiveBySpaceId(@Param("spaceId") Long spaceId);
 
+    /* search */
+    @Query("select s from Space s where s.name like %:term% and s.state = 'ACTIVE'")
+    Stream<Space> searchActiveByTerm(@Param("term") String term);
 
 }

@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -69,6 +70,11 @@ public class SpaceService {
         }
         throw new InvalidResourceException("Member Id " + id + " is invalid.");
     }
+
+    public Stream<Space> searchByTermAsStream(String term, Integer size) {
+        return spaceRepository.searchActiveByTerm(term);
+    }
+
 
     public Member getMember(Long spaceId, String username) {
         Optional<Member> member = memberRepository.findMemberByUsername(spaceId, username);

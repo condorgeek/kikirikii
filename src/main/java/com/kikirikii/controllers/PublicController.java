@@ -16,6 +16,7 @@ package com.kikirikii.controllers;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
 import com.kikirikii.services.PostService;
+import com.kikirikii.services.SearchService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.storage.SiteProperties;
@@ -30,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Support for anonymous user. Read mode only of PUBLIC data. {userName} is the default user which
@@ -52,6 +55,9 @@ public class PublicController {
 
     @Autowired
     private SiteProperties configuration;
+
+    @Autowired
+    private SearchService searchService;
 
     @Autowired
     private Utils utils;
@@ -236,6 +242,18 @@ public class PublicController {
         Space space = spaceService.getSpace(spaceId);
 
         return utils.genericSpaceDataAsMap(space, user);
+    }
+
+    /*********************************
+     * SEARCH entry points  *
+     *********************************/
+
+    /* no '/space' in this one */
+    @RequestMapping(value = "/search/{term}/{size}", method = RequestMethod.GET)
+    public List<Map<String, Object>> searchByTerm(@PathVariable String userName, @PathVariable String term,
+                                                  @PathVariable Integer size) {
+
+        return searchService.searchGlobalByTerm(term, size);
     }
 
     /*********************************
