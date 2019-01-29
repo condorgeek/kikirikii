@@ -15,6 +15,7 @@ package com.kikirikii.controllers;
 
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.SpaceRequest;
+import com.kikirikii.model.enums.State;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.SearchService;
@@ -31,7 +32,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Space is essentially grounded on our individual and collective self, where functionality, ornament and beauty are
@@ -283,6 +283,36 @@ public class SpaceController {
         return utils.genericSpaceDataAsMap(space, user);
     }
 
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/space/media/home", method = RequestMethod.POST)
+    public Space addHomeSpaceMedia(@PathVariable String userName, @RequestBody SpaceMedia[] media) {
+        User user = userService.getUser(userName);
+        Space space = userService.getHomeSpace(userName);
+
+        space.setMedia(getMediaAsList(media));
+        return spaceService.save(space);
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/space/media/generic/{spaceId}", method = RequestMethod.POST)
+    public Space addGenericSpaceMedia(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody SpaceMedia[] media) {
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        space.setMedia(getMediaAsList(media));
+        return spaceService.save(space);
+    }
+
+    @SuppressWarnings("Duplicates")
+    private List<SpaceMedia> getMediaAsList(SpaceMedia[] media) {
+//        int[] idx = {0};
+
+        return media != null ? Arrays.stream(media).peek(m -> {
+            if(m.getState() == null) m.setState(State.ACTIVE);
+            if(m.getCreated() == null) m.setCreated(new Date());
+//            m.setPosition(idx[0]++);
+        }).collect(Collectors.toList()) : null;
+    }
 
     private Map<String, Object> asMap(AbstractMap.SimpleEntry<String, Object>... entries) {
         return Arrays.stream(entries).collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue()));

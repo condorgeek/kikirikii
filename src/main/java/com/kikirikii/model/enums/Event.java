@@ -8,10 +8,10 @@
  * via any medium is strictly forbidden unless prior written permission is obtained
  * from <marcelo.krebber@gmail.com>
  *
- * Last modified: 26.09.18 20:16
+ * Last modified: 04.10.18 11:35
  */
 
-package com.kikirikii.model;
+package com.kikirikii.model.enums;
 
 public enum Event {
     EVENT_FRIEND_REQUESTED,

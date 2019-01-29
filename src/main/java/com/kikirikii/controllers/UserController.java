@@ -20,6 +20,8 @@ import com.kikirikii.model.*;
 import com.kikirikii.model.dto.PostRequest;
 import com.kikirikii.model.dto.Topic;
 import com.kikirikii.model.dto.UserRequest;
+import com.kikirikii.model.enums.Event;
+import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.services.ChatService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
@@ -129,7 +131,7 @@ public class UserController {
         Space space = userService.getHomeSpace(userName);
 
         return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
-                postRequest.getMediaAsSet());
+                postRequest.getMediaAsList());
     }
 
     @Secured("ROLE_USER")
@@ -163,7 +165,7 @@ public class UserController {
         Space space = spaceService.getSpace(spaceId);
 
         return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
-                postRequest.getMediaAsSet());
+                postRequest.getMediaAsList());
     }
 
     @Secured("ROLE_USER")
@@ -173,7 +175,7 @@ public class UserController {
         Space space = userService.getGlobalSpace(userName);
 
         return userService.addPost(space, user, postRequest.getTitle(), postRequest.getText(),
-                postRequest.getMediaAsSet());
+                postRequest.getMediaAsList());
     }
 
     @Secured("ROLE_USER")
@@ -457,7 +459,7 @@ public class UserController {
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class MediaProspect {
         private String url;
-        private Media.Type type;
+        private MediaType type;
 
         public String getUrl() {
             return url;
@@ -467,11 +469,11 @@ public class UserController {
             this.url = url;
         }
 
-        public Media.Type getType() {
+        public MediaType getType() {
             return type;
         }
 
-        public void setType(Media.Type type) {
+        public void setType(MediaType type) {
             this.type = type;
         }
     }

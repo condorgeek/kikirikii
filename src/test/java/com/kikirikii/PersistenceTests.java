@@ -14,6 +14,9 @@
 package com.kikirikii;
 
 import com.kikirikii.model.*;
+import com.kikirikii.model.enums.MediaType;
+import com.kikirikii.model.enums.Reaction;
+import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.*;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
@@ -253,22 +256,22 @@ public class PersistenceTests {
                 Space.Type.HOME));
 
         postRepository.save(Post.of(home, user, "Picture Title", "This is a great sample with emoticons :heart:")
-                .addMedia(Media.of("http://somehost/somepic.jpg", Media.Type.PICTURE))
-                .addMedia(Media.of("http://somehost/somevid.mp4", Media.Type.VIDEO))
-                .addMedia(Media.of("http://somehost/otherpic.jpg", Media.Type.PICTURE)));
+                .addMedia(Media.of("http://somehost/somepic.jpg", MediaType.PICTURE))
+                .addMedia(Media.of("http://somehost/somevid.mp4", MediaType.VIDEO))
+                .addMedia(Media.of("http://somehost/otherpic.jpg", MediaType.PICTURE)));
 
         postRepository.save(Post.of(home, user,
                 "Video Title", "This is another great sample with emoticons :heart::heart:")
-                .addMedia(Media.of("http://somehost/somepic.jpg", Media.Type.PICTURE)));
+                .addMedia(Media.of("http://somehost/somepic.jpg", MediaType.PICTURE)));
 
-        Media media = Media.of("http://somehost/othervid.jpg", Media.Type.VIDEO);
+        Media media = Media.of("http://somehost/othervid.jpg", MediaType.VIDEO);
         Post post = postRepository.save(Post.of(home, user,
                 "More Picture Title", ":heart_eyes::heart_eyes: This is some more great sample with emoticons")
                 .addMedia(media)
-                .addMedia(Media.of("http://somehost/somepic.jpg", Media.Type.PICTURE))
-                .addMedia(Media.of("http://somehost/somevid.mp4", Media.Type.VIDEO))
-                .addMedia(Media.of("http://somehost/otherpic.jpg", Media.Type.PICTURE))
-                .addMedia(Media.of("http://somehost/anotherpic.jpg", Media.Type.PICTURE)));
+                .addMedia(Media.of("http://somehost/somepic.jpg", MediaType.PICTURE))
+                .addMedia(Media.of("http://somehost/somevid.mp4", MediaType.VIDEO))
+                .addMedia(Media.of("http://somehost/otherpic.jpg", MediaType.PICTURE))
+                .addMedia(Media.of("http://somehost/anotherpic.jpg", MediaType.PICTURE)));
 
         Assert.assertEquals(5, post.getMedia().size());
 
@@ -392,14 +395,14 @@ public class PersistenceTests {
         followees = followerRepository.findActiveBlockedFollowees(paris.getUsername());
         Assert.assertEquals(3, followees.size());
 
-        long count = followees.stream().filter(followee -> followee.getState() == Follower.State.BLOCKED).count();
+        long count = followees.stream().filter(followee -> followee.getState() == State.BLOCKED).count();
         Assert.assertEquals(1, count);
 
         userService.blockFollower(moscu, paris);
         userService.blockFollower(madrid, paris);
 
         followees = followerRepository.findActiveBlockedFollowees(paris.getUsername());
-        count = followees.stream().filter(followee -> followee.getState() == Follower.State.ACTIVE).count();
+        count = followees.stream().filter(followee -> followee.getState() == State.ACTIVE).count();
         Assert.assertEquals(0, count);
 
         userService.addFollowee(paris, maria);
@@ -410,7 +413,7 @@ public class PersistenceTests {
         followees = followerRepository.findActiveBlockedFollowees(paris.getUsername());
         Assert.assertEquals(4, followees.size());
 
-        count = followees.stream().filter(followee -> followee.getState() == Follower.State.ACTIVE).count();
+        count = followees.stream().filter(followee -> followee.getState() == State.ACTIVE).count();
         Assert.assertEquals(4, count);
 
         userService.addFollowee(julietta, maria);
@@ -457,8 +460,8 @@ public class PersistenceTests {
         Post post = postRepository.save(Post.of(home, london,
                 "Video Title Again", "This is a great sample with emoticons :wimp:"));
 
-        likeRepository.save(Like.of(post, barcelona, LikeReaction.LIKE));
-        likeRepository.save(Like.of(post, munich, LikeReaction.WOW));
+        likeRepository.save(Like.of(post, barcelona, Reaction.LIKE));
+        likeRepository.save(Like.of(post, munich, Reaction.WOW));
 
         Stream<Like> likes = likeRepository.findAllByPostId(post.getId());
         Assert.assertEquals(2, likes.count());

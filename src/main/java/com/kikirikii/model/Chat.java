@@ -14,6 +14,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.State;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,7 +23,6 @@ import java.util.Date;
 @Entity
 @Table(name = "chats")
 public class Chat {
-    public enum State {ACTIVE, BLOCKED, DELETED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -15,6 +15,8 @@ package com.kikirikii.controllers;
 
 import com.kikirikii.exceptions.StorageFileNotFoundException;
 import com.kikirikii.model.Media;
+import com.kikirikii.model.SpaceMedia;
+import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.storage.StorageProperties;
 import com.kikirikii.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,7 @@ public class FileUploadController {
                                   @RequestParam("text") String text) {
 
         String location = storageService.storeAtLocation(file, userName);
-        return Media.of(location, Media.Type.PICTURE);
+        return Media.of(location, MediaType.PICTURE);
     }
 
     @Secured("ROLE_USER")
@@ -62,10 +64,30 @@ public class FileUploadController {
     }
 
     @Secured("ROLE_USER")
+    @RequestMapping(value ="/cover/media/upload/home", method = RequestMethod.POST)
+    public SpaceMedia uploadHomeMediaCover(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
+        String location = storageService.storeAtLocation(file,
+                userName + storageProperties.getLocation().getCover());
+
+        return SpaceMedia.of(location, MediaType.PICTURE);
+    }
+
+    @Secured("ROLE_USER")
     @RequestMapping(value ="/cover/upload/generic/{spaceId}", method = RequestMethod.POST)
-    public String handleGenericCoverUpload(@PathVariable String userName, @PathVariable String spaceId, @RequestParam("file") MultipartFile file) {
+    public String handleGenericCoverUpload(@PathVariable String userName, @PathVariable String spaceId,
+                                           @RequestParam("file") MultipartFile file) {
         return storageService.storeAtLocation(file,
                 userName + "/generic/" + spaceId + storageProperties.getLocation().getCover());
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value ="/cover/media/upload/generic/{spaceId}", method = RequestMethod.POST)
+    public SpaceMedia uploadGenericMediaCover(@PathVariable String userName, @PathVariable String spaceId,
+                                           @RequestParam("file") MultipartFile file) {
+        String location =  storageService.storeAtLocation(file,
+                userName + "/generic/" + spaceId + storageProperties.getLocation().getCover());
+
+        return SpaceMedia.of(location, MediaType.PICTURE);
     }
 
     @RequestMapping(value = "/validate/authorization", method = RequestMethod.GET)

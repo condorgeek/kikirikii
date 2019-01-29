@@ -14,11 +14,11 @@
 package com.kikirikii;
 
 import com.kikirikii.model.*;
+import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.repos.SpaceRepository;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.storage.StorageProperties;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -312,7 +314,7 @@ public class InstitutMedInit {
 
                             // create post in generic space
                             userService.addPost(space, user, attrs[aboutYou], fullname + attrs[work],
-                                    Media.of(mediapath, Media.Type.PICTURE));
+                                    Media.of(mediapath, MediaType.PICTURE));
 
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
@@ -321,7 +323,7 @@ public class InstitutMedInit {
                             // create post in home space
                             userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
                                 userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[work],
-                                        Media.of(mediapath, Media.Type.PICTURE));
+                                        Media.of(mediapath, MediaType.PICTURE));
                             });
 
                             System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
@@ -355,7 +357,7 @@ public class InstitutMedInit {
                             }
 
                             userService.addPost(space, user, attrs[title].trim(), subtitle + attrs[text],
-                                    asMediaSet(pathlist));
+                                    asMediaList(pathlist));
 
                             System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " ");
                         }
@@ -365,12 +367,14 @@ public class InstitutMedInit {
                 });
     }
 
-    private Set<Media> asMediaSet(List<String> pathlist) {
-        Set<Media> set = new HashSet<>();
+    private List<Media> asMediaList(List<String> pathlist) {
+        List<Media> list = new ArrayList<>();
+        int[] pos = {0};
         pathlist.forEach(m -> {
-            set.add(Media.of(m, m.startsWith("https://www.youtube.com") ? Media.Type.YOUTUBE : Media.Type.PICTURE));
+            list.add(Media.of(m, m.startsWith("https://www.youtube.com") ? MediaType.YOUTUBE : MediaType.PICTURE,
+                    pos[0]++));
         });
-        return set;
+        return list;
     }
 
     private void createSpacePosts(String filename, String thumbspath, String detail, Space space) {
@@ -394,7 +398,7 @@ public class InstitutMedInit {
                             }
 
                             userService.addPost(space, user, attrs[title].trim(), vortrag + attrs[text],
-                                    Media.of(mediapath, Media.Type.PICTURE));
+                                    Media.of(mediapath, MediaType.PICTURE));
 
                             System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " ");
                         }
@@ -459,7 +463,7 @@ public class InstitutMedInit {
                         String webaddress = asUrl(attrs[web], attrs[firstname] + " " + attrs[lastname]);
 
                         userService.addPost(space, user, attrs[aboutYou], fullname + attrs[text] + webaddress,
-                                Media.of(mediapath, Media.Type.PICTURE));
+                                Media.of(mediapath, MediaType.PICTURE));
 
                         if (!spaceService.isMember(space.getId(), user)) {
                             spaceService.addMember(space, user, user, "MEMBER");
@@ -468,7 +472,7 @@ public class InstitutMedInit {
                         // create post in home space
                         userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
                             userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[text] + webaddress,
-                                    Media.of(mediapath, Media.Type.PICTURE));
+                                    Media.of(mediapath, MediaType.PICTURE));
                         });
 
                         System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
@@ -624,7 +628,7 @@ public class InstitutMedInit {
                                 String mediapath = resolveMediaTarget(attrs[username], attrs[username]);
 
                                 userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[work],
-                                        Media.of(mediapath, Media.Type.PICTURE));
+                                        Media.of(mediapath, MediaType.PICTURE));
 
                                 System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
                             });

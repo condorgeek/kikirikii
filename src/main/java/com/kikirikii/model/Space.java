@@ -13,10 +13,14 @@
 
 package com.kikirikii.model;
 
+import com.kikirikii.model.enums.State;
+import org.hibernate.annotations.Where;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -35,7 +39,6 @@ import java.util.Date;
 public class Space {
 
     public enum Type {GLOBAL, HOME, GENERIC, EVENT, SHOP, DATING}
-    public enum State {ACTIVE, BLOCKED, DELETED}
     public enum Access {PUBLIC, RESTRICTED, PRIVATE}
 
     @Id
@@ -51,6 +54,11 @@ public class Space {
     private String name;
 
     private String cover;
+
+    @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Where(clause = "state in ('ACTIVE')")
+    @OrderBy("position ASC")
+    private List<SpaceMedia> media = new ArrayList<>();
 
     private String icon;
 
@@ -79,25 +87,53 @@ public class Space {
     }
 
     public static Space of(User user, String name, String description, Type type) {
-        return of(user, name, null, null, description, type, Access.PUBLIC);
+        return of(user, name, null, null, null, description, type, Access.PUBLIC);
     }
 
     public static Space of(User user, String name, String description, Type type, Access access) {
-        return of(user, name, null, null, description, type, access);
+        return of(user, name, null, null, null, description, type, access);
     }
 
-    public static Space of(User user, String name, String cover, String icon, String description, Type type, Access access) {
+    public static Space of(User user, String name, String cover, List<SpaceMedia> media, String icon, String description, Type type,
+                           Access access) {
         Space space = new Space();
         space.user = user;
         space.name = name;
         space.cover = cover;
+        if(media != null) {
+            space.media = media;
+            space.media.forEach(m -> m.setSpace(space));
+        } else {
+            space.media = new ArrayList<>();
+        }
         space.description = description;
         space.type = type;
         space.icon = icon;
         space.access = access;
         space.state = State.ACTIVE;
         space.created = new Date();
+
         return space;
+    }
+
+    public Space addMedia(SpaceMedia media) {
+        this.media.add(media);
+        media.setSpace(this);
+        return this;
+    }
+
+    public Space removeMedia(SpaceMedia media) {
+        this.media.remove(media);
+        media.setState(State.DELETED);
+        return this;
+    }
+
+    public List<SpaceMedia> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<SpaceMedia> media) {
+        this.media = media;
     }
 
     public long getId() {

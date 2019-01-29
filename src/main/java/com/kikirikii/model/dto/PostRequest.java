@@ -15,9 +15,12 @@ package com.kikirikii.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.Media;
+import com.kikirikii.model.Post;
+import com.kikirikii.model.enums.State;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,11 +55,15 @@ public class PostRequest {
         this.media = media;
     }
 
-    public Set<Media> getMediaAsSet() {
+    @SuppressWarnings("Duplicates")
+    public List<Media> getMediaAsList() {
+//        int[] position = {0};
+
         return media != null ? Arrays.stream(media).peek(m -> {
-            if(m.getState() == null) m.setState(Media.State.ACTIVE);
+            if(m.getState() == null) m.setState(State.ACTIVE);
             if(m.getCreated() == null) m.setCreated(new Date());
-        }).collect(Collectors.toSet()) : null;
+//            m.setPosition(position[0]++);
+        }).collect(Collectors.toList()) : null;
 
     }
 

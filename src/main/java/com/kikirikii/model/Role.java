@@ -14,6 +14,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.State;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -25,8 +26,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "roles")
 public class Role {
-
-    public enum State {ACTIVE, DELETED}
 
     public enum Type {
         USER, SUPERUSER, ADMIN;

@@ -14,6 +14,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.State;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -25,8 +26,6 @@ import java.util.Set;
 @Entity
 @Table(name = "comments")
 public class Comment {
-
-    public enum State {ACTIVE, BLOCKED, HIDDEN}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,7 +81,7 @@ public class Comment {
 
     /* soft delete - requires rereading comment like list */
     public Comment deleteLike(CommentLike like) {
-        like.setState(CommentLike.State.DELETED);
+        like.setState(State.DELETED);
         return this;
     }
 

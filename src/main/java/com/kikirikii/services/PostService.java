@@ -15,6 +15,7 @@ package com.kikirikii.services;
 
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
+import com.kikirikii.model.enums.Reaction;
 import com.kikirikii.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,7 +91,7 @@ public class PostService {
         return commentRepository.save(Comment.of(getPost(postId), user, text));
     }
 
-    public List<Like> addLike(User user, Long postId, LikeReaction type) {
+    public List<Like> addLike(User user, Long postId, Reaction type) {
         Post post = getPost(postId);
         post.addLike(Like.of(user, type));
 
@@ -113,7 +114,7 @@ public class PostService {
         return commentLikeRepository.findAllActiveByCommentId(commentId);
     }
 
-    public List<CommentLike> addCommentLike(User user, Long commentId, LikeReaction reaction) {
+    public List<CommentLike> addCommentLike(User user, Long commentId, Reaction reaction) {
         Comment comment = getComment(commentId);
         comment.addLike(CommentLike.of(user, reaction));
 

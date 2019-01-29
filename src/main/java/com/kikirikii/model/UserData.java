@@ -14,6 +14,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.State;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -23,12 +24,8 @@ import java.time.LocalDate;
 @Table(name = "user_data")
 public class UserData {
 
-    public enum State {ACTIVE, DELETED}
-
     public enum Gender {MALE, FEMALE, NONE}
-
     public enum Marital {SINGLE, ENGAGED, MARRIED, DIVORCED, COMPLICATED, NONE}
-
     public enum Interest {MEN, WOMEN, BOTH, NONE}
 
     @Id

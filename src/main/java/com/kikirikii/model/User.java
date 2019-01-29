@@ -14,6 +14,7 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.State;
 import com.kikirikii.security.util.PasswordCrypt;
 import org.omg.PortableInterceptor.USER_EXCEPTION;
 
@@ -27,8 +28,6 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User {
-
-    public enum State {ACTIVE, BLOCKED, DELETED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,6 +14,8 @@
 package com.kikirikii.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.Reaction;
+import com.kikirikii.model.enums.State;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,8 +24,6 @@ import java.util.Date;
 @Entity
 @Table(name = "post_likes")
 public class Like {
-
-    public enum State {ACTIVE, DELETED}
 
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class Like {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private LikeReaction reaction;
+    private Reaction reaction;
 
     @Enumerated(EnumType.STRING)
     private State state;
@@ -50,11 +50,11 @@ public class Like {
 
     private Like() {}
 
-    public static Like of(User user, LikeReaction type) {
+    public static Like of(User user, Reaction type) {
         return of(null, user, type);
     }
 
-    public static Like of(Post post, User user, LikeReaction reaction) {
+    public static Like of(Post post, User user, Reaction reaction) {
         Like like = new Like();
         like.post = post;
         like.user = user;
@@ -84,11 +84,11 @@ public class Like {
         this.user = user;
     }
 
-    public LikeReaction getReaction() {
+    public Reaction getReaction() {
         return reaction;
     }
 
-    public void setReaction(LikeReaction reaction) {
+    public void setReaction(Reaction reaction) {
         this.reaction = reaction;
     }
 

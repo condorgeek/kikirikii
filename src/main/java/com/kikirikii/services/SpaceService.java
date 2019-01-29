@@ -19,6 +19,7 @@ import com.kikirikii.model.Member;
 import com.kikirikii.model.Space;
 import com.kikirikii.model.SpaceData;
 import com.kikirikii.model.User;
+import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.MemberRepository;
 import com.kikirikii.repos.SpaceRepository;
 import org.slf4j.Logger;
@@ -98,7 +99,7 @@ public class SpaceService {
             Space space = spaceRepository.save(Space.of(user, name, description,
                     Space.Type.valueOf(type.toUpperCase()), Space.Access.valueOf(access)));
 
-             memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
+             memberRepository.save(Member.of(space, user, State.ACTIVE, Member.Role.OWNER));
             return space;
 
         } catch (Exception e) {
@@ -123,12 +124,14 @@ public class SpaceService {
 
     public Space createSpaceAndJoin(User user, String type, String name, String icon, String cover, String description, String access,
                                         SpaceData spaceData) {
+
+        // TODO support for space media array
         try {
-            Space space = Space.of(user, name, cover, icon, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
+            Space space = Space.of(user, name, cover, null, icon, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
             space.setSpacedata(spaceData);
             spaceRepository.save(space);
 
-            memberRepository.save(Member.of(space, user, Member.State.ACTIVE, Member.Role.OWNER));
+            memberRepository.save(Member.of(space, user, State.ACTIVE, Member.Role.OWNER));
 
             return space;
 
@@ -162,17 +165,17 @@ public class SpaceService {
     }
 
     public Space deleteSpace(Space space) {
-        space.setState(Space.State.DELETED);
+        space.setState(State.DELETED);
         return spaceRepository.save(space);
     }
 
     public Space blockSpace(Space space) {
-        space.setState(Space.State.BLOCKED);
+        space.setState(State.BLOCKED);
         return spaceRepository.save(space);
     }
 
     public Space unblockSpace(Space space) {
-        space.setState(Space.State.ACTIVE);
+        space.setState(State.ACTIVE);
         return spaceRepository.save(space);
     }
 
@@ -207,7 +210,7 @@ public class SpaceService {
         }
 
         try {
-            return memberRepository.save(Member.of(space, user, reference, Member.State.ACTIVE,
+            return memberRepository.save(Member.of(space, user, reference, State.ACTIVE,
                     Member.Role.valueOf(role)));
 
         } catch (Exception e) {
@@ -218,7 +221,7 @@ public class SpaceService {
 
     public Member leaveSpace(Space space, Member member) {
         if(!isOwner.apply(space, member) && member.getSpace().getId() == space.getId()) {
-            member.setState(Member.State.DELETED);
+            member.setState(State.DELETED);
             return memberRepository.save(member);
         }
         throw new InvalidResourceException(member.getUser().getUsername() + " cannot leave space " + space.getName());
@@ -226,7 +229,7 @@ public class SpaceService {
 
     public Member deleteMember(Space space, Member admin, Member member) {
         try {
-            return _updateMemberState(space, admin, member, Member.State.DELETED);
+            return _updateMemberState(space, admin, member, State.DELETED);
         } catch (Exception e) { logger.warn(e.getMessage()); }
 
         throw new InvalidResourceException("Cannot delete member " + member.getUser().getUsername() + " from space " + space.getName());
@@ -234,13 +237,13 @@ public class SpaceService {
 
     public Member blockMember(Space space, Member admin, Member member) {
         try {
-            return _updateMemberState(space, admin, member, Member.State.BLOCKED);
+            return _updateMemberState(space, admin, member, State.BLOCKED);
         } catch (Exception e) { logger.warn(e.getMessage()); }
 
         throw new InvalidResourceException("Cannot block member " + member.getUser().getUsername() + " from space " + space.getName());
     }
 
-    private Member _updateMemberState(Space space, Member admin, Member member, Member.State state) {
+    private Member _updateMemberState(Space space, Member admin, Member member, State state) {
         if(!isOwner.apply(space, member) && member.getSpace().getId() == space.getId()) {
             if(admin.getRole() == Member.Role.OWNER) {
                 member.setState(state);

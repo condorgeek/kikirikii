@@ -19,6 +19,7 @@ import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.exceptions.OpNotAllowedException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.UserRequest;
+import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -118,27 +119,27 @@ public class UserService {
         }
 
         userRepository.findHomeSpaceById(user.getId()).ifPresent(home -> {
-            home.setState(Space.State.DELETED);
+            home.setState(State.DELETED);
             spaceRepository.save(home);
         });
 
         userRepository.findGlobalSpaceById(user.getId()).ifPresent(global -> {
-            global.setState(Space.State.DELETED);
+            global.setState(State.DELETED);
             spaceRepository.save(global);
         });
 
         user.getRoles().forEach(role -> {
-            role.setState(Role.State.DELETED);
+            role.setState(State.DELETED);
         });
 
-        user.getUserData().setState(UserData.State.DELETED);
+        user.getUserData().setState(State.DELETED);
 
         spaceRepository.findActiveByUserId(user.getId()).forEach(space -> {
-            space.setState(Space.State.DELETED);
+            space.setState(State.DELETED);
             spaceRepository.save(space);
         });
 
-        user.setState(User.State.DELETED);
+        user.setState(State.DELETED);
         return userRepository.save(user);
     }
 
@@ -179,26 +180,27 @@ public class UserService {
             throw new OpNotAllowedException(user.getUsername() + " has already a home space");
         }
 
+        // TODO support for space media array
         try {
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Home", cover, null, description, Space.Type.HOME, Space.Access.PUBLIC));
+                    user.getUsername() + " Home", cover, null, null, description, Space.Type.HOME, Space.Access.PUBLIC));
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Global", cover, null, description, Space.Type.GLOBAL, Space.Access.PUBLIC));
+                    user.getUsername() + " Global", cover, null, null, description, Space.Type.GLOBAL, Space.Access.PUBLIC));
 
         } catch (Exception e) {
             throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());
         }
     }
 
-    public Post addPost(Space space, User user, String title, String text, Set<Media> media) {
+    public Post addPost(Space space, User user, String title, String text, List<Media> media) {
         return postRepository.save(Post.of(space, user, title, text, media));
     }
 
     public Post addPost(Space space, User user, String title, String text, Media media) {
-        return postRepository.save(Post.of(space, user, title, text, Collections.singleton(media)));
+        return postRepository.save(Post.of(space, user, title, text, Collections.singletonList(media)));
     }
 
-    public Post updatePost(Post post, User user, String title, String text, Set<Media> media) {
+    public Post updatePost(Post post, User user, String title, String text, List<Media> media) {
         if (post.getUser().getUsername().equals(user.getUsername())) {
 
             post.setTitle(title);
@@ -223,17 +225,17 @@ public class UserService {
         String text = "** Post shared from " + post.getUser().getFullname() + " ** " + post.getText();
 
         Post shared = Post.of(space, user, post.getTitle(), text);
-        shared.setState(Post.State.SHARED);
+        shared.setState(State.SHARED);
         shared.setFrom(post.getUser());
         shared.setComment(comment);
 
-        Set<Media> medialist = post.getMedia().stream().map(m -> {
-            Media media = Media.of(shared, m.getUrl(), m.getType());
+        List<Media> medialist = post.getMedia().stream().map(m -> {
+            Media media = Media.of(shared, m.getUrl(), m.getType(), m.getPosition());
             media.setThumbnail(m.getThumbnail());
             media.setUsername(m.getUsername());
-            media.setState(Media.State.SHARED);
+            media.setState(State.SHARED);
             return media;
-        }).collect(Collectors.toSet());
+        }).collect(Collectors.toList());
 
         shared.setMedia(medialist);
 
@@ -336,22 +338,22 @@ public class UserService {
 
     public Post deletePostById(Long postId) {
         Post post = getPostById(postId);
-        post.setState(Post.State.DELETED);
-        post.getMedia().forEach(media -> media.setState(Media.State.DELETED));
+        post.setState(State.DELETED);
+        post.getMedia().forEach(media -> media.setState(State.DELETED));
 
         return postRepository.save(post);
     }
 
     public Post hidePostById(Long postId) {
         Post post = getPostById(postId);
-        post.setState(Post.State.HIDDEN);
+        post.setState(State.HIDDEN);
 
         return postRepository.save(post);
     }
 
     public Post blockPostById(Long postId) {
         Post post = getPostById(postId);
-        post.setState(Post.State.BLOCKED);
+        post.setState(State.BLOCKED);
 
         return postRepository.save(post);
     }
@@ -560,15 +562,15 @@ public class UserService {
     }
 
     public Follower addFollowee(User user, User surrogate) {
-        Follower follower = Follower.of(user, surrogate, Follower.State.ACTIVE);
+        Follower follower = Follower.of(user, surrogate, State.ACTIVE);
         return followerRepository.save(follower);
     }
 
     public Follower deleteFollowee(User user, User surrogate) {
         Optional<Follower> follower = followerRepository.findByUserSurrogateAndState(user.getUsername(),
-                surrogate.getUsername(), Follower.State.ACTIVE);
+                surrogate.getUsername(), State.ACTIVE);
        if(follower.isPresent()) {
-            follower.get().setState(Follower.State.DELETED);
+            follower.get().setState(State.DELETED);
             return followerRepository.save(follower.get());
         }
         return null;
@@ -578,7 +580,7 @@ public class UserService {
         Optional<Follower> opt = followerRepository.findById(id);
         opt.ifPresent(follower -> {
             if(follower.getUser().getUsername().equals(username) && follower.getSurrogate().getUsername().equals(surrogate)) {
-                follower.setState(Follower.State.DELETED);
+                follower.setState(State.DELETED);
                 followerRepository.save(follower);
             }
         });
@@ -586,9 +588,9 @@ public class UserService {
 
     public Follower blockFollower(User user, User surrogate) {
         Optional<Follower> follower = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
-                user.getUsername(), Follower.State.ACTIVE);
+                user.getUsername(), State.ACTIVE);
        if(follower.isPresent()) {
-            follower.get().setState(Follower.State.BLOCKED);
+            follower.get().setState(State.BLOCKED);
             return followerRepository.save(follower.get());
         }
        return null;
@@ -599,8 +601,8 @@ public class UserService {
         opt.ifPresent(follower -> {
             if(follower.getUser().getUsername().equals(surrogate) &&
                     follower.getSurrogate().getUsername().equals(username) &&
-                    follower.getState() == Follower.State.ACTIVE) {
-                follower.setState(Follower.State.BLOCKED);
+                    follower.getState() == State.ACTIVE) {
+                follower.setState(State.BLOCKED);
                 followerRepository.save(follower);
             }
         });
@@ -608,9 +610,9 @@ public class UserService {
 
     public Follower unblockFollower(User user, User surrogate) {
         Optional<Follower> follower = followerRepository.findByUserSurrogateAndState(surrogate.getUsername(),
-                user.getUsername(), Follower.State.BLOCKED);
+                user.getUsername(), State.BLOCKED);
         if(follower.isPresent()) {
-            follower.get().setState(Follower.State.ACTIVE);
+            follower.get().setState(State.ACTIVE);
             return followerRepository.save(follower.get());
         }
         return null;
@@ -621,8 +623,8 @@ public class UserService {
         opt.ifPresent(follower -> {
             if(follower.getUser().getUsername().equals(surrogate)
                     && follower.getSurrogate().getUsername().equals(username) &&
-                    follower.getState() == Follower.State.BLOCKED) {
-                follower.setState(Follower.State.ACTIVE);
+                    follower.getState() == State.BLOCKED) {
+                follower.setState(State.ACTIVE);
                 followerRepository.save(follower);
             }
         });

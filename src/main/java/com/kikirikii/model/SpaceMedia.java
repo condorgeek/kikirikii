@@ -4,11 +4,11 @@
  * Copyright (c) [2018] -  [] Marcelo H. Krebber - European Union 2018
  * All Rights Reserved.
  *
- * Dissemination or reproduction of this file [Media.java] or parts within
+ * Dissemination or reproduction of this file [SpaceMedia.java] or parts within
  * via any medium is strictly forbidden unless prior written permission is obtained
  * from <marcelo.krebber@gmail.com>
  *
- * Last modified: 31.05.18 12:08
+ * Last modified: 28.01.19 15:34
  */
 
 package com.kikirikii.model;
@@ -22,12 +22,12 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
- * Post media
+ * Space media
  */
 
 @Entity
-@Table(name = "media")
-public class Media {
+@Table(name = "space_media")
+public class SpaceMedia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,8 +35,8 @@ public class Media {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @JoinColumn(name = "space_id")
+    private Space space;
 
     @NotNull
     private String url;
@@ -44,9 +44,6 @@ public class Media {
     private String thumbnail;
 
     private int position;
-
-    @JsonIgnore
-    private String username;
 
     @Enumerated(EnumType.STRING)
     private State state;
@@ -58,22 +55,22 @@ public class Media {
     @NotNull
     private Date created;
 
-    protected Media() {}
+    protected SpaceMedia() {}
 
-    public static Media of(String url, MediaType type) {
-        return Media.of(null, url, type, 0);
+    public static SpaceMedia of(String url, MediaType type) {
+        return SpaceMedia.of(null, url, type, 0);
     }
 
-    public static Media of(String url, MediaType type, int position) {
-        return Media.of(null, url, type, position);
+    public static SpaceMedia of(String url, MediaType type, int position) {
+        return SpaceMedia.of(null, url, type, position);
     }
 
-    public static Media of(Post post, String url, MediaType type, int position) {
-        Media media = new Media();
-        media.post = post;
+    public static SpaceMedia of(Space space, String url, MediaType type, int position) {
+        SpaceMedia media = new SpaceMedia();
+        media.space = space;
         media.url = url;
-        media.position = position;
         media.type = type;
+        media.position = position;
         media.state = State.ACTIVE;
         media.created = new Date();
 
@@ -84,12 +81,20 @@ public class Media {
         return id;
     }
 
-    public Post getPost() {
-        return post;
+    public Space getSpace() {
+        return space;
     }
 
-    public void setPost(Post post) {
-        this.post = post;
+    public void setSpace(Space space) {
+        this.space = space;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     public String getUrl() {
@@ -108,22 +113,6 @@ public class Media {
         this.thumbnail = thumbnail;
     }
 
-    public MediaType getType() {
-        return type;
-    }
-
-    public void setType(MediaType type) {
-        this.type = type;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public State getState() {
         return state;
     }
@@ -132,12 +121,12 @@ public class Media {
         this.state = state;
     }
 
-    public Date getCreated() {
-        return created;
+    public MediaType getType() {
+        return type;
     }
 
-    public void setCreated(Date created) {
-        this.created = created;
+    public void setType(MediaType type) {
+        this.type = type;
     }
 
     public int getPosition() {

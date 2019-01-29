@@ -14,6 +14,7 @@
 package com.kikirikii.repos;
 
 import com.kikirikii.model.Follower;
+import com.kikirikii.model.enums.State;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -37,16 +38,16 @@ public interface FollowerRepository extends CrudRepository<Follower, Long> {
     Long countActiveBlockedFollowees(@Param("username") String username);
 
     @Query("select f from Follower f where f.user.username = :username and f.surrogate.username = :surrogate and f.state = :state")
-    Optional<Follower> findByUserSurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") Follower.State state);
+    Optional<Follower> findByUserSurrogateAndState(@Param("username") String username, @Param("surrogate") String surrogate, @Param("state") State state);
 
     @Query("select f from Follower f where f.user.username = :username and f.surrogate.username = :surrogate and f.state in('ACTIVE', 'BLOCKED')")
     Optional<Follower> findByUserSurrogateActiveState(@Param("username") String username, @Param("surrogate") String surrogate);
 
     @Query("select f from Follower f where f.surrogate.username = :surrogate and f.state = :state")
-    Optional<Follower> findBySurrogateAndState(@Param("surrogate") String surrogate, @Param("state") Follower.State state);
+    Optional<Follower> findBySurrogateAndState(@Param("surrogate") String surrogate, @Param("state") State state);
 
     @Query("select f from Follower f where f.user.username = :username and f.state = :state")
-    Optional<Follower> findByUsernameAndState(@Param("username") String username, @Param("state") Follower.State state);
+    Optional<Follower> findByUsernameAndState(@Param("username") String username, @Param("state") State state);
 
     @Query("select f from Follower f where f.user.username = :username and f.state in('ACTIVE', 'BLOCKED')")
     List<Follower> findActiveBlockedFollowees(@Param("username") String username);

@@ -13,20 +13,17 @@
 
 package com.kikirikii.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kikirikii.model.enums.State;
 import org.hibernate.annotations.Where;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "posts")
 public class Post {
-    public enum State {ACTIVE, BLOCKED, DELETED, HIDDEN, SHARED}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +46,8 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "state in ('ACTIVE', 'SHARED')")
-    private Set<Media> media = new HashSet<>();
+    @OrderBy("position ASC")
+    private List<Media> media = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "state = 'ACTIVE'")
@@ -77,17 +75,21 @@ public class Post {
         return of(space, user, title, text, null);
     }
 
-    public static Post of(Space space, User user, String title, String text, Set<Media> media) {
+    public static Post of(Space space, User user, String title, String text, List<Media> media) {
         Post post = new Post();
         post.space = space;
         post.user = user;
         post.title = title;
         post.text = text;
-        post.media = (media == null) ? new HashSet<>() : media;
+        if(media != null) {
+            post.media = media;
+            post.media.forEach(m->m.setPost(post));
+        } else {
+            post.media = new ArrayList<>();
+        }
         post.state = State.ACTIVE;
         post.created = new Date();
 
-        post.media.forEach(m->m.setPost(post));
         return post;
     }
 
@@ -100,7 +102,7 @@ public class Post {
     public Post removeMedia(Media media) {
         this.media.remove(media);
 //        media.setPost(null);
-        media.setState(Media.State.DELETED);
+        media.setState(State.DELETED);
         return this;
     }
 
@@ -118,7 +120,7 @@ public class Post {
 
     /* soft delete - requires re-reading like list */
     public Post deleteLike(Like like) {
-        like.setState(Like.State.DELETED);
+        like.setState(State.DELETED);
         return this;
     }
 
@@ -126,11 +128,11 @@ public class Post {
         return likes;
     }
 
-    public Set<Media> getMedia() {
+    public List<Media> getMedia() {
         return media;
     }
 
-    public void setMedia(Set<Media> media) {
+    public void setMedia(List<Media> media) {
         this.media = media;
     }
 

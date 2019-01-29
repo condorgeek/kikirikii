@@ -16,6 +16,7 @@ package com.kikirikii.controllers;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.PostRequest;
+import com.kikirikii.model.enums.Reaction;
 import com.kikirikii.services.PostService;
 import com.kikirikii.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,7 @@ public class PostController {
         Post post = postService.getPost(postId);
 
         return userService.updatePost(post, user, postRequest.getTitle(), postRequest.getText(),
-                postRequest.getMediaAsSet());
+                postRequest.getMediaAsList());
     }
 
     @Secured("ROLE_USER")
@@ -107,7 +108,7 @@ public class PostController {
         private String username;
 
         @Enumerated(EnumType.STRING)
-        private LikeReaction reaction;
+        private Reaction reaction;
 
         public String getUsername() {
             return username;
@@ -117,11 +118,11 @@ public class PostController {
             this.username = username;
         }
 
-        public LikeReaction getReaction() {
+        public Reaction getReaction() {
             return reaction;
         }
 
-        public void setReaction(LikeReaction reaction) {
+        public void setReaction(Reaction reaction) {
             this.reaction = reaction;
         }
     }

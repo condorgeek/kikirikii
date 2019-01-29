@@ -13,6 +13,8 @@
 
 package com.kikirikii.model;
 
+import com.kikirikii.model.enums.State;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -25,10 +27,7 @@ import java.util.Date;
 @Table(name = "members")
 public class Member {
 
-    public enum State {ACTIVE, BLOCKED, DELETED, NONE}
-
     public enum Role {OWNER, ADMIN, MEMBER}
-
     public enum Action {JOINING, JOINED,  REJECTING, REJECTED, CANCELLING, CANCELLED,
         DELETING, DELETED, BLOCKING, BLOCKED, UNBLOCKING, UNBLOCKED, NONE}
 

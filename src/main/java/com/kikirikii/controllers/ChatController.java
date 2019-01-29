@@ -16,7 +16,7 @@ package com.kikirikii.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.model.Chat;
 import com.kikirikii.model.ChatEntry;
-import com.kikirikii.model.Event;
+import com.kikirikii.model.enums.Event;
 import com.kikirikii.model.User;
 import com.kikirikii.services.ChatService;
 import com.kikirikii.services.UserService;

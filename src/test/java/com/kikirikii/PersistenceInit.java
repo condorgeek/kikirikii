@@ -14,6 +14,8 @@
 package com.kikirikii;
 
 import com.kikirikii.model.*;
+import com.kikirikii.model.enums.MediaType;
+import com.kikirikii.model.enums.Reaction;
 import com.kikirikii.repos.*;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
@@ -24,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -338,13 +339,13 @@ public class PersistenceInit {
         public Media randomMedia() {
             int index = (int) Math.floor((Math.random() * medialist.size() + 1) - 1);
             String[] media = medialist.get(index).split(", ");
-            return Media.of(media[0], Media.Type.valueOf(media[1]));
+            return Media.of(media[0], MediaType.valueOf(media[1]));
         }
 
         public Media randomImage() {
             int index = (int) Math.floor((Math.random() * imagelist.size() + 1) - 1);
             String[] media = imagelist.get(index).split(", ");
-            return Media.of(media[0], Media.Type.valueOf(media[1]));
+            return Media.of(media[0], MediaType.valueOf(media[1]));
         }
     }
 
@@ -367,9 +368,9 @@ public class PersistenceInit {
             return users.get(index);
         }
 
-        public LikeReaction randomReaction() {
-            int index = (int) Math.floor((Math.random() * LikeReaction.values().length + 1) - 1);
-            return LikeReaction.values()[index];
+        public Reaction randomReaction() {
+            int index = (int) Math.floor((Math.random() * Reaction.values().length + 1) - 1);
+            return Reaction.values()[index];
         }
 
     }
@@ -393,9 +394,9 @@ public class PersistenceInit {
         }
     }
 
-    Function<String, Media.Type> mediatype = (url) -> {
-//        return url.matches("(http|https)://(.)+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? Media.LikeReaction.PICTURE : Media.LikeReaction.VIDEO;
-        return url.matches(".+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? Media.Type.PICTURE : Media.Type.VIDEO;
+    Function<String, MediaType> mediatype = (url) -> {
+//        return url.matches("(http|https)://(.)+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? Media.Reaction.PICTURE : Media.Reaction.VIDEO;
+        return url.matches(".+([jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF])") ? MediaType.PICTURE : MediaType.VIDEO;
     };
 
 }
