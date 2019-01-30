@@ -132,8 +132,10 @@ public class Space {
         return media;
     }
 
+    /* clear instead of just overwriting to avoid hibernate engine errors */
     public void setMedia(List<SpaceMedia> media) {
-        this.media = media;
+        this.media.clear();
+        this.media.addAll(media);
     }
 
     public long getId() {

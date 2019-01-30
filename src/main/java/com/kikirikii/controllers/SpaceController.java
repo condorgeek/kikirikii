@@ -14,6 +14,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.SpaceMediaRequest;
 import com.kikirikii.model.dto.SpaceRequest;
 import com.kikirikii.model.enums.State;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
@@ -284,34 +285,23 @@ public class SpaceController {
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/space/media/home", method = RequestMethod.POST)
-    public Space addHomeSpaceMedia(@PathVariable String userName, @RequestBody SpaceMedia[] media) {
+    @RequestMapping(value = "/media/add/home", method = RequestMethod.POST)
+    public Space addHomeSpaceMedia(@PathVariable String userName, @RequestBody SpaceMediaRequest request) {
         User user = userService.getUser(userName);
         Space space = userService.getHomeSpace(userName);
 
-        space.setMedia(getMediaAsList(media));
+        space.setMedia(request.getMediaAsList(space));
         return spaceService.save(space);
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/space/media/generic/{spaceId}", method = RequestMethod.POST)
-    public Space addGenericSpaceMedia(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody SpaceMedia[] media) {
+    @RequestMapping(value = "/media/add/generic/{spaceId}", method = RequestMethod.POST)
+    public Space addGenericSpaceMedia(@PathVariable String userName, @PathVariable Long spaceId, @RequestBody SpaceMediaRequest request) {
         User user = userService.getUser(userName);
         Space space = spaceService.getSpace(spaceId);
 
-        space.setMedia(getMediaAsList(media));
+        space.setMedia(request.getMediaAsList(space));
         return spaceService.save(space);
-    }
-
-    @SuppressWarnings("Duplicates")
-    private List<SpaceMedia> getMediaAsList(SpaceMedia[] media) {
-//        int[] idx = {0};
-
-        return media != null ? Arrays.stream(media).peek(m -> {
-            if(m.getState() == null) m.setState(State.ACTIVE);
-            if(m.getCreated() == null) m.setCreated(new Date());
-//            m.setPosition(idx[0]++);
-        }).collect(Collectors.toList()) : null;
     }
 
     private Map<String, Object> asMap(AbstractMap.SimpleEntry<String, Object>... entries) {

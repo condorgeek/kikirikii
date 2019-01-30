@@ -64,7 +64,7 @@ public class FileUploadController {
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value ="/cover/media/upload/home", method = RequestMethod.POST)
+    @RequestMapping(value ="/media/upload/home", method = RequestMethod.POST)
     public SpaceMedia uploadHomeMediaCover(@PathVariable String userName, @RequestParam("file") MultipartFile file) {
         String location = storageService.storeAtLocation(file,
                 userName + storageProperties.getLocation().getCover());
@@ -81,7 +81,7 @@ public class FileUploadController {
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value ="/cover/media/upload/generic/{spaceId}", method = RequestMethod.POST)
+    @RequestMapping(value ="/media/upload/generic/{spaceId}", method = RequestMethod.POST)
     public SpaceMedia uploadGenericMediaCover(@PathVariable String userName, @PathVariable String spaceId,
                                            @RequestParam("file") MultipartFile file) {
         String location =  storageService.storeAtLocation(file,

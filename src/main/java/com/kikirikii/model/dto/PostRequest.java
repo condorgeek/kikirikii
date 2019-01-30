@@ -15,7 +15,6 @@ package com.kikirikii.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kikirikii.model.Media;
-import com.kikirikii.model.Post;
 import com.kikirikii.model.enums.State;
 
 import java.util.Arrays;
