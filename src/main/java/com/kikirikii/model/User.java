@@ -51,6 +51,8 @@ public class User {
     @JsonIgnore
     private String salt;
 
+    private int ranking;
+
     @JsonIgnore
     @NotNull
     private String password;
@@ -87,6 +89,7 @@ public class User {
         user.firstname = firstname;
         user.lastname = lastname;
         user.state = State.ACTIVE;
+        user.ranking = 0;
         user.avatar = avatar;
         if(roles != null) {
             Arrays.stream(roles).forEach(user::addRole);
@@ -191,6 +194,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = PasswordCrypt.encrypt(password, salt);
+    }
+
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
     }
 
     public Date getCreated() {

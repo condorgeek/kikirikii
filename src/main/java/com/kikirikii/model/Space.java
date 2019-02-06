@@ -80,6 +80,8 @@ public class Space {
     @Enumerated(EnumType.STRING)
     private Access access;
 
+    private int ranking;
+
     @NotNull
     private Date created;
 
@@ -110,6 +112,7 @@ public class Space {
         space.type = type;
         space.icon = icon;
         space.access = access;
+        space.ranking = 0;
         space.state = State.ACTIVE;
         space.created = new Date();
 
@@ -221,5 +224,13 @@ public class Space {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
     }
 }

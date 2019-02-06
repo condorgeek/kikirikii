@@ -16,19 +16,23 @@ package com.kikirikii.controllers;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.SpaceMediaRequest;
 import com.kikirikii.model.dto.SpaceRequest;
-import com.kikirikii.model.enums.State;
+import com.kikirikii.model.dto.WidgetRequest;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.SearchService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
+import com.kikirikii.services.WidgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -61,8 +65,53 @@ public class SpaceController {
     @Autowired
     private SearchService searchService;
 
+    private WidgetService widgetService;
+
     @Autowired
     private Utils utils;
+
+    @RequestMapping(value = "/widgets", method = RequestMethod.GET)
+    public List<Widget> getWidgets(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+        return widgetService.getWidgets();
+    }
+
+    @RequestMapping(value = "/widgets/{position}", method = RequestMethod.GET)
+    public List<Widget> getWidgets(@PathVariable String userName, @PathVariable String position) {
+        User user = userService.getUser(userName);
+        return widgetService.getWidgets(Widget.Position.valueOf(position));
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/widgets/space/{spaceId}", method = RequestMethod.POST)
+    public Widget createSpaceWidget(@PathVariable String userName, @PathVariable Long spaceId,
+                               @RequestBody WidgetRequest values) {
+        User user = userService.getUser(userName);
+
+        Space space = spaceService.getSpace(spaceId);
+        return widgetService.save(space, values.getPosition(), values.getRanking());
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/widgets/user/{targetUsername}", method = RequestMethod.POST)
+    public Widget createUserWidget(@PathVariable String userName, @PathVariable String targetUsername,
+                               @RequestBody WidgetRequest values) {
+        User user = userService.getUser(userName);
+
+        User target = userService.getUser(targetUsername);
+        return widgetService.save(target, values.getPosition(), values.getRanking());
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/widgets/text/{targetUrl}", method = RequestMethod.POST)
+    public Widget createTextWidget(@PathVariable String userName, @PathVariable String targetUrl,
+                               @RequestBody WidgetRequest values) {
+
+        User user = userService.getUser(userName);
+
+        return widgetService.save(targetUrl, values.getCover(), values.getTitle(), values.getText(),
+                values.getPosition(), values.getRanking());
+    }
 
     /*  active, generic|shop|event and restricted spaces */
     @RequestMapping(value = "/spaces/{spaceType}", method = RequestMethod.GET)

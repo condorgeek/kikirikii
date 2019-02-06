@@ -62,6 +62,8 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private int ranking;
+
     @NotNull
     private Date created;
 
@@ -78,6 +80,7 @@ public class Member {
         member.referer = referer;
         member.state = state;
         member.role = role;
+        member.ranking = 0;
         member.action = Action.NONE;
         member.created = new Date();
         return member;
@@ -145,5 +148,13 @@ public class Member {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
     }
 }

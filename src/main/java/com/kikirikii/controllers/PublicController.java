@@ -15,10 +15,7 @@ package com.kikirikii.controllers;
 
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
-import com.kikirikii.services.PostService;
-import com.kikirikii.services.SearchService;
-import com.kikirikii.services.SpaceService;
-import com.kikirikii.services.UserService;
+import com.kikirikii.services.*;
 import com.kikirikii.storage.SiteProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,7 +57,27 @@ public class PublicController {
     private SearchService searchService;
 
     @Autowired
+    private WidgetService widgetService;
+
+    @Autowired
     private Utils utils;
+
+
+    /**********************
+     * WIDGET entry points *
+     **********************/
+
+    @RequestMapping(value = "/widgets", method = RequestMethod.GET)
+    public List<Widget> getWidgets(@PathVariable String userName) {
+        User user = resolvePublicUser(userName);
+        return widgetService.getWidgets();
+    }
+
+    @RequestMapping(value = "/widgets/{position}", method = RequestMethod.GET)
+    public List<Widget> getWidgets(@PathVariable String userName, @PathVariable String position) {
+        User user = resolvePublicUser(userName);
+        return widgetService.getWidgets(Widget.Position.valueOf(position));
+    }
 
     /**********************
      * USER entry points *

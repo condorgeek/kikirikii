@@ -65,6 +65,8 @@ public class Post {
     @Column(columnDefinition = "text", length = 10485760)
     private String comment;     // shared comment
 
+    private int ranking;
+
     @NotNull
     private Date created;
 
@@ -88,6 +90,7 @@ public class Post {
             post.media = new ArrayList<>();
         }
         post.state = State.ACTIVE;
+        post.ranking = 0;
         post.created = new Date();
 
         return post;
@@ -201,4 +204,11 @@ public class Post {
         return created;
     }
 
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
+    }
 }
