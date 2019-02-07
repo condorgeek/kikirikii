@@ -32,7 +32,7 @@ public class Widget {
         LTOP, LBOTTOM, RTOP, RBOTTOM, MTOP, MBOTTOM
     }
 
-    public enum Type {TEXT, SPACE, USER, CUSTOM}
+    public enum Type {TEXT, SPACE, USER, CUSTOM, EXTERNAL}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,9 +51,11 @@ public class Widget {
     private State state;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Position pos;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Type type;
 
     private int ranking;

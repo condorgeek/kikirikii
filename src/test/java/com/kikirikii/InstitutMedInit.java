@@ -18,6 +18,7 @@ import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.repos.SpaceRepository;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
+import com.kikirikii.services.WidgetService;
 import com.kikirikii.storage.StorageProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,6 +59,9 @@ public class InstitutMedInit {
 
     @Autowired
     private StorageProperties storageProperties;
+
+    @Autowired
+    private WidgetService widgetService;
 
     @Test
     public void createUsersAndSpaces() {
@@ -150,32 +154,34 @@ public class InstitutMedInit {
         });
     }
 
-//    @Ignore
     @Test
-    @Deprecated
-    public void createDeltas() {
-//        spaceService.findBySpacename("Partner & Austeller").ifPresent(space -> {
-//            createPartners("institutmed/partner_delta.csv", "partner_profiles/thumbs",
-//                    "partner_profiles/cover", space);
-//        });
-//
-//        spaceService.findBySpacename("Referenten & Autoren").ifPresent(space -> {
-//            createUsers("institutmed/referenten-delta.csv", "referenten_profiles/thumbs",
-//                    space);
-//        });
+    public void createWidgets() {
 
-//        createUserIntroductoryPost("institutmed/referenten.csv");
-
-//        userService.findHomeSpace(SUPERUSER).ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/superuser_posts.csv",
-//                    "superuser/cover", "Institut für Ganzheitsmedizin", space);
-//        });
+        /* so erreichen sie uns text widget sidebar */
+        widgetService.save(null, null, "So erreichen Sie uns",
+                "<div class='phone-widget'>" +
+                        "<i class='fas fa-phone'><span class='phone-tel'></i> +49-89-740 61 962</span><br>" +
+                        "<i class='far fa-envelope'></i><span class='phone-email'> info@institut-ganzheitsmedizin.de</span>" +
+                        "</div>", Widget.Position.RTOP, 10);
 
 
-        userService.findByUsername(SUPERUSER).ifPresent(user -> {
-            createGenericSpaces(user, "institutmed/spaces.csv", "spaces/cover");
+        /* test user and space widgets for sidebar */
+        spaceService.findBySpacename("Presseschau").ifPresent(space -> {
+            widgetService.save(space, Widget.Position.RBOTTOM, 9);
         });
 
+        spaceService.findBySpacename("Team").ifPresent(space -> {
+            widgetService.save(space, Widget.Position.RBOTTOM, 8);
+        });
+
+        /* test widgets headlines */
+        userService.findByUsername("pablo.russell").ifPresent(user -> {
+            widgetService.save(user, Widget.Position.LTOP, 5);
+        });
+
+        spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
+            widgetService.save(space, Widget.Position.LBOTTOM, 4);
+        });
     }
 
 
