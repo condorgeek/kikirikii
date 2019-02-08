@@ -13,6 +13,7 @@
 
 package com.kikirikii.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kikirikii.model.enums.State;
 import org.hibernate.annotations.Where;
 
@@ -53,12 +54,24 @@ public class Space {
     @NotNull
     private String name;
 
+    @Deprecated
     private String cover;
 
     @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
     @Where(clause = "state in ('ACTIVE')")
     @OrderBy("position ASC")
     private List<SpaceMedia> media = new ArrayList<>();
+
+    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "parent_id")
+    private Space parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Where(clause = "state in ('ACTIVE')")
+    @OrderBy("ranking DESC")
+    private List<Space> children = new ArrayList<>();
 
     private String icon;
 
@@ -89,13 +102,19 @@ public class Space {
     }
 
     public static Space of(User user, String name, String description, Type type) {
-        return of(user, name, null, null, null, description, type, Access.PUBLIC);
+        return of(user, name, null, null, description, type, Access.PUBLIC);
     }
 
     public static Space of(User user, String name, String description, Type type, Access access) {
-        return of(user, name, null, null, null, description, type, access);
+        return of(user, name, null, null, description, type, access);
     }
 
+    public static Space of(User user, String name, List<SpaceMedia> media, String icon, String description, Type type,
+                           Access access) {
+        return of(user, name, null, media, icon, description, type, access);
+    }
+
+    @Deprecated
     public static Space of(User user, String name, String cover, List<SpaceMedia> media, String icon, String description, Type type,
                            Access access) {
         Space space = new Space();
@@ -137,8 +156,40 @@ public class Space {
 
     /* clear instead of just overwriting to avoid hibernate engine errors */
     public void setMedia(List<SpaceMedia> media) {
+        this.media.forEach(m -> m.setState(State.DELETED));
         this.media.clear();
         this.media.addAll(media);
+    }
+
+    public Space getParent() {
+        return parent;
+    }
+
+    public void setParent(Space parent) {
+        this.parent = parent;
+    }
+
+    public List<Space> getChildren() {
+        return children;
+    }
+
+    /* clear instead of just overwriting to avoid hibernate engine errors */
+    public void setChildren(List<Space> children) {
+        this.children.forEach(child -> child.setParent(null));
+        this.children.clear();
+        this.children.addAll(children);
+    }
+
+    public Space addChild(Space child) {
+        this.children.add(child);
+        child.setParent(this);
+        return this;
+    }
+
+    public Space removeChild(Space child) {
+        this.children.remove(child);
+        child.setParent(null);
+        return this;
     }
 
     public long getId() {
@@ -185,10 +236,12 @@ public class Space {
         this.created = created;
     }
 
+    @Deprecated
     public String getCover() {
         return cover;
     }
 
+    @Deprecated
     public void setCover(String cover) {
         this.cover = cover;
     }

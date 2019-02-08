@@ -39,8 +39,9 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
             "and m.space.type = 'GENERIC' and m.space.state = 'ACTIVE'")
     List<Member> findMemberOfGenericByUserId(@Param("userId") Long userId);
 
+    /* only parent space nodes */
     @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
-            "and m.space.type = :type and m.space.state = 'ACTIVE'")
+            "and m.space.type = :type and m.space.state = 'ACTIVE' and m.space.parent = null")
     List<Member> findMemberOfByTypeAndUserId(@Param("type") Space.Type type, @Param("userId") Long userId);
 
     @Query("select m from Member m where m.space.id = :spaceId and m.user.id = :userId")

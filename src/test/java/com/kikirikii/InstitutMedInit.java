@@ -91,6 +91,31 @@ public class InstitutMedInit {
     }
 
     @Test
+    public void createChildSpaces() {
+
+        /* create child spaces for sammelband */
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            createGenericSpaces(user, "institutmed/sammelbaender.csv", "sammelbaender/cover");
+        });
+
+        /* assign to parent space */
+        spaceService.findBySpacename("Sammelband 2019").ifPresent(parent -> {
+            assignChildSpaces(parent, "institutmed/sammelbaender.csv");
+        });
+
+        /* create child spaces for vergangene veranstaltungen */
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            createGenericSpaces(user, "institutmed/vergangene-veranstaltungen.csv", "vergangene-veranstaltungen/cover");
+        });
+
+        /* assign to parent space */
+        spaceService.findBySpacename("Vergangene Veranstaltungen").ifPresent(parent -> {
+            assignChildSpaces(parent, "institutmed/vergangene-veranstaltungen.csv");
+        });
+
+    }
+
+    @Test
     public void createPosts() {
 
         /* step 0 - create superuser posts */
@@ -197,17 +222,49 @@ public class InstitutMedInit {
                     try {
                         Space space = spaceService.createSpaceAndJoin(user, getType(attrs[type]), attrs[name],
                                 getIcon(attrs[icon]), null, attrs[description], "PUBLIC",
-                                SpaceData.of(null, getLocalDate(attrs[type], attrs[start_date]),
+                                SpaceData.of(null,
                                         getLocalDate(attrs[type], attrs[start_date]),
-                                        attrs[general_information], attrs[venue], attrs[travel_information],
-                                        attrs[venue], attrs[city], null, null,
-                                        attrs[key_dates], attrs[tickets], attrs[dates]));
+                                        getLocalDate(attrs[type], attrs[start_date]),
+                                        attrs[general_information],
+                                        attrs[venue],
+                                        attrs[city],
+                                        attrs[travel_information],
+                                        null,
+                                        null,
+                                        null,
+                                        attrs[key_dates],
+                                        attrs[tickets],
+                                        attrs[dates]));
 
                         String targetpath = user.getUsername() + "/generic/" + space.getId();
                         String cover = copyCover(sourcepath, targetpath, asCover(attrs[name]));
                         spaceService.updateCoverPath(space, cover);
 
                         System.out.println(attrs[pos] + " " + attrs[name] + " " + cover);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    private void assignChildSpaces(Space parent, String filename) {
+        int pos = 0, type = 1, name = 2, icon = 3, description = 4, start_date = 5, web = 6, general_information = 7,
+                key_dates = 8, city = 9, venue = 10, travel_information = 11, tickets = 12, dates = 13;
+
+        List<String> spaces = PersistenceInit.Loader.load(filename);
+
+        spaces.stream().map(line -> line.split("§"))
+                .filter(attrs -> attrs[type].equals("G") || attrs[type].equals("E"))
+                .forEach(attrs -> {
+                    try {
+                        spaceService.findBySpacename(attrs[name]).ifPresent(child -> {
+                            child.setRanking(Integer.parseInt(attrs[pos]));
+                            // TODO set ranking at space generation
+                            spaceService.addChild(parent, spaceService.save(child));
+
+                            System.out.println(attrs[pos] + " " + attrs[name]);
+                        });
 
                     } catch (Exception e) {
                         e.printStackTrace();

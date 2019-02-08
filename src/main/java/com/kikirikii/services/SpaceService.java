@@ -15,10 +15,8 @@ package com.kikirikii.services;
 
 import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
-import com.kikirikii.model.Member;
-import com.kikirikii.model.Space;
-import com.kikirikii.model.SpaceData;
-import com.kikirikii.model.User;
+import com.kikirikii.model.*;
+import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.MemberRepository;
 import com.kikirikii.repos.SpaceRepository;
@@ -33,6 +31,8 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -76,6 +76,13 @@ public class SpaceService {
         return spaceRepository.searchActiveByTerm(term);
     }
 
+    public Space addChild(Space parent, Space child) {
+        return spaceRepository.save(parent.addChild(child));
+    }
+
+    public Space removeChild(Space parent, Space child) {
+        return spaceRepository.save(parent.removeChild(child));
+    }
 
     public Member getMember(Long spaceId, String username) {
         Optional<Member> member = memberRepository.findMemberByUsername(spaceId, username);
@@ -91,6 +98,7 @@ public class SpaceService {
 
     public Space updateCoverPath(Space space, String path) {
         space.setCover(path);
+        space.addMedia(SpaceMedia.of(path, MediaType.PICTURE));
         return spaceRepository.save(space);
     }
 
@@ -125,9 +133,12 @@ public class SpaceService {
     public Space createSpaceAndJoin(User user, String type, String name, String icon, String cover, String description, String access,
                                         SpaceData spaceData) {
 
-        // TODO support for space media array
+        // TODO cover support deprecated - use media
         try {
             Space space = Space.of(user, name, cover, null, icon, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
+            if(cover != null) {
+                space.addMedia(SpaceMedia.of(cover, MediaType.PICTURE));
+            }
             space.setSpacedata(spaceData);
             spaceRepository.save(space);
 
