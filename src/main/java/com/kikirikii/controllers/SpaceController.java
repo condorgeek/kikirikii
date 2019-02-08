@@ -65,6 +65,7 @@ public class SpaceController {
     @Autowired
     private SearchService searchService;
 
+    @Autowired
     private WidgetService widgetService;
 
     @Autowired
@@ -173,7 +174,6 @@ public class SpaceController {
     @RequestMapping(value = "/space/{spaceId}/update", method = RequestMethod.POST)
     public Space updateSpace(@PathVariable String userName, @PathVariable Long spaceId,
                              @RequestBody SpaceRequest spaceRequest) {
-
         User user = userService.getUser(userName);
         Space space = spaceService.getSpace(spaceId);
 
