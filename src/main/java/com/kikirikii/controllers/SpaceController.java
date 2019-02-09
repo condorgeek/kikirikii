@@ -19,12 +19,8 @@ import com.kikirikii.model.dto.SpaceRequest;
 import com.kikirikii.model.dto.WidgetRequest;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
-import com.kikirikii.services.SearchService;
-import com.kikirikii.services.SpaceService;
-import com.kikirikii.services.UserService;
-import com.kikirikii.services.WidgetService;
+import com.kikirikii.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,7 +51,6 @@ import java.util.stream.Collectors;
 public class SpaceController {
     public static Logger logger = Logger.getLogger("SpaceController");
 
-
     @Autowired
     private SpaceService spaceService;
 
@@ -69,7 +64,35 @@ public class SpaceController {
     private WidgetService widgetService;
 
     @Autowired
+    private PageService pageService;
+
+    @Autowired
     private Utils utils;
+
+
+    @RequestMapping(value = "/page/{pageId}/id", method = RequestMethod.GET)
+    public Page getPageById(@PathVariable String userName, @PathVariable Long pageId) {
+        User user = userService.getUser(userName);
+        return pageService.getPage(pageId);
+    }
+
+    @RequestMapping(value = "/page/{name}", method = RequestMethod.GET)
+    public Page getPageByName(@PathVariable String userName, @PathVariable String name) {
+        User user = userService.getUser(userName);
+        return pageService.getPage(name);
+    }
+
+    @RequestMapping(value = "/pages", method = RequestMethod.GET)
+    public List<Page> getPages(@PathVariable String userName) {
+        User user = userService.getUser(userName);
+        return pageService.getPages();
+    }
+
+    @RequestMapping(value = "/page/{name}/create" , method = RequestMethod.PUT)
+    public Page createPage(@PathVariable String userName, @RequestBody Map<String, String> values) {
+        // TODO
+        return null;
+    }
 
     @RequestMapping(value = "/widgets", method = RequestMethod.GET)
     public List<Widget> getWidgets(@PathVariable String userName) {
@@ -142,8 +165,8 @@ public class SpaceController {
     }
 
     @RequestMapping(value = "/space/{spaceId}/members/{page}/{size}", method = RequestMethod.GET)
-    public Page<Member> getPageableSpaceMembers(@PathVariable String userName, @PathVariable Long spaceId,
-                                            @PathVariable Integer page, @PathVariable Integer size ) {
+    public org.springframework.data.domain.Page<Member> getPageableSpaceMembers(@PathVariable String userName, @PathVariable Long spaceId,
+                                                                                @PathVariable Integer page, @PathVariable Integer size ) {
         return spaceService.getPageableMembersBySpace(spaceId, page, size);
     }
 

@@ -387,10 +387,28 @@ public class PersistenceInit {
                 for (String l = reader.readLine(); l != null; l = reader.readLine()) {
                     data.add(l);
                 }
+                reader.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return data;
+        }
+
+        public static String read(String filename) {
+            StringBuilder buffer = new StringBuilder();
+
+            try {
+                File file = new File(loader.getResource(filename).getFile());
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                for (String l = reader.readLine(); l != null; l = reader.readLine()) {
+                    buffer.append(l);
+                }
+                reader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return buffer.toString();
         }
     }
 

@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Support for anonymous user. Read mode only of PUBLIC data. {userName} is the default user which
@@ -60,8 +58,32 @@ public class PublicController {
     private WidgetService widgetService;
 
     @Autowired
+    private PageService pageService;
+
+    @Autowired
     private Utils utils;
 
+    /**********************
+     * PAGE entry points *
+     **********************/
+
+    @RequestMapping(value = "/page/{pageId}/id", method = RequestMethod.GET)
+    public com.kikirikii.model.Page getPageById(@PathVariable String userName, @PathVariable Long pageId) {
+        User user = resolvePublicUser(userName);
+        return pageService.getPage(pageId);
+    }
+
+    @RequestMapping(value = "/page/{name}", method = RequestMethod.GET)
+    public com.kikirikii.model.Page getPageByName(@PathVariable String userName, @PathVariable String name) {
+        User user = resolvePublicUser(userName);
+        return pageService.getPage(name);
+    }
+
+    @RequestMapping(value = "/pages", method = RequestMethod.GET)
+    public List<com.kikirikii.model.Page> getPages(@PathVariable String userName) {
+        User user = resolvePublicUser(userName);
+        return pageService.getPages();
+    }
 
     /**********************
      * WIDGET entry points *

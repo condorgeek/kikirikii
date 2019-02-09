@@ -32,6 +32,8 @@ import java.util.List;
 @Table(name = "pages")
 public class Page {
 
+    public enum Type {STANDARD, CUSTOM}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -64,6 +66,9 @@ public class Page {
     private int ranking;
 
     @Enumerated(EnumType.STRING)
+    private Type type;
+
+    @Enumerated(EnumType.STRING)
     private State state;
 
     @NotNull
@@ -71,8 +76,28 @@ public class Page {
 
     private Page() {}
 
-    public static Page of() {
+    public static Page of(String name, String content, Type type) {
+        return of(name, null, null, content, null, type, 0);
+    }
+
+    public static Page of(String name, String headline, String lead, String content, List<PageMedia> media,
+                          Type type, int ranking) {
         Page page = new Page();
+        page.name = name;
+        page.headline = headline;
+        page.lead = lead;
+        page.content = content;
+        if(media != null) {
+            page.media = media;
+            page.media.forEach(m -> m.setPage(page));
+        } else {
+            page.media = new ArrayList<>();
+        }
+        page.ranking = ranking;
+        page.type = type;
+        page.state = State.ACTIVE;
+        page.created = new Date();
+
         return page;
     }
 
@@ -189,5 +214,13 @@ public class Page {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }

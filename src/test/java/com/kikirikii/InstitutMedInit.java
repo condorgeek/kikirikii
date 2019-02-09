@@ -15,7 +15,9 @@ package com.kikirikii;
 
 import com.kikirikii.model.*;
 import com.kikirikii.model.enums.MediaType;
+import com.kikirikii.model.enums.Pages;
 import com.kikirikii.repos.SpaceRepository;
+import com.kikirikii.services.PageService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WidgetService;
@@ -62,6 +64,9 @@ public class InstitutMedInit {
 
     @Autowired
     private WidgetService widgetService;
+
+    @Autowired
+    private PageService pageService;
 
     @Test
     public void createUsersAndSpaces() {
@@ -209,6 +214,19 @@ public class InstitutMedInit {
         });
     }
 
+    @Test
+    public void createPages() {
+        /* create default pages for site */
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            /* create Contact Page */
+            String impressum = PersistenceInit.Loader.read("institutmed/pages/contact.html");
+            pageService.createPage(Page.of("imprint", impressum, Page.Type.CUSTOM));
+
+            /* create Privacy Policy Page */
+            String datenschutz = PersistenceInit.Loader.read("institutmed/pages/privacy-policy.html");
+            pageService.createPage(Page.of("privacy-policy", datenschutz, Page.Type.CUSTOM));
+        });
+    }
 
     private void createGenericSpaces(User user, String filename, String sourcepath) {
         int pos = 0, type = 1, name = 2, icon = 3, description = 4, start_date = 5, web = 6, general_information = 7,
