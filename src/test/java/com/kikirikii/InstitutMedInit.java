@@ -15,7 +15,6 @@ package com.kikirikii;
 
 import com.kikirikii.model.*;
 import com.kikirikii.model.enums.MediaType;
-import com.kikirikii.model.enums.Pages;
 import com.kikirikii.repos.SpaceRepository;
 import com.kikirikii.services.PageService;
 import com.kikirikii.services.SpaceService;
@@ -48,7 +47,7 @@ import java.util.logging.Logger;
 @SpringBootTest
 public class InstitutMedInit {
     private Logger logger = Logger.getLogger("InstitutMedInit");
-    final private String SUPERUSER = "christine.herrera";
+    final private String SUPERUSER = "institut.med";
 
     @Autowired
     private SpaceRepository spaceRepository;
@@ -117,6 +116,31 @@ public class InstitutMedInit {
         spaceService.findBySpacename("Vergangene Veranstaltungen").ifPresent(parent -> {
             assignChildSpaces(parent, "institutmed/vergangene-veranstaltungen.csv");
         });
+
+        /* assign events */
+//        spaceService.findBySpacename("Weltkongress 2019").ifPresent(parent -> {
+//            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
+//                spaceService.addChild(parent, child);
+//            });
+//            spaceService.findBySpacename("Frühritual").ifPresent(child -> {
+//                spaceService.addChild(parent, child);
+//            });
+//            spaceService.findBySpacename("Abschlussritual").ifPresent(child -> {
+//                spaceService.addChild(parent, child);
+//            });
+//        });
+//
+//        spaceService.findBySpacename("Gesundheitsmesse 2019").ifPresent(parent -> {
+//            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
+//                spaceService.addChild(parent, child);
+//            });
+//            spaceService.findBySpacename("Frühritual").ifPresent(child -> {
+//                spaceService.addChild(parent, child);
+//            });gesundheitsmesse-2019.csv
+//            spaceService.findBySpacename("Abschlussritual").ifPresent(child -> {
+//                spaceService.addChild(parent, child);
+//            });
+//        });
 
     }
 
@@ -194,19 +218,13 @@ public class InstitutMedInit {
                         "<i class='far fa-envelope'></i><span class='phone-email'> info@institut-ganzheitsmedizin.de</span>" +
                         "</div>", Widget.Position.RTOP, 10);
 
-
-        /* test user and space widgets for sidebar */
-        spaceService.findBySpacename("Presseschau").ifPresent(space -> {
-            widgetService.save(space, Widget.Position.RBOTTOM, 9);
-        });
-
-        spaceService.findBySpacename("Team").ifPresent(space -> {
-            widgetService.save(space, Widget.Position.RBOTTOM, 8);
-        });
-
         /* test widgets headlines */
-        userService.findByUsername("pablo.russell").ifPresent(user -> {
-            widgetService.save(user, Widget.Position.LTOP, 5);
+        userService.findByUsername("bair.shamba").ifPresent(user -> {
+            widgetService.save(user, Widget.Position.RBOTTOM, 5);
+        });
+
+        userService.findByUsername("moetu.taiha").ifPresent(user -> {
+            widgetService.save(user, Widget.Position.RBOTTOM, 5);
         });
 
         spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
@@ -238,7 +256,8 @@ public class InstitutMedInit {
                 .filter(attrs -> attrs[type].equals("G") || attrs[type].equals("E"))
                 .forEach(attrs -> {
                     try {
-                        Space space = spaceService.createSpaceAndJoin(user, getType(attrs[type]), attrs[name],
+                        Space space = spaceService.createSpaceAndJoin(user, getType(attrs[type]),
+                                attrs[name].trim(),
                                 getIcon(attrs[icon]), null, attrs[description], "PUBLIC",
                                 SpaceData.of(null,
                                         getLocalDate(attrs[type], attrs[start_date]),
@@ -255,7 +274,7 @@ public class InstitutMedInit {
                                         attrs[dates]));
 
                         String targetpath = user.getUsername() + "/generic/" + space.getId();
-                        String cover = copyCover(sourcepath, targetpath, asCover(attrs[name]));
+                        String cover = copyCover(sourcepath, targetpath, asCover(attrs[name].trim()));
                         spaceService.updateCoverPath(space, cover);
 
                         System.out.println(attrs[pos] + " " + attrs[name] + " " + cover);
@@ -311,14 +330,14 @@ public class InstitutMedInit {
     }
 
     private Optional<User> createSuperUser(String filename, String thumbspath) {
-        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+        final int ranking = 0, firstname = 1, lastname = 2, username = 3, email = 4, gender = 5, city = 6, country = 7, aboutYou = 8, work = 9;
 
         List<String> team = PersistenceInit.Loader.load(filename);
         try {
             String[] attrs = team.get(0).split("§");
             String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
 
-            User user = populateUser(attrs[email].trim(), attrs[username].trim(), attrs[firstname].trim(),
+            User user = populateUser(attrs[ranking], attrs[email].trim(), attrs[username].trim(), attrs[firstname].trim(),
                     attrs[lastname].trim(), avatar, attrs[gender].trim(), attrs[aboutYou].trim(),
                     attrs[work].trim(), null, attrs[city].trim(), attrs[country].trim());
 
@@ -333,7 +352,7 @@ public class InstitutMedInit {
     }
 
     private void createUsers(String filename, String thumbspath, Space space) {
-        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+        final int ranking = 0, firstname = 1, lastname = 2, username = 3, email = 4, gender = 5, city = 6, country = 7, aboutYou = 8, work = 9;
 
         List<String> team = PersistenceInit.Loader.load(filename);
         int[] count = {0};
@@ -341,7 +360,7 @@ public class InstitutMedInit {
             try {
                 String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
 
-                User user = populateUser(attrs[email].trim(), attrs[username].trim(), attrs[firstname].trim(),
+                User user = populateUser(attrs[ranking], attrs[email].trim(), attrs[username].trim(), attrs[firstname].trim(),
                         attrs[lastname].trim(), avatar, attrs[gender].trim(), attrs[aboutYou].trim(),
                         attrs[work].trim(), null, attrs[city].trim(), attrs[country].trim());
 
@@ -381,7 +400,7 @@ public class InstitutMedInit {
 
 
     private void createUserPosts(String filename, String thumbspath, Space space) {
-        final int firstname = 0, lastname = 1, username = 2, email = 3, gender = 4, city = 5, country = 6, aboutYou = 7, work = 8;
+        final int ranking = 0, firstname = 1, lastname = 2, username = 3, email = 4, gender = 5, city = 6, country = 7, aboutYou = 8, work = 9;
         int[] count = {0};
         List<String> team = PersistenceInit.Loader.load(filename);
 
@@ -395,7 +414,7 @@ public class InstitutMedInit {
 
                             // create post in generic space
                             userService.addPost(space, user, attrs[aboutYou], fullname + attrs[work],
-                                    Media.of(mediapath, MediaType.PICTURE));
+                                    Media.of(mediapath, MediaType.PICTURE), Integer.parseInt(attrs[ranking]));
 
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
@@ -404,7 +423,7 @@ public class InstitutMedInit {
                             // create post in home space
                             userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
                                 userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[work],
-                                        Media.of(mediapath, MediaType.PICTURE));
+                                        Media.of(mediapath, MediaType.PICTURE), Integer.parseInt(attrs[ranking]));
                             });
 
                             System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
@@ -417,14 +436,14 @@ public class InstitutMedInit {
     }
 
     private void createSpacePostsMultiMedia(String filename, String thumbspath, String detail, Space space) {
-        int index = 0, username = 1, cover = 2, title = 3, text = 4;
+        int ranking = 0, username = 1, cover = 2, title = 3, text = 4;
 
         List<String> posts = PersistenceInit.Loader.load(filename);
         User defaultuser = userService.getUser(SUPERUSER);
 
         System.out.println("****** Creating Posts from " + thumbspath);
         posts.stream().map(post -> post.split("§"))
-                .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[index]) > Integer.valueOf(attrs1[index]) ? 1 : -1)
+                .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[ranking]) > Integer.valueOf(attrs1[ranking]) ? 1 : -1)
                 .forEach(attrs -> {
                     try {
                         User user = !attrs[username].equals("") ? userService.getUser(attrs[username]) : defaultuser;
@@ -438,9 +457,9 @@ public class InstitutMedInit {
                             }
 
                             userService.addPost(space, user, attrs[title].trim(), subtitle + attrs[text],
-                                    asMediaList(pathlist));
+                                    asMediaList(pathlist), Integer.parseInt(attrs[ranking]));
 
-                            System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " ");
+                            System.out.println(attrs[ranking] + " " + attrs[username] + " " + attrs[title] + " ");
                         }
                     } catch (Exception e) {
                         logger.warning(e.getMessage());
@@ -459,14 +478,14 @@ public class InstitutMedInit {
     }
 
     private void createSpacePosts(String filename, String thumbspath, String detail, Space space) {
-        int index = 0, username = 1, cover = 2, title = 3, text = 4;
+        int ranking = 0, username = 1, cover = 2, title = 3, text = 4;
 
         List<String> posts = PersistenceInit.Loader.load(filename);
         User defaultuser = userService.getUser(SUPERUSER);
 
         System.out.println("****** Creating Posts from " + thumbspath);
         posts.stream().map(post -> post.split("§"))
-                .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[index]) > Integer.valueOf(attrs1[index]) ? 1 : -1)
+                .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[ranking]) > Integer.valueOf(attrs1[ranking]) ? 1 : -1)
                 .forEach(attrs -> {
                     try {
                         User user = !attrs[username].equals("") ? userService.getUser(attrs[username]) : defaultuser;
@@ -479,9 +498,9 @@ public class InstitutMedInit {
                             }
 
                             userService.addPost(space, user, attrs[title].trim(), vortrag + attrs[text],
-                                    Media.of(mediapath, MediaType.PICTURE));
+                                    Media.of(mediapath, MediaType.PICTURE), Integer.parseInt(attrs[ranking]));
 
-                            System.out.println(attrs[index] + " " + attrs[username] + " " + attrs[title] + " ");
+                            System.out.println(attrs[ranking] + " " + attrs[username] + " " + attrs[title] + " ");
                         }
                     } catch (Exception e) {
                         logger.warning(e.getMessage());
@@ -491,18 +510,18 @@ public class InstitutMedInit {
 
 
     private void createPartners(String filename, String thumbspath, String coverpath, Space space) {
-        int firstname = 0, lastname = 1, username = 2, web = 3, gender = 4, city = 5, country = 6, aboutYou = 7, text = 8;
+        int ranking = 0, firstname = 1, lastname = 2, username = 3, web = 4, gender = 5, city = 6, country = 7, aboutYou = 8, text = 9;
         List<String> posts = PersistenceInit.Loader.load(filename);
 
         int[] idx = {0};
         posts.stream().filter(line -> line != null && !line.equals("")).map(post -> post.split("§"))
                 .forEach(attrs -> {
                     try {
-//                        /* copy resources */
+                        /* copy resources */
                         String avatar = copyAvatar(storageProperties.getLocation(), thumbspath, attrs[username].trim());
 
                         /* create user */
-                        User user = populateUser(null, attrs[username].trim(), attrs[firstname].trim(),
+                        User user = populateUser(attrs[ranking], null, attrs[username].trim(), attrs[firstname].trim(),
                                 attrs[lastname].trim(), avatar, attrs[gender].trim(), attrs[aboutYou].trim(),
                                 attrs[text].trim(), attrs[web].trim(), attrs[city].trim(), attrs[country].trim());
 
@@ -526,7 +545,7 @@ public class InstitutMedInit {
     }
 
     private void createPartnerPosts(String filename, String thumbspath, Space space) {
-        int firstname = 0, lastname = 1, username = 2, web = 3, gender = 4, city = 5, country = 6, aboutYou = 7, text = 8;
+        int ranking = 0, firstname = 1, lastname = 2, username = 3, web = 4, gender = 5, city = 6, country = 7, aboutYou = 8, text = 9;
         List<String> posts = PersistenceInit.Loader.load(filename);
         int[] count = {0};
         User defaultuser = userService.getUser(SUPERUSER);
@@ -544,7 +563,7 @@ public class InstitutMedInit {
                         String webaddress = asUrl(attrs[web], attrs[firstname] + " " + attrs[lastname]);
 
                         userService.addPost(space, user, attrs[aboutYou], fullname + attrs[text] + webaddress,
-                                Media.of(mediapath, MediaType.PICTURE));
+                                Media.of(mediapath, MediaType.PICTURE), Integer.parseInt(attrs[ranking]));
 
                         if (!spaceService.isMember(space.getId(), user)) {
                             spaceService.addMember(space, user, user, "MEMBER");
@@ -553,7 +572,7 @@ public class InstitutMedInit {
                         // create post in home space
                         userService.findHomeSpace(attrs[username]).ifPresent(homespace -> {
                             userService.addPost(homespace, user, attrs[aboutYou], fullname + attrs[text] + webaddress,
-                                    Media.of(mediapath, MediaType.PICTURE));
+                                    Media.of(mediapath, MediaType.PICTURE), Integer.parseInt(attrs[ranking]));
                         });
 
                         System.out.println(++count[0] + " " + user.getUsername() + " " + mediapath);
@@ -570,11 +589,11 @@ public class InstitutMedInit {
 
 
 
-    private User populateUser(String email, String username, String firstname, String lastname, String avatar,
+    private User populateUser(String ranking, String email, String username, String firstname, String lastname, String avatar,
                               String gender, String aboutYou, String work, String web, String city, String country) {
 
-        return User.of((email == null || email.equals("")) ? username + "@institutmed.de" : email,
-                username, firstname, lastname, "password", avatar, Role.asArray(Role.Type.USER))
+        User user =  User.of((email == null || email.equals("")) ? username.trim() + "@institutmed.de" : email,
+                username.trim(), firstname, lastname, "password", avatar, Role.asArray(Role.Type.USER))
                 .setUserData(UserData.of(null,
                         LocalDate.of(1970, 1, 1),
                         getGender(gender),
@@ -583,6 +602,8 @@ public class InstitutMedInit {
                         aboutYou, null, null, work, null, null, web,
                         Address.of(null, null, null, null, city, country)
                 ));
+        user.setRanking(Integer.parseInt(ranking));
+        return user;
     }
 
     private UserData.Gender getGender(String gender) {

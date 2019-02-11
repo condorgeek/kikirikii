@@ -195,8 +195,20 @@ public class UserService {
         return postRepository.save(Post.of(space, user, title, text, media));
     }
 
+    public Post addPost(Space space, User user, String title, String text, List<Media> media, int ranking) {
+        return postRepository.save(Post.of(space, user, title, text, media, ranking));
+    }
+
     public Post addPost(Space space, User user, String title, String text, Media media) {
         return postRepository.save(Post.of(space, user, title, text, Collections.singletonList(media)));
+    }
+
+    public Post addPost(Space space, User user, String title, String text, Media media, int ranking) {
+        return postRepository.save(Post.of(space, user, title, text, Collections.singletonList(media), ranking));
+    }
+
+    public Post incrementPostRanking(Post post) {
+        return postRepository.save(post.incrementRanking());
     }
 
     public Post updatePost(Post post, User user, String title, String text, List<Media> media) {

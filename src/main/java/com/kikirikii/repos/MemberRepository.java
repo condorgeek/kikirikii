@@ -32,16 +32,16 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
     @Query("select m from Member m where m.space.id = :spaceId and state= 'ACTIVE'")
     List<Member> findActiveBySpaceId(@Param("spaceId") Long spaceId);
 
-    @Query("select m from Member m where m.space.id = :spaceId and state= 'ACTIVE' order by m.created asc")
+    @Query("select m from Member m where m.space.id = :spaceId and state= 'ACTIVE' order by m.user.ranking desc, m.user.lastname asc")
     Page<Member> findActivePageBySpaceId(@Param("spaceId") Long spaceId, Pageable page);
 
     @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
-            "and m.space.type = 'GENERIC' and m.space.state = 'ACTIVE'")
+            "and m.space.type = 'GENERIC' and m.space.state = 'ACTIVE' order by m.user.ranking desc, m.user.lastname asc")
     List<Member> findMemberOfGenericByUserId(@Param("userId") Long userId);
 
     /* only parent space nodes */
     @Query("select m from Member m where m.user.id = :userId and state = 'ACTIVE' " +
-            "and m.space.type = :type and m.space.state = 'ACTIVE' and m.space.parent = null order by m.space.ranking desc")
+            "and m.space.type = :type and m.space.state = 'ACTIVE' and m.space.parent = null order by m.user.ranking desc, m.user.lastname asc")
     List<Member> findMemberOfByTypeAndUserId(@Param("type") Space.Type type, @Param("userId") Long userId);
 
     @Query("select m from Member m where m.space.id = :spaceId and m.user.id = :userId")

@@ -78,6 +78,10 @@ public class Post {
     }
 
     public static Post of(Space space, User user, String title, String text, List<Media> media) {
+        return of(space, user, title, text, media, 0);
+    }
+
+    public static Post of(Space space, User user, String title, String text, List<Media> media, int ranking) {
         Post post = new Post();
         post.space = space;
         post.user = user;
@@ -90,7 +94,7 @@ public class Post {
             post.media = new ArrayList<>();
         }
         post.state = State.ACTIVE;
-        post.ranking = 0;
+        post.ranking = ranking;
         post.created = new Date();
 
         return post;
@@ -210,5 +214,10 @@ public class Post {
 
     public void setRanking(int ranking) {
         this.ranking = ranking;
+    }
+
+    public Post incrementRanking() {
+        this.ranking = this.ranking + 1;
+        return this;
     }
 }

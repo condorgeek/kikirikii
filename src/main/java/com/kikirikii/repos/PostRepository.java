@@ -24,10 +24,10 @@ import java.util.stream.Stream;
 
 public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
 
-    @Query("select p from Post p where p.space.id = :spaceId and p.state in ('ACTIVE', 'SHARED') order by created desc")
+    @Query("select p from Post p where p.space.id = :spaceId and p.state in ('ACTIVE', 'SHARED') order by p.ranking desc, p.created desc")
     Stream<Post> findActiveBySpaceId(@Param("spaceId") Long spaceId);
 
-    @Query("select p from Post p where p.space.id = :spaceId and p.state in ('ACTIVE', 'SHARED') order by created desc")
+    @Query("select p from Post p where p.space.id = :spaceId and p.state in ('ACTIVE', 'SHARED') order by p.ranking desc, p.created desc")
     Page<Post> findActivePageBySpaceId(@Param("spaceId") Long spaceId, Pageable pageable);
 
     @Query("select count(p) from Post p where p.user.id = :userId and p.state in('ACTIVE', 'SHARED')")
