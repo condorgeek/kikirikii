@@ -15,7 +15,6 @@ package com.kikirikii.services;
 
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.Page;
-import com.kikirikii.model.dto.Site;
 import com.kikirikii.repos.PageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

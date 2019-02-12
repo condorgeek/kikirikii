@@ -21,6 +21,11 @@ group = 'com.'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
+bootJar {
+	baseName = 'kikirikii'
+	version =  '0.1.0'
+}
+
 repositories {
 	mavenCentral()
 }
@@ -37,9 +42,10 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
     compile("org.springframework.boot:spring-boot-configuration-processor")
 	compile("org.springframework.boot:spring-boot-starter-websocket")
+	compile("org.springframework.boot:spring-boot-starter-actuator")
 
     // TODO remove migrator
-	runtime("org.springframework.boot:spring-boot-properties-migrator")
+//	runtime("org.springframework.boot:spring-boot-properties-migrator")
     
 	runtime('org.postgresql:postgresql')
     testCompile('org.springframework.boot:spring-boot-starter-test')
