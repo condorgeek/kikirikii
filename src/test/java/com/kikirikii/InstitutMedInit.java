@@ -195,17 +195,67 @@ public class InstitutMedInit {
                     "Spenden Projekt", space);
         });
 
-        /* step 8 - create sammelband 2019  posts */
-        spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
-            createSpacePostsMultiMedia("institutmed/sammelband-19.csv", "sammelband-2019/cover",
-                    "Sammelband 2019", space);
-        });
-
-        /* step 9 - create presseschau  posts */
+        /* step 8 - create presseschau  posts */
         spaceService.findBySpacename("Presseschau").ifPresent(space -> {
             createSpacePostsMultiMedia("institutmed/presseschau.csv", "presseschau/cover",
                     "Presseschau", space);
         });
+    }
+
+    @Test
+    public void createSammelbandPosts() {
+        /* step 1 - create sammelband 2019  posts */
+        spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2019.csv", "sammelbaender/0-sammelband-2019/cover",
+                    "Sammelband 2019", space);
+        });
+
+        /* step 2 - create sammelband 2018  posts */
+        spaceService.findBySpacename("Sammelband 2018").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2018.csv", "sammelbaender/1-sammelband-2018/cover",
+                    "Sammelband 2018", space);
+        });
+
+        /* step 3 - create sammelband 2016  posts */
+        spaceService.findBySpacename("Sammelband 2016").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2016.csv", "sammelbaender/2-sammelband-2016/cover",
+                    "Sammelband 2016", space);
+        });
+
+        /* step 4 - create sammelband 2015  posts */
+        spaceService.findBySpacename("Sammelband 2015").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2015.csv", "sammelbaender/3-sammelband-2015/cover",
+                    "Sammelband 2015", space);
+        });
+
+        /* step 5 - create sammelband 2014  posts */
+        spaceService.findBySpacename("Sammelband 2014").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2014.csv", "sammelbaender/4-sammelband-2014/cover",
+                    "Sammelband 2014", space);
+        });
+
+        /* step 6 - create Der Grosse Lebenskreis  posts */
+        spaceService.findBySpacename("Der grosse Lebenskreis").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/grosser_lebenskreis.csv", "sammelbaender/5-grosser-lebenskreis/cover",
+                    "Der grosse Lebenskreis", space);
+        });
+
+        /* step 7 - create Handbuch der Ethnotherapien  posts */
+        spaceService.findBySpacename("Handbuch der Ethnotherapien").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/handbuch_ethnotherapien.csv", "sammelbaender/6-handbuch_ethnotherapien/cover",
+                    "Handbuch der Ethnotherapien", space);
+        });
+
+        /* step 8 - create Weitere Publikationen  posts */
+        spaceService.findBySpacename("Weitere Publikationen").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/weitere_publikationen.csv", "sammelbaender/7-weitere_publikationen/cover",
+                    "Weitere Publikationen", space);
+        });
+    }
+
+    @Test
+    public void createVergangeneVeranstaltungenPosts() {
+
     }
 
     @Test
