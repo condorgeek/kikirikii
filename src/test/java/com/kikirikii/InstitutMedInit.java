@@ -457,10 +457,12 @@ public class InstitutMedInit {
         team.stream().map(member -> member.split("§"))
                 .sorted((attrs1, attrs2) -> attrs2[lastname].compareTo(attrs1[lastname]))
                 .forEach(attrs -> {
+                    String __username = attrs[username].trim().toLowerCase();
+
                     userService.findByUsername(attrs[username]).ifPresent(user -> {
                         try {
                             String fullname = "<h4>" + attrs[firstname] + " " + attrs[lastname] + "</h4>";
-                            String mediapath = copyMedia(thumbspath, attrs[username], attrs[username]);
+                            String mediapath = copyMedia(thumbspath, __username, __username);
 
                             // create post in generic space
                             userService.addPost(space, user, attrs[aboutYou], fullname + attrs[work],
@@ -496,11 +498,14 @@ public class InstitutMedInit {
                 .sorted((attrs1, attrs2) -> Integer.valueOf(attrs2[ranking]) > Integer.valueOf(attrs1[ranking]) ? 1 : -1)
                 .forEach(attrs -> {
                     try {
-                        User user = !attrs[username].equals("") ? userService.getUser(attrs[username]) : defaultuser;
+                        String __username = attrs[username].trim().toLowerCase();
+                        String __cover = attrs[cover].trim().toLowerCase();
+
+                        User user = !attrs[username].equals("") ? userService.getUser(__username) : defaultuser;
                         if (user != null) {
                             String subtitle = "<h6>" + detail + "</h6> ";
 
-                            List<String> pathlist = copyMultiMedia(thumbspath, user.getUsername(), attrs[cover]);
+                            List<String> pathlist = copyMultiMedia(thumbspath, user.getUsername(), __cover);
 
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
@@ -509,7 +514,7 @@ public class InstitutMedInit {
                             userService.addPost(space, user, attrs[title].trim(), subtitle + attrs[text],
                                     asMediaList(pathlist), Integer.parseInt(attrs[ranking]));
 
-                            System.out.println(attrs[ranking] + " " + attrs[username] + " " + attrs[title] + " ");
+                            System.out.println(attrs[ranking] + " " + __username + " " + attrs[title] + " ");
                         }
                     } catch (Exception e) {
                         logger.warning(e.getMessage());
