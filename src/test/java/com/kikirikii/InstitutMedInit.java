@@ -35,9 +35,12 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * Collection of quick hacks for initializing the kikirikii database. Could be used as basis for some bot apis.
@@ -254,7 +257,79 @@ public class InstitutMedInit {
     }
 
     @Test
+    public void createMedienarchivPosts() {
+        /* step 1 */
+        spaceService.findBySpacename("Medienarchiv").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/medienarchiv.csv", "medienarchiv/cover",
+                    "Weitere Publikationen", space);
+        });
+    }
+
+    @Test
     public void createVergangeneVeranstaltungenPosts() {
+//        /* step 1 - create weltkongress 2018  posts */
+//        spaceService.findBySpacename("Weltkongress Mai 2018").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/weltkongress-2018.csv",
+//                    "vergangene-veranstaltungen/0-weltkongress-2018/cover",
+//                    "Weltkongress 2018", space);
+//        });
+
+//        /* step 2 - create weltkongress 2018  posts */
+//        spaceService.findBySpacename("Gesundheitsmesse Mai 2018").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/gesundheitsmesse-18.csv",
+//                    "vergangene-veranstaltungen/1-gesundheitsmesse-18/cover",
+//                    "Gesundheitsmesse 2018", space);
+//        });
+//
+//        /* step 3 */
+//        spaceService.findBySpacename("Konzert The Calling Mai 2018").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/calling-2018.csv",
+//                    "vergangene-veranstaltungen/2-konzert-calling-2018/cover",
+//                    "Calling 2018", space);
+//        });
+//
+//        /* step 4 */
+//        spaceService.findBySpacename("Erlebnisabend März 2018").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/erlebnisabend-2018.csv",
+//                    "vergangene-veranstaltungen/3-erlebnisabend-2018/cover",
+//                    "Erlebnisabend 2018", space);
+//        });
+//
+//        /* step 5 */
+//        spaceService.findBySpacename("Vortragsabend Okt 2017").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/vortragsabend-okt-17.csv",
+//                    "vergangene-veranstaltungen/5-vortragsabend-okt-2017/cover",
+//                    "Vortragsabend 2017", space);
+//        });
+//
+//        /* step 6 */
+//        spaceService.findBySpacename("Praxis Seminar Okt 2017").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/praxis-okt-17.csv",
+//                    "vergangene-veranstaltungen/6-praxis-okt-2017/cover",
+//                    "Praxis 2017", space);
+//        });
+//
+//        /* step 7 */
+//        spaceService.findBySpacename("Gesundheitsmesse Mai 2017").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/gm-mai-2017.csv",
+//                    "vergangene-veranstaltungen/7-gesundheitsmesse-mai-2017/cover",
+//                    "Gesundheitsmesse 2017", space);
+//        });
+
+        /* step 8 */
+        spaceService.findBySpacename("Weltkongress Mai 2017").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/weltkongress-17.csv",
+                    "vergangene-veranstaltungen/8-weltkongress-mai-2017/cover",
+                    "Weltkongress 2017", space);
+        });
+
+//        /* step 9 */
+//        spaceService.findBySpacename("Faun Mai 2017").ifPresent(space -> {
+//            createSpacePostsMultiMedia("institutmed/vergangene/faun-mai-17.csv",
+//                    "vergangene-veranstaltungen/9-faun-mai-2017/cover",
+//                    "Faun 2017", space);
+//        });
+
 
     }
 
@@ -294,6 +369,40 @@ public class InstitutMedInit {
             String datenschutz = PersistenceInit.Loader.read("institutmed/pages/privacy-policy.html");
             pageService.createPage(Page.of("privacy-policy", datenschutz, Page.Type.CUSTOM));
         });
+    }
+
+    @Test
+    public void matchYouTubeRegex() {
+        String[] list = {"http://youtu.be/iwGFalTRHDA",
+                "http://www.youtube.com/embed/watch?feature=player_embedded&v=iwGFalTRHDA",
+                "http://www.youtube.com/embed/watch?v=iwGFalTRHDA",
+                "http://www.youtube.com/embed/v=iwGFalTRHDA",
+                "http://www.youtube.com/watch?feature=player_embedded&v=iwGFalTRHDA",
+                "http://www.youtube.com/watch?v=iwGFalTRHDA",
+                "www.youtube.com/watch?v=iwGFalTRHDA",
+                "www.youtu.be/iwGFalTRHDA",
+                "youtu.be/iwGFalTRHDA",
+                "youtube.com/watch?v=iwGFalTRHDA",
+                "http://www.youtube.com/watch/iwGFalTRHDA",
+                "http://www.youtube.com/v/iwGFalTRHDA",
+                "http://www.youtube.com/v/i_GFalTRHDA",
+                "http://www.youtube.com/watch?v=i-GFalTRHDA&feature=related",
+                "http://www.youtube.com/attribution_link?u=/watch?v=aGmiw_rrNxk&feature=share&a=9QlmP1yvjcllp0h3l0NwuA",
+                "http://www.youtube.com/attribution_link?a=fF1CWYwxCQ4&u=/watch?v=qYr8opTPSaQ&feature=em-uploademail",
+                "http://www.youtube.com/attribution_link?a=fF1CWYwxCQ4&feature=em-uploademail&u=/watch?v=qYr8opTPSaQ",
+                "https://www.youtube.com/watch?v=ZsiQVScH1Qo&feature=youtu.be"};
+
+        Arrays.stream(list).forEach(entry -> {
+            System.out.println(match(entry) + " " + entry);
+        });
+
+    }
+
+    private static Pattern youtube = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)",
+    Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);
+
+    private boolean match(String url) {
+        return youtube.matcher(url).find();
     }
 
     private void createGenericSpaces(User user, String filename, String sourcepath) {
@@ -499,13 +608,15 @@ public class InstitutMedInit {
                 .forEach(attrs -> {
                     try {
                         String __username = attrs[username].trim().toLowerCase();
-                        String __cover = attrs[cover].trim().toLowerCase();
+                        String __cover = attrs[cover].trim();
+                        boolean isYoutube = match(__cover);
 
                         User user = !attrs[username].equals("") ? userService.getUser(__username) : defaultuser;
                         if (user != null) {
                             String subtitle = "<h6>" + detail + "</h6> ";
 
-                            List<String> pathlist = copyMultiMedia(thumbspath, user.getUsername(), __cover);
+                            List<String> pathlist = isYoutube ? asList.apply(__cover) :copyMultiMedia(thumbspath,
+                                    user.getUsername(), __cover.toLowerCase());
 
                             if (!spaceService.isMember(space.getId(), user)) {
                                 spaceService.addMember(space, user, user, "MEMBER");
@@ -531,6 +642,8 @@ public class InstitutMedInit {
         });
         return list;
     }
+
+    private Function<String, List<String>> asList = s -> {List<String> l = new ArrayList<>(); l.add(s); return l;};
 
     private void createSpacePosts(String filename, String thumbspath, String detail, Space space) {
         int ranking = 0, username = 1, cover = 2, title = 3, text = 4;
@@ -856,5 +969,7 @@ public class InstitutMedInit {
                     }
                 });
     }
+
+
 
 }
