@@ -100,23 +100,23 @@ public class InstitutMedInit {
     @Test
     public void createChildSpaces() {
 
-        /* create child spaces for sammelband */
+        /* create child spaces for buecher */
         userService.findByUsername(SUPERUSER).ifPresent(user -> {
             createGenericSpaces(user, "institutmed/sammelbaender.csv", "sammelbaender/cover");
         });
 
         /* assign to parent space */
-        spaceService.findBySpacename("Sammelband 2019").ifPresent(parent -> {
+        spaceService.findBySpacename("Bücher").ifPresent(parent -> {
             assignChildSpaces(parent, "institutmed/sammelbaender.csv");
         });
 
-        /* create child spaces for vergangene veranstaltungen */
+        /* create child spaces for alle veranstaltungen */
         userService.findByUsername(SUPERUSER).ifPresent(user -> {
             createGenericSpaces(user, "institutmed/vergangene-veranstaltungen.csv", "vergangene-veranstaltungen/cover");
         });
 
         /* assign to parent space */
-        spaceService.findBySpacename("Vergangene Veranstaltungen").ifPresent(parent -> {
+        spaceService.findBySpacename("Alle Veranstaltungen").ifPresent(parent -> {
             assignChildSpaces(parent, "institutmed/vergangene-veranstaltungen.csv");
         });
 
@@ -206,7 +206,7 @@ public class InstitutMedInit {
     }
 
     @Test
-    public void createSammelbandPosts() {
+    public void createBuecherPosts() {
         /* step 1 - create sammelband 2019  posts */
         spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
             createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2019.csv", "sammelbaender/0-sammelband-2019/cover",
@@ -261,60 +261,60 @@ public class InstitutMedInit {
         /* step 1 */
         spaceService.findBySpacename("Medienarchiv").ifPresent(space -> {
             createSpacePostsMultiMedia("institutmed/medienarchiv.csv", "medienarchiv/cover",
-                    "Weitere Publikationen", space);
+                    "Medienarchiv", space);
         });
     }
 
     @Test
-    public void createVergangeneVeranstaltungenPosts() {
-//        /* step 1 - create weltkongress 2018  posts */
-//        spaceService.findBySpacename("Weltkongress Mai 2018").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/weltkongress-2018.csv",
-//                    "vergangene-veranstaltungen/0-weltkongress-2018/cover",
-//                    "Weltkongress 2018", space);
-//        });
+    public void createAlleVeranstaltungenPosts() {
+        /* step 1 - create weltkongress 2018  posts */
+        spaceService.findBySpacename("Weltkongress Mai 2018").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/weltkongress-2018.csv",
+                    "vergangene-veranstaltungen/0-weltkongress-2018/cover",
+                    "Weltkongress 2018", space);
+        });
 
-//        /* step 2 - create weltkongress 2018  posts */
-//        spaceService.findBySpacename("Gesundheitsmesse Mai 2018").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/gesundheitsmesse-18.csv",
-//                    "vergangene-veranstaltungen/1-gesundheitsmesse-18/cover",
-//                    "Gesundheitsmesse 2018", space);
-//        });
-//
-//        /* step 3 */
-//        spaceService.findBySpacename("Konzert The Calling Mai 2018").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/calling-2018.csv",
-//                    "vergangene-veranstaltungen/2-konzert-calling-2018/cover",
-//                    "Calling 2018", space);
-//        });
-//
-//        /* step 4 */
-//        spaceService.findBySpacename("Erlebnisabend März 2018").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/erlebnisabend-2018.csv",
-//                    "vergangene-veranstaltungen/3-erlebnisabend-2018/cover",
-//                    "Erlebnisabend 2018", space);
-//        });
-//
-//        /* step 5 */
-//        spaceService.findBySpacename("Vortragsabend Okt 2017").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/vortragsabend-okt-17.csv",
-//                    "vergangene-veranstaltungen/5-vortragsabend-okt-2017/cover",
-//                    "Vortragsabend 2017", space);
-//        });
-//
-//        /* step 6 */
-//        spaceService.findBySpacename("Praxis Seminar Okt 2017").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/praxis-okt-17.csv",
-//                    "vergangene-veranstaltungen/6-praxis-okt-2017/cover",
-//                    "Praxis 2017", space);
-//        });
-//
-//        /* step 7 */
-//        spaceService.findBySpacename("Gesundheitsmesse Mai 2017").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/gm-mai-2017.csv",
-//                    "vergangene-veranstaltungen/7-gesundheitsmesse-mai-2017/cover",
-//                    "Gesundheitsmesse 2017", space);
-//        });
+        /* step 2 - create weltkongress 2018  posts */
+        spaceService.findBySpacename("Gesundheitsmesse Mai 2018").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/gesundheitsmesse-18.csv",
+                    "vergangene-veranstaltungen/1-gesundheitsmesse-18/cover",
+                    "Gesundheitsmesse 2018", space);
+        });
+
+        /* step 3 */
+        spaceService.findBySpacename("Konzert The Calling Mai 2018").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/calling-2018.csv",
+                    "vergangene-veranstaltungen/2-konzert-calling-2018/cover",
+                    "Calling 2018", space);
+        });
+
+        /* step 4 */
+        spaceService.findBySpacename("Erlebnisabend März 2018").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/erlebnisabend-2018.csv",
+                    "vergangene-veranstaltungen/3-erlebnisabend-2018/cover",
+                    "Erlebnisabend 2018", space);
+        });
+
+        /* step 5 */
+        spaceService.findBySpacename("Vortragsabend Okt 2017").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/vortragsabend-okt-17.csv",
+                    "vergangene-veranstaltungen/5-vortragsabend-okt-2017/cover",
+                    "Vortragsabend 2017", space);
+        });
+
+        /* step 6 */
+        spaceService.findBySpacename("Praxis Seminar Okt 2017").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/praxis-okt-17.csv",
+                    "vergangene-veranstaltungen/6-praxis-okt-2017/cover",
+                    "Praxis 2017", space);
+        });
+
+        /* step 7 */
+        spaceService.findBySpacename("Gesundheitsmesse Mai 2017").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/gm-mai-2017.csv",
+                    "vergangene-veranstaltungen/7-gesundheitsmesse-mai-2017/cover",
+                    "Gesundheitsmesse 2017", space);
+        });
 
         /* step 8 */
         spaceService.findBySpacename("Weltkongress Mai 2017").ifPresent(space -> {
@@ -323,13 +323,12 @@ public class InstitutMedInit {
                     "Weltkongress 2017", space);
         });
 
-//        /* step 9 */
-//        spaceService.findBySpacename("Faun Mai 2017").ifPresent(space -> {
-//            createSpacePostsMultiMedia("institutmed/vergangene/faun-mai-17.csv",
-//                    "vergangene-veranstaltungen/9-faun-mai-2017/cover",
-//                    "Faun 2017", space);
-//        });
-
+        /* step 9 */
+        spaceService.findBySpacename("Faun Mai 2017").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/vergangene/faun-mai-17.csv",
+                    "vergangene-veranstaltungen/9-faun-mai-2017/cover",
+                    "Faun 2017", space);
+        });
 
     }
 
