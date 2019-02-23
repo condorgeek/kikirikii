@@ -207,6 +207,13 @@ public class InstitutMedInit {
 
     @Test
     public void createBuecherPosts() {
+        /* step 0 - create post of buecher home */
+        spaceService.findBySpacename("Bücher").ifPresent(space -> {
+            createSpacePostsMultiMedia("institutmed/publikationen/buecher-home.csv",
+                    "sammelbaender/00-buecher-home/cover",
+                    "Bücher", space);
+        });
+
         /* step 1 - create sammelband 2019  posts */
         spaceService.findBySpacename("Sammelband 2019").ifPresent(space -> {
             createSpacePostsMultiMedia("institutmed/publikationen/sammelband-2019.csv", "sammelbaender/0-sammelband-2019/cover",
@@ -277,7 +284,7 @@ public class InstitutMedInit {
         /* step 2 - create weltkongress 2018  posts */
         spaceService.findBySpacename("Gesundheitsmesse Mai 2018").ifPresent(space -> {
             createSpacePostsMultiMedia("institutmed/vergangene/gesundheitsmesse-18.csv",
-                    "vergangene-veranstaltungen/1-gesundheitsmesse-18/cover",
+                    "vergangene-veranstaltungen/1-gesundheitsmesse-2018/cover",
                     "Gesundheitsmesse 2018", space);
         });
 
