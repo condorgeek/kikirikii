@@ -120,6 +120,28 @@ public class InstitutMedInit {
             assignChildSpaces(parent, "institutmed/vergangene-veranstaltungen.csv");
         });
 
+        /* create child spaces for weltkongress 2019 */
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            createGenericSpaces(user, "institutmed/children/wk19_children.csv",
+                    "spaces/cover");
+        });
+
+        /* assign to parent space */
+        spaceService.findBySpacename("Weltkongress 2019").ifPresent(parent -> {
+            assignChildSpaces(parent, "institutmed/children/wk19_children.csv");
+        });
+
+        /* create child spaces for gesundheitsmesse 2019 */
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            createGenericSpaces(user, "institutmed/children/gm19_children.csv",
+                    "spaces/cover");
+        });
+
+        /* assign to parent space */
+        spaceService.findBySpacename("Gesundheitsmesse 2019").ifPresent(parent -> {
+            assignChildSpaces(parent, "institutmed/children/gm19_children.csv");
+        });
+
         /* assign events */
 //        spaceService.findBySpacename("Weltkongress 2019").ifPresent(parent -> {
 //            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
