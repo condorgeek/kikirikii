@@ -29,7 +29,7 @@ import java.util.Date;
 public class Widget {
 
     public enum Position {
-        LTOP, LBOTTOM, RTOP, RBOTTOM, MTOP, MBOTTOM
+        LTOP, LBOTTOM, RTOP, RBOTTOM, MTOP, MBOTTOM, TOP, BOTTOM
     }
 
     public enum Type {TEXT, SPACE, USER, CUSTOM, EXTERNAL}

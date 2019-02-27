@@ -177,8 +177,9 @@ public class SpaceRequest {
         if(access != null) { space.setAccess(access); }
         if(ranking != null) {space.setRanking(ranking); }
 
-        LocalDate startDate = this.startDate != null ? LocalDate.parse(this.startDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null;
-        LocalDate endDate = this.endDate != null ? LocalDate.parse(this.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null;
+        /* ISO_DATE = YYYY-MM-DD */
+        LocalDate startDate = this.startDate != null ? LocalDate.parse(this.startDate, DateTimeFormatter.ISO_DATE) : null;
+        LocalDate endDate = this.endDate != null ? LocalDate.parse(this.endDate, DateTimeFormatter.ISO_DATE) : null;
 
         if(space.getSpacedata() == null) {
             SpaceData spaceData = SpaceData.of(space, null, startDate, endDate, generalInformation,
