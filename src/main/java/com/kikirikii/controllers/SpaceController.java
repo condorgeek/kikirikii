@@ -14,6 +14,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.RankingRequest;
 import com.kikirikii.model.dto.SpaceMediaRequest;
 import com.kikirikii.model.dto.SpaceRequest;
 import com.kikirikii.model.dto.WidgetRequest;
@@ -157,6 +158,12 @@ public class SpaceController {
         List<Space> shops = spaceService.getMemberOfSpacesByType(Space.Type.SHOP, user.getId());
 
         return utils.spacesAsMap(generic, events, shops);
+    }
+
+    @RequestMapping(value = "/spaces/ranking", method = RequestMethod.PUT)
+    public List<Space> reorderSpacesRanking(@PathVariable String userName, @RequestBody RankingRequest ranking) {
+        User user = userService.getUser(userName);
+        return spaceService.reorderRanking(ranking);
     }
 
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)

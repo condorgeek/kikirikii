@@ -25,6 +25,7 @@ public class SpaceRequest {
     // mandatory
     private String name;
     private String description;
+    private Integer ranking;
     private Space.Access access;
 
     //spacedata
@@ -161,11 +162,20 @@ public class SpaceRequest {
         this.dates = dates;
     }
 
+    public int getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(int ranking) {
+        this.ranking = ranking;
+    }
+
     public Space update(Space space) {
 
         if(name != null) { space.setName(name); }
         if(description != null) { space.setDescription(description); }
         if(access != null) { space.setAccess(access); }
+        if(ranking != null) {space.setRanking(ranking); }
 
         LocalDate startDate = this.startDate != null ? LocalDate.parse(this.startDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null;
         LocalDate endDate = this.endDate != null ? LocalDate.parse(this.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null;

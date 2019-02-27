@@ -182,9 +182,9 @@ public class UserService {
         // TODO support for space media array
         try {
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Home", cover, null, null, description, Space.Type.HOME, Space.Access.PUBLIC));
+                    user.getUsername() + " Home", cover, null, null, description, Space.Type.HOME, 0, Space.Access.PUBLIC));
             spaceRepository.save(Space.of(user,
-                    user.getUsername() + " Global", cover, null, null, description, Space.Type.GLOBAL, Space.Access.PUBLIC));
+                    user.getUsername() + " Global", cover, null, null, description, Space.Type.GLOBAL, 0, Space.Access.PUBLIC));
 
         } catch (Exception e) {
             throw new InvalidResourceException("User spaces cannot be created. " + e.getMessage());

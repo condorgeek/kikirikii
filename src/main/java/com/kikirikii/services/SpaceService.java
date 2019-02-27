@@ -16,6 +16,7 @@ package com.kikirikii.services;
 import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.RankingRequest;
 import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.MemberRepository;
@@ -31,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -55,6 +58,18 @@ public class SpaceService {
         }
 
         throw new InvalidResourceException("Space Id " + id + " is invalid.");
+    }
+
+    public List<Space> reorderRanking(RankingRequest rankingRequest) {
+        List<Space> spaces = new ArrayList<>();
+        Arrays.stream(rankingRequest.getRanks()).forEach(rank -> {
+            spaceRepository.findById(rank.getSpaceId()).ifPresent(space ->{
+                space.setRanking(rank.getRanking());
+                spaces.add(spaceRepository.save(space));
+            });
+        });
+
+        return spaces;
     }
 
     /* Achtung! potentially dangerous call might return more than one result / for testing only */
@@ -104,6 +119,7 @@ public class SpaceService {
         try {
             Space space = spaceRepository.save(Space.of(user, name, description,
                     Space.Type.valueOf(type.toUpperCase()), Space.Access.valueOf(access)));
+            space.setSpacedata(SpaceData.of());
 
              memberRepository.save(Member.of(space, user, State.ACTIVE, Member.Role.OWNER));
             return space;
@@ -120,7 +136,7 @@ public class SpaceService {
             LocalDate start = LocalDate.parse(startdate, DateTimeFormatter.ISO_DATE); // YYYY-MM-DD
             LocalDate end = LocalDate.parse(enddate, DateTimeFormatter.ISO_DATE); // YYYY-MM-DD
 
-            return createSpaceAndJoin(user, type, name, null, null, description, access,
+            return createSpaceAndJoin(user, type, name, null, null, description, 0, access,
                     SpaceData.of(null, start, end));
 
         } catch (DateTimeParseException e) {
@@ -128,12 +144,13 @@ public class SpaceService {
         }
     }
 
-    public Space createSpaceAndJoin(User user, String type, String name, String icon, String cover, String description, String access,
-                                        SpaceData spaceData) {
+    public Space createSpaceAndJoin(User user, String type, String name, String icon, String cover, String description,
+                                    int ranking, String access, SpaceData spaceData) {
 
         // TODO cover support deprecated - use media
         try {
-            Space space = Space.of(user, name, cover, null, icon, description, Space.Type.valueOf(type), Space.Access.valueOf(access));
+            Space space = Space.of(user, name, cover, null, icon, description, Space.Type.valueOf(type),
+                    ranking, Space.Access.valueOf(access));
             if(cover != null) {
                 space.addMedia(SpaceMedia.of(cover, MediaType.PICTURE));
             }

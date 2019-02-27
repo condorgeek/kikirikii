@@ -112,6 +112,13 @@ public class SpaceData {
         return data;
     }
 
+    public static SpaceData of() {
+        SpaceData data = new SpaceData();
+        data.state = State.ACTIVE;
+        data.created = new Date();
+        return data;
+    }
+
     public static SpaceData of(Space space, LocalDate startDate, LocalDate endDate) {
         SpaceData data = new SpaceData();
         data.space = space;

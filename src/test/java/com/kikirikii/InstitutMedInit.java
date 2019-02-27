@@ -400,6 +400,14 @@ public class InstitutMedInit {
     }
 
     @Test
+    public void dummy() {
+        userService.findByUsername(SUPERUSER).ifPresent(user -> {
+            createGenericSpaces(user, "institutmed/spaces-bak.csv", "spaces/cover");
+        });
+
+    }
+
+    @Test
     public void matchYouTubeRegex() {
         String[] list = {"http://youtu.be/iwGFalTRHDA",
                 "http://www.youtube.com/embed/watch?feature=player_embedded&v=iwGFalTRHDA",
@@ -434,7 +442,7 @@ public class InstitutMedInit {
     }
 
     private void createGenericSpaces(User user, String filename, String sourcepath) {
-        int pos = 0, type = 1, name = 2, icon = 3, description = 4, start_date = 5, web = 6, general_information = 7,
+        int ranking = 0, type = 1, name = 2, icon = 3, description = 4, start_date = 5, web = 6, general_information = 7,
                 key_dates = 8, city = 9, venue = 10, travel_information = 11, tickets = 12, dates = 13;
 
         List<String> spaces = PersistenceInit.Loader.load(filename);
@@ -445,7 +453,7 @@ public class InstitutMedInit {
                     try {
                         Space space = spaceService.createSpaceAndJoin(user, getType(attrs[type]),
                                 attrs[name].trim(),
-                                getIcon(attrs[icon]), null, attrs[description], "PUBLIC",
+                                getIcon(attrs[icon]), null, attrs[description], Integer.parseInt(attrs[ranking]), "PUBLIC",
                                 SpaceData.of(null,
                                         getLocalDate(attrs[type], attrs[start_date]),
                                         getLocalDate(attrs[type], attrs[start_date]),
@@ -464,7 +472,7 @@ public class InstitutMedInit {
                         String cover = copyCover(sourcepath, targetpath, asCover(attrs[name].trim()));
                         spaceService.updateCoverPath(space, cover);
 
-                        System.out.println(attrs[pos] + " " + attrs[name] + " " + cover);
+                        System.out.println(attrs[ranking] + " " + attrs[name] + " " + cover);
 
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -111,12 +111,12 @@ public class Space {
 
     public static Space of(User user, String name, List<SpaceMedia> media, String icon, String description, Type type,
                            Access access) {
-        return of(user, name, null, media, icon, description, type, access);
+        return of(user, name, null, media, icon, description, type, 0, access);
     }
 
     @Deprecated
     public static Space of(User user, String name, String cover, List<SpaceMedia> media, String icon, String description, Type type,
-                           Access access) {
+                           int ranking, Access access) {
         Space space = new Space();
         space.user = user;
         space.name = name;
@@ -131,7 +131,7 @@ public class Space {
         space.type = type;
         space.icon = icon;
         space.access = access;
-        space.ranking = 0;
+        space.ranking = ranking;
         space.state = State.ACTIVE;
         space.created = new Date();
 
