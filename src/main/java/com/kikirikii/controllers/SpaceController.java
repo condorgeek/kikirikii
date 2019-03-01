@@ -14,10 +14,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.model.*;
-import com.kikirikii.model.dto.RankingRequest;
-import com.kikirikii.model.dto.SpaceMediaRequest;
-import com.kikirikii.model.dto.SpaceRequest;
-import com.kikirikii.model.dto.WidgetRequest;
+import com.kikirikii.model.dto.*;
 import com.kikirikii.security.authorization.JwtAuthorizationToken;
 import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.*;
@@ -164,6 +161,15 @@ public class SpaceController {
     public List<Space> reorderSpacesRanking(@PathVariable String userName, @RequestBody RankingRequest ranking) {
         User user = userService.getUser(userName);
         return spaceService.reorderRanking(ranking);
+    }
+
+    @RequestMapping(value = "/spaces/{spaceId}/assign")
+    public Space addSpaceChildren(@PathVariable String userName, @PathVariable Long spaceId,
+                                           @RequestBody ChildrenRequest childrenRequest) {
+        User user = userService.getUser(userName);
+        Space space = spaceService.getSpace(spaceId);
+
+        return spaceService.addChildren(space, childrenRequest.getChildren());
     }
 
     @RequestMapping(value = "/space/{spaceId}/members", method = RequestMethod.GET)

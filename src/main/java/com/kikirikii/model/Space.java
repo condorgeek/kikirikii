@@ -16,11 +16,13 @@ package com.kikirikii.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kikirikii.model.enums.State;
 import org.hibernate.annotations.Where;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -66,9 +68,10 @@ public class Space {
 //    @ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id")
+    @Nullable
     private Space parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.EAGER)
     @Where(clause = "state in ('ACTIVE')")
     @OrderBy("ranking DESC")
     private List<Space> children = new ArrayList<>();
@@ -189,6 +192,12 @@ public class Space {
     public Space removeChild(Space child) {
         this.children.remove(child);
         child.setParent(null);
+        return this;
+    }
+
+    public Space removeChildren() {
+        this.children.forEach(child -> child.setParent(null));
+        this.children.clear();
         return this;
     }
 

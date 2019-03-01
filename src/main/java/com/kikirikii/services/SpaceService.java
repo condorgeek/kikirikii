@@ -24,7 +24,7 @@ import com.kikirikii.repos.SpaceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;  // Achtung: collision with own Page class
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +87,20 @@ public class SpaceService {
 
     public Stream<Space> searchByTermAsStream(String term, Integer size) {
         return spaceRepository.searchActiveByTerm(term);
+    }
+
+    public Space addChildren(Space parent, String[] children) {
+        parent = spaceRepository.save(parent.removeChildren()); // parent.removeChildren();
+
+        for (String name : children) {
+            try {
+                spaceRepository.findBySpacename(name).ifPresent(parent::addChild);
+            } catch (Exception e) {
+                logger.info(e.getMessage()); // gracefully handle space name duplicates
+            }
+        }
+
+        return spaceRepository.save(parent);
     }
 
     public Space addChild(Space parent, Space child) {
