@@ -240,7 +240,7 @@ public class PublicController {
     public List<Space> getUserSpaces(@PathVariable String userName, @PathVariable String spaceType) {
 
         User user = resolvePublicUser(userName);
-        return spaceService.getMemberOfSpacesByType(spaceType, user.getId());
+        return spaceService.getPublicSpacesByType(spaceType, user.getId());
     }
 
     // TODO check this one - is it doing anything at all ?

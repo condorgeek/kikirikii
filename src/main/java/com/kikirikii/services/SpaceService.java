@@ -90,7 +90,7 @@ public class SpaceService {
     }
 
     public Space addChildren(Space parent, String[] children) {
-        parent = spaceRepository.save(parent.removeChildren()); // parent.removeChildren();
+        parent = removeChildren(parent);
 
         for (String name : children) {
             try {
@@ -109,6 +109,13 @@ public class SpaceService {
 
     public Space removeChild(Space parent, Space child) {
         return spaceRepository.save(parent.removeChild(child));
+    }
+
+    public Space removeChildren(Space space) {
+        if(space.getChildren() == null || space.getChildren().size() > 0) {
+            return spaceRepository.save(space.removeChildren());
+        }
+        return space;
     }
 
     public Member getMember(Long spaceId, String username) {
@@ -205,6 +212,7 @@ public class SpaceService {
     }
 
     public Space deleteSpace(Space space) {
+        space = removeChildren(space);
         space.setState(State.DELETED);
         return spaceRepository.save(space);
     }
@@ -326,6 +334,11 @@ public class SpaceService {
 
     public List<Space> getMemberOfSpacesByType(String type, Long userId) {
         return memberRepository.findMemberOfByTypeAndUserId(Space.Type.valueOf(type), userId).stream()
+                .map(Member::getSpace).collect(Collectors.toList());
+    }
+
+    public List<Space> getPublicSpacesByType(String type, Long userId) {
+        return memberRepository.findPublicByTypeAndUserId(Space.Type.valueOf(type), userId).stream()
                 .map(Member::getSpace).collect(Collectors.toList());
     }
 

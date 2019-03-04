@@ -24,7 +24,6 @@ public class Site {
     @Deprecated
     private String style;
     private String theme;
-    @JsonIgnore
     private String publicpage;
     @JsonIgnore
     private String superuser;
