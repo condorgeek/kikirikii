@@ -105,34 +105,39 @@ public class SpaceController {
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/widgets/space/{spaceId}", method = RequestMethod.POST)
-    public Widget createSpaceWidget(@PathVariable String userName, @PathVariable Long spaceId,
-                               @RequestBody WidgetRequest values) {
+    @RequestMapping(value = "/widgets/space/create", method = RequestMethod.POST)
+    public Widget createSpaceWidget(@PathVariable String userName, @RequestBody WidgetRequest values) {
         User user = userService.getUser(userName);
 
-        Space space = spaceService.getSpace(spaceId);
+        Space space = spaceService.getSpace(values.getText());
         return widgetService.save(space, values.getPosition(), values.getRanking());
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/widgets/user/{targetUsername}", method = RequestMethod.POST)
-    public Widget createUserWidget(@PathVariable String userName, @PathVariable String targetUsername,
-                               @RequestBody WidgetRequest values) {
+    @RequestMapping(value = "/widgets/user/create", method = RequestMethod.POST)
+    public Widget createUserWidget(@PathVariable String userName, @RequestBody WidgetRequest values) {
         User user = userService.getUser(userName);
 
-        User target = userService.getUser(targetUsername);
+        User target = userService.getUser(values.getText());
         return widgetService.save(target, values.getPosition(), values.getRanking());
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/widgets/text/{targetUrl}", method = RequestMethod.POST)
-    public Widget createTextWidget(@PathVariable String userName, @PathVariable String targetUrl,
-                               @RequestBody WidgetRequest values) {
-
+    @RequestMapping(value = "/widgets/text/create", method = RequestMethod.POST)
+    public Widget createTextWidget(@PathVariable String userName, @RequestBody WidgetRequest values) {
         User user = userService.getUser(userName);
 
-        return widgetService.save(targetUrl, values.getCover(), values.getTitle(), values.getText(),
+        return widgetService.save(values.getUrl(), values.getCover(), values.getTitle(), values.getText(),
                 values.getPosition(), values.getRanking());
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/widgets/{widgetId}/delete", method = RequestMethod.DELETE)
+    public Widget deleteWidget(@PathVariable String userName, @PathVariable Long widgetId) {
+        User user = userService.getUser(userName);
+        Widget widget = widgetService.getWidget(widgetId);
+
+        return widgetService.delete(widget);
     }
 
     /*  active, generic|shop|event and restricted spaces */

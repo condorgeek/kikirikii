@@ -60,6 +60,19 @@ public class SpaceService {
         throw new InvalidResourceException("Space Id " + id + " is invalid.");
     }
 
+    public Space getSpace(String spacename) {
+        try {
+            Optional<Space> space = spaceRepository.findBySpacename(spacename);
+            if(space.isPresent()) {
+                return space.get();
+            }
+            throw new InvalidResourceException("Space " + spacename + " is invalid.");
+
+        } catch (Exception e) { // try block to catch any duplicates in space name
+            throw new InvalidResourceException("Space " + spacename + " is invalid or duplicate." + e.getMessage());
+        }
+    }
+
     public List<Space> reorderRanking(RankingRequest rankingRequest) {
         List<Space> spaces = new ArrayList<>();
         Arrays.stream(rankingRequest.getRanks()).forEach(rank -> {

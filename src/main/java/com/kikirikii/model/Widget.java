@@ -75,7 +75,9 @@ public class Widget {
 
     public static Widget of(Space space, Position pos, int ranking) {
         String url = space.getUser().getUsername() + "/space/" + space.getId();
-        return of(url, space.getCover(), space.getName(), space.getDescription(),
+        String media = space.getMedia().size() > 0 ? space.getMedia().get(0).getUrl() : null;
+
+        return of(url, media, space.getName(), space.getDescription(),
                 pos, Type.SPACE, ranking);
     }
 
