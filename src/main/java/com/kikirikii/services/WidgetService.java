@@ -17,6 +17,7 @@ import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.Space;
 import com.kikirikii.model.User;
 import com.kikirikii.model.Widget;
+import com.kikirikii.model.dto.WidgetRequest;
 import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.WidgetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,5 +70,9 @@ public class WidgetService {
     public Widget delete(Widget widget) {
         widget.setState(State.DELETED);
         return widgetRepository.save(widget);
+    }
+
+    public Widget update(Widget widget, WidgetRequest values) {
+        return widgetRepository.save(values.update(widget));
     }
 }

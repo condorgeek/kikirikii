@@ -110,7 +110,7 @@ public class SpaceController {
         User user = userService.getUser(userName);
 
         Space space = spaceService.getSpace(values.getText());
-        return widgetService.save(space, values.getPosition(), values.getRanking());
+        return widgetService.save(space, values.getPos(), values.getRanking());
     }
 
     @Secured("ROLE_USER")
@@ -119,7 +119,7 @@ public class SpaceController {
         User user = userService.getUser(userName);
 
         User target = userService.getUser(values.getText());
-        return widgetService.save(target, values.getPosition(), values.getRanking());
+        return widgetService.save(target, values.getPos(), values.getRanking());
     }
 
     @Secured("ROLE_USER")
@@ -128,7 +128,7 @@ public class SpaceController {
         User user = userService.getUser(userName);
 
         return widgetService.save(values.getUrl(), values.getCover(), values.getTitle(), values.getText(),
-                values.getPosition(), values.getRanking());
+                values.getPos(), values.getRanking());
     }
 
     @Secured("ROLE_USER")
@@ -138,6 +138,17 @@ public class SpaceController {
         Widget widget = widgetService.getWidget(widgetId);
 
         return widgetService.delete(widget);
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/widgets/{widgetId}/update", method = RequestMethod.POST)
+    public Widget updateWidget(@PathVariable String userName, @PathVariable Long widgetId,
+                               @RequestBody WidgetRequest values) {
+
+        User user = userService.getUser(userName);
+        Widget widget = widgetService.getWidget(widgetId);
+
+        return widgetService.update(widget, values);
     }
 
     /*  active, generic|shop|event and restricted spaces */

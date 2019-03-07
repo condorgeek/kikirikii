@@ -23,7 +23,8 @@ public class WidgetRequest {
     private String title;
     private String text;
     private String url;
-    private Widget.Position position;
+    private Widget.Type type;
+    private Widget.Position pos;
     private int ranking;
 
     public String getCover() {
@@ -58,12 +59,20 @@ public class WidgetRequest {
         this.url = url;
     }
 
-    public Widget.Position getPosition() {
-        return position;
+    public Widget.Position getPos() {
+        return pos;
     }
 
-    public void setPosition(Widget.Position position) {
-        this.position = position;
+    public void setPos(Widget.Position position) {
+        this.pos = position;
+    }
+
+    public Widget.Type getType() {
+        return type;
+    }
+
+    public void setType(Widget.Type type) {
+        this.type = type;
     }
 
     public int getRanking() {
@@ -72,5 +81,19 @@ public class WidgetRequest {
 
     public void setRanking(int ranking) {
         this.ranking = ranking;
+    }
+
+    public Widget update(Widget widget) {
+
+        if (title != null) widget.setTitle(title);
+        if (text != null) widget.setText(text);
+        if (type != null) widget.setType(type);
+        if (pos != null) widget.setPos(pos);
+
+        widget.setRanking(ranking);
+        widget.setUrl(url);
+        widget.setCover(cover);
+
+        return widget;
     }
 }
