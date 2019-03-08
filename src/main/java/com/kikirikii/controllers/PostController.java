@@ -85,6 +85,16 @@ public class PostController {
     }
 
     @Secured("ROLE_USER")
+    @RequestMapping(value = "/posts/{postId}/ranking/{ranking}", method = RequestMethod.PUT)
+    public Post updatePostRanking(@PathVariable String userName, @PathVariable Long postId,
+                                  @PathVariable Integer ranking) {
+        User user = userService.getUser(userName);
+        Post post = postService.getPost(postId);
+
+        return postService.updateRanking(post, ranking);
+    }
+
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/posts/{postId}/update", method = RequestMethod.POST)
     public Post updatePost(@PathVariable String userName, @PathVariable Long postId, @RequestBody PostRequest postRequest) {
         User user = userService.getUser(userName);

@@ -121,4 +121,9 @@ public class PostService {
         return new ArrayList<>(commentRepository.save(comment).getLikes());
     }
 
+    public Post updateRanking(Post post, Integer ranking) {
+        post.setRanking(ranking);
+        return postRepository.save(post);
+    }
+
 }
