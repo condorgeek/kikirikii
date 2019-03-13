@@ -142,6 +142,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User addRole(User user, Role role) {
+        return userRepository.save(user.addRole(role));
+    }
+
     public User updateUser(User user, UserRequest request) {
         User updated = request.updateUser(user);
         return userRepository.save(updated);

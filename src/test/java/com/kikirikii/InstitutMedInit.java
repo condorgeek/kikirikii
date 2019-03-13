@@ -434,6 +434,14 @@ public class InstitutMedInit {
 
     }
 
+    @Test
+    public void addSuperUser() {
+        userService.findByUsername("institut.med").ifPresent(user -> {
+            userService.addRole(user, Role.of(Role.Type.SUPERUSER));
+        });
+    }
+
+
     private static Pattern youtube = Pattern.compile("(?:https?:\\/\\/)?(?:www\\.)?youtu\\.?be(?:\\.com)?\\/?.*(?:watch|embed)?(?:.*v=|v\\/|\\/)([\\w-_]+)",
     Pattern.MULTILINE|Pattern.CASE_INSENSITIVE);
 
