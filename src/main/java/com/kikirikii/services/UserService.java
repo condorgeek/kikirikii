@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -216,7 +217,7 @@ public class UserService {
     }
 
     public Post updatePost(Post post, User user, String title, String text, List<Media> media) {
-        if (post.getUser().getUsername().equals(user.getUsername())) {
+        if (post.getUser().getUsername().equals(user.getUsername()) || isSuperUser(user)) {
 
             post.setTitle(title);
             post.setText(text);
@@ -225,6 +226,11 @@ public class UserService {
             return postRepository.save(post);
         }
         throw new InvalidAuthorizationException(user.getUsername() + " is not post author.");
+    }
+
+    public boolean isSuperUser(User user) {
+        return user.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_SUPERUSER"));
     }
 
     public Post savePost(Post post) {

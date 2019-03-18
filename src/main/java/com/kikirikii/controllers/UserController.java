@@ -140,7 +140,9 @@ public class UserController {
         User user = userService.getUser(userName);
         Post post = userService.getPostById(postId);
 
-        if(isPostOwner.apply(post, user) || isSpaceOwner.apply(post.getSpace(), user)) {
+        if(isPostOwner.apply(post, user)
+                || isSpaceOwner.apply(post.getSpace(), user)
+                || userService.isSuperUser(user)) {
             return userService.deletePostById(postId);
         }
 

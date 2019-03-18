@@ -104,7 +104,7 @@ public class SpaceController {
         return widgetService.getWidgets(Widget.Position.valueOf(position));
     }
 
-    @Secured("ROLE_USER")
+    @Secured("ROLE_SUPERUSER")
     @RequestMapping(value = "/widgets/space/create", method = RequestMethod.POST)
     public Widget createSpaceWidget(@PathVariable String userName, @RequestBody WidgetRequest values) {
         User user = userService.getUser(userName);
@@ -113,7 +113,7 @@ public class SpaceController {
         return widgetService.save(space, values.getPos(), values.getRanking());
     }
 
-    @Secured("ROLE_USER")
+    @Secured("ROLE_SUPERUSER")
     @RequestMapping(value = "/widgets/user/create", method = RequestMethod.POST)
     public Widget createUserWidget(@PathVariable String userName, @RequestBody WidgetRequest values) {
         User user = userService.getUser(userName);
@@ -122,7 +122,7 @@ public class SpaceController {
         return widgetService.save(target, values.getPos(), values.getRanking());
     }
 
-    @Secured("ROLE_USER")
+    @Secured("ROLE_SUPERUSER")
     @RequestMapping(value = "/widgets/text/create", method = RequestMethod.POST)
     public Widget createTextWidget(@PathVariable String userName, @RequestBody WidgetRequest values) {
         User user = userService.getUser(userName);
@@ -131,7 +131,7 @@ public class SpaceController {
                 values.getPos(), values.getRanking());
     }
 
-    @Secured("ROLE_USER")
+    @Secured("ROLE_SUPERUSER")
     @RequestMapping(value = "/widgets/{widgetId}/delete", method = RequestMethod.DELETE)
     public Widget deleteWidget(@PathVariable String userName, @PathVariable Long widgetId) {
         User user = userService.getUser(userName);
@@ -140,7 +140,7 @@ public class SpaceController {
         return widgetService.delete(widget);
     }
 
-    @Secured("ROLE_USER")
+    @Secured("ROLE_SUPERUSER")
     @RequestMapping(value = "/widgets/{widgetId}/update", method = RequestMethod.POST)
     public Widget updateWidget(@PathVariable String userName, @PathVariable Long widgetId,
                                @RequestBody WidgetRequest values) {
