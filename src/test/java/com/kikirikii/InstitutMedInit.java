@@ -16,6 +16,7 @@ package com.kikirikii;
 import com.kikirikii.model.*;
 import com.kikirikii.model.enums.MediaType;
 import com.kikirikii.repos.SpaceRepository;
+import com.kikirikii.repos.UserRepository;
 import com.kikirikii.services.PageService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
@@ -26,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,6 +56,9 @@ public class InstitutMedInit {
 
     @Autowired
     private SpaceRepository spaceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
@@ -403,6 +408,16 @@ public class InstitutMedInit {
     public void dummy() {
         userService.findByUsername(SUPERUSER).ifPresent(user -> {
             createGenericSpaces(user, "institutmed/spaces-bak.csv", "spaces/cover");
+        });
+    }
+
+    @Test
+    public void resetPasswords() {
+        final int[] cnt = {0};
+        userRepository.findAll().forEach(user -> {
+            System.out.println(cnt[0]++ + " " + user.getUsername());
+            user.setPassword(user.getUsername() + "~IfGM19");
+            userRepository.save(user);
         });
 
     }

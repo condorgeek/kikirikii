@@ -65,13 +65,13 @@ public class Space {
     private List<SpaceMedia> media = new ArrayList<>();
 
     @JsonIgnore
-//    @ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id")
     @Nullable
     private Space parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     @Where(clause = "state in ('ACTIVE')")
     @OrderBy("ranking DESC")
     private List<Space> children = new ArrayList<>();
