@@ -1,0 +1,20 @@
+[Unit]
+Description=Kikirikii Service
+
+[Service]
+User=kikirikii
+# The configuration file application.properties should be here:
+WorkingDirectory=/var/www/vhosts/institut-ganzheitsmedizin.org/kikirikii/src/main/resources
+
+# ExecStart=/usr/bin/java -Xmx256m -jar application.jar
+ExecStart=/usr/bin/java -jar -Dspring.profiles.active=prod /var/www/vhosts/institut-ganzheitsmedizin.org/kikirikii/build/libs/kikirikii-0.1.0.jar
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+StandardOutput=file:/var/log/kikirikii-stdout.log
+StandardError=file:/var/log/kikirikii-stderr.log
+
+[Install]
+WantedBy=multi-user.target

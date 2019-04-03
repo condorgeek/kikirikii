@@ -84,6 +84,7 @@ public class InstitutMedInit {
                     createGenericSpaces(user, "institutmed/spaces.csv", "spaces/cover");
                 });
 
+
         /* step 2 - create team users and join team space */
         spaceService.findBySpacename("Team").ifPresent(space -> {
             createUsers("institutmed/team.csv", "team_profiles/thumbs", space);
