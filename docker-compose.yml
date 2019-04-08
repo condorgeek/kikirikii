@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+
+  kikirikii-service:
+#    container_name: kikirikii-service
+    image: kikirikii
+    ports:
+      - 8080:8080
+    depends_on:
+      - kikirikii-database
+    environment:
+      - DATASOURCE_URL=jdbc:postgresql://kikirikii-database/kikirikii-01
+      - DATASOURCE_USER=postgres
+      - DATASOURCE_PASSWORD=mysecretpassword
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-service
+
+  kikirikii-database:
+#    container_name: kikirikii-db1
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-database
+    environment:
+      - POSTGRES_DB=kikirikii-01
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - /Users/amaru/Sandbox/database:/var/lib/postgresql/data
+
+networks:
+  kikirikii-network:

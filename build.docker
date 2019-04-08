@@ -1,0 +1,22 @@
+###########################################################################
+# BUILD kikirii container
+# Dependencies: postgres and nginx running containers
+#
+# docker build -t kikirikii -f build.docker .
+# docker run -d --name kikirikii-app -p 8080:8080 kikirikii
+#
+# docker start kikirikii-app
+# docker stop kikirikii-app
+#
+# docker logs kikirikii-app
+#
+# docker exec -it kikirikii-app bash
+###########################################################################
+
+FROM openjdk:8
+COPY ./build/libs/kikirikii-0.1.0.jar /
+
+# uncomment for building container for production
+# CMD java -jar -Dspring.profiles.active=prod kikirikii-0.1.0.jar
+
+CMD java -jar -Dspring.datasource.url=$DATASOURCE_URL -Dspring.datasource.user=$DATASOURCE_USER -Dspring.datasource.password=$DATASOURCE_PASSWORD kikirikii-0.1.0.jar
