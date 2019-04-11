@@ -1,8 +1,20 @@
+# ##############################################################################
+#
+# alternative use
+# environment:
+#    - JAVA_OPTS=
+#      -DSPRING.DATASOURCE.URL=jdbc:postgresql://kikirikii-database/kikirikii-01
+#      -DSPRING.DATASOURCE.USER=postgres
+#      -DSPRING.DATASOURCE.PASSWORD=mysecretpassword
+#      -Dstorage.location.root=/Users/amaru/Sandbox/public-upload
+#      -Dspring.profiles.active=prod
+#
+# docker-compose up -d
+# ##############################################################################
 version: '3.7'
 services:
 
   kikirikii-service:
-#    container_name: kikirikii-service
     image: kikirikii
     ports:
       - 8080:8080
@@ -16,9 +28,10 @@ services:
       kikirikii-network:
         aliases:
           - kikirikii-service
+    volumes:
+      - /Users/amaru/Sandbox/public-upload:/Users/amaru/Sandbox/public-upload
 
   kikirikii-database:
-#    container_name: kikirikii-db1
     image: postgres
     restart: always
     ports:
@@ -32,6 +45,33 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
     volumes:
       - /Users/amaru/Sandbox/database:/var/lib/postgresql/data
+
+  kikirikii-web:
+    image: kikirikii-web
+    ports:
+      - 3000:80
+    depends_on:
+      - kikirikii-service
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-web
+    environment:
+      - REACT_APP_ROOT_SERVER_URL=http://localhost:8080
+      - REACT_APP_STOMP_SERVER=http://localhost:8080/stomp/websocket/test
+      - REACT_APP_ROOT_STATIC_URL=http://localhost:9000
+      - REACT_APP_ROOT_CLIENT_URL=http://localhost:3000
+
+  kikirikii-static:
+    image: nginx
+    ports:
+      - 9000:80
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-static
+    volumes:
+      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html:ro
 
 networks:
   kikirikii-network:

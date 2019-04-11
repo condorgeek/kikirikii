@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,8 +105,11 @@ public class InstitutMedInit {
     }
 
     @Test
+    @Transactional
+    @Rollback(value = false)
     public void createChildSpaces() {
 
+        /* needs transactional because children is Fetch.LAZY and requires an open session */
         /* create child spaces for buecher */
         userService.findByUsername(SUPERUSER).ifPresent(user -> {
             createGenericSpaces(user, "institutmed/sammelbaender.csv", "sammelbaender/cover");
@@ -149,29 +153,30 @@ public class InstitutMedInit {
         });
 
         /* assign events */
-//        spaceService.findBySpacename("Weltkongress 2019").ifPresent(parent -> {
-//            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
-//                spaceService.addChild(parent, child);
-//            });
-//            spaceService.findBySpacename("Frühritual").ifPresent(child -> {
-//                spaceService.addChild(parent, child);
-//            });
-//            spaceService.findBySpacename("Abschlussritual").ifPresent(child -> {
-//                spaceService.addChild(parent, child);
-//            });
-//        });
-//
-//        spaceService.findBySpacename("Gesundheitsmesse 2019").ifPresent(parent -> {
-//            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
-//                spaceService.addChild(parent, child);
-//            });
-//            spaceService.findBySpacename("Frühritual").ifPresent(child -> {
-//                spaceService.addChild(parent, child);
-//            });gesundheitsmesse-2019.csv
-//            spaceService.findBySpacename("Abschlussritual").ifPresent(child -> {
-//                spaceService.addChild(parent, child);
-//            });
-//        });
+        spaceService.findBySpacename("Weltkongress 2019").ifPresent(parent -> {
+            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
+                spaceService.addChild(parent, child);
+            });
+            spaceService.findBySpacename("Frühritual").ifPresent(child -> {
+                spaceService.addChild(parent, child);
+            });
+
+            spaceService.findBySpacename("Abschlussritual").ifPresent(child -> {
+                spaceService.addChild(parent, child);
+            });
+        });
+
+        spaceService.findBySpacename("Gesundheitsmesse 2019").ifPresent(parent -> {
+            spaceService.findBySpacename("Open Healer Forum").ifPresent(child -> {
+                spaceService.addChild(parent, child);
+            });
+            spaceService.findBySpacename("Frühritual").ifPresent(child -> {
+                spaceService.addChild(parent, child);
+            });
+            spaceService.findBySpacename("Abschlussritual").ifPresent(child -> {
+                spaceService.addChild(parent, child);
+            });
+        });
 
     }
 

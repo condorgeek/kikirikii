@@ -117,6 +117,9 @@ public class SpaceService {
     }
 
     public Space addChild(Space parent, Space child) {
+
+        parent.getChildren();
+
         return spaceRepository.save(parent.addChild(child));
     }
 
