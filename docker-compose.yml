@@ -14,8 +14,8 @@
 version: '3.7'
 services:
 
-  kikirikii-service:
-    image: kikirikii
+  kikirikii-svr:
+    image: kikirikii-svr
     ports:
       - 8080:8080
     depends_on:
@@ -27,12 +27,12 @@ services:
     networks:
       kikirikii-network:
         aliases:
-          - kikirikii-service
+          - kikirikii-svr
     volumes:
       - /Users/amaru/Sandbox/public-upload:/Users/amaru/Sandbox/public-upload
 
   kikirikii-database:
-    image: postgres
+    image: postgres:10-alpine
     restart: always
     ports:
       - 5432:5432
@@ -51,7 +51,7 @@ services:
     ports:
       - 3000:80
     depends_on:
-      - kikirikii-service
+      - kikirikii-svr
     networks:
       kikirikii-network:
         aliases:
@@ -63,7 +63,7 @@ services:
       - REACT_APP_ROOT_CLIENT_URL=http://localhost:3000
 
   kikirikii-static:
-    image: nginx
+    image: nginx:alpine
     ports:
       - 9000:80
     networks:
