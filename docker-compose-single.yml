@@ -9,7 +9,11 @@
 #      -Dstorage.location.root=/Users/amaru/Sandbox/public-upload
 #      -Dspring.profiles.active=prod
 #
-# docker-compose up -d
+# start with: docker-compose -f docker-compose-single.yml up -d
+# stop with: docker-compose down
+# jump into a container with bash: docker exec -it kikirikii_kikirikii-web_1 bash
+# logs: docker logs kikirikii_kikirikii-web_1 > logs
+# remove dangling images: docker rmi $(docker images -f 'dangling=true' -q)
 # ##############################################################################
 version: '3.7'
 services:
@@ -46,8 +50,8 @@ services:
     volumes:
       - /Users/amaru/Sandbox/database:/var/lib/postgresql/data
 
-  kikirikii-web:
-    image: kikirikii-web
+  kikirikii-web-single:
+    image: kikirikii-web-single
     ports:
       - 3000:80
     depends_on:
@@ -55,9 +59,9 @@ services:
     networks:
       kikirikii-network:
         aliases:
-          - kikirikii-web
+          - kikirikii-web-single
 
-#   These values override the entries in env-config.js
+#   Achtung! These values override the entries in env-config.js
     environment:
 #      - REACT_APP_ROOT_SERVER_URL=http://localhost:8080
 #      - REACT_APP_STOMP_SERVER=http://localhost:8080/stomp/websocket/test
@@ -66,20 +70,25 @@ services:
 
       - REACT_APP_ROOT_SERVER_URL=
       - REACT_APP_STOMP_SERVER=/stomp/websocket/test
+#      - REACT_APP_STOMP_SERVER=/stomp
       - REACT_APP_ROOT_STATIC_URL=/public-upload
       - REACT_APP_ROOT_CLIENT_URL=
 
-  kikirikii-static:
-    image: nginx:alpine
-    ports:
-      - 9000:80
-    networks:
-      kikirikii-network:
-        aliases:
-          - kikirikii-static
     volumes:
 #      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html:ro
-      - /Users/amaru/Sandbox:/usr/share/nginx/html:ro
+      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html/public-upload:ro
+
+#  kikirikii-static:
+#    image: nginx:alpine
+#    ports:
+#      - 9000:80
+#    networks:
+#      kikirikii-network:
+#        aliases:
+#          - kikirikii-static
+#    volumes:
+#      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html:ro
+#      - /Users/amaru/Sandbox:/usr/share/nginx/html:ro
 
 networks:
   kikirikii-network:
