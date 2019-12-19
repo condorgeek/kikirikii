@@ -53,7 +53,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private State state;
 
-    private Role() {
+    protected Role() {
     }
 
     public static Role of(Type type) {

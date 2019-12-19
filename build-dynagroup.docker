@@ -2,7 +2,7 @@
 # BUILD kikirii container
 # Dependencies: postgres and nginx running containers
 #
-# docker build -t kikirikii-svr -f build.docker .
+# docker build -t kikirikii-svr-dynagroup -f build-dynagroup.docker .
 # docker run -d --name kikirikii-svr_1 -p 8080:8080 kikirikii-svr
 #
 # docker start kikirikii-svr_1
@@ -13,14 +13,8 @@
 # docker exec -it kikirikii-svr_1 bash
 ###########################################################################
 
-#FROM openjdk:8
-FROM openjdk:8-jdk-alpine
-COPY ./build/libs/kikirikii-0.1.0.jar /
-
-# uncomment for building container for production
-# CMD java -jar -Dspring.profiles.active=prod kikirikii-0.1.0.jar
-
-# Add bash
-RUN apk add --no-cache bash
+FROM blazerdocker/kikirikii-svr-base
+COPY dynagroup.properties /application.properties
+COPY dynagroup.site.properties /site.properties
 
 CMD java -jar -Dspring.datasource.url=$DATASOURCE_URL -Dspring.datasource.user=$DATASOURCE_USER -Dspring.datasource.password=$DATASOURCE_PASSWORD kikirikii-0.1.0.jar --bootstrap.superuser=dynagroup --create
