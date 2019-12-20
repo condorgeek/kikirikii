@@ -57,8 +57,7 @@ public class KikirikiiApp {
 	CommandLineRunner initialize(StorageService storageService) {
 
 		return (args) -> {
-			System.out.println("CREATE_SUPERUSER " + env.getProperty("CREATE_SUPERUSER_DEFAULT"));
-			System.out.println("NAME " + env.getProperty("client.config.name"));
+			System.out.println("Started Kikirikii server for " + env.getProperty("client.config.name"));
 			System.out.println("CLIENT " + env.getProperty("client.config.superuser"));
 			System.out.println("DATASOURCE " + env.getProperty("spring.datasource.url"));
 			System.out.println("DATASOURCE_USERNAME " + env.getProperty("spring.datasource.username"));
@@ -70,13 +69,14 @@ public class KikirikiiApp {
 
 			if(env.getProperty("CREATE_SUPERUSER_DEFAULT") != null) {
 				try {
-					createSuperUser();
+					createSuperUser(superUserProps.getUsername());
 				} catch(Exception e) {
 					logger.log(Level.SEVERE, "Cannot create default superuser", e);
 				}
 			}
 
 			if(env.getProperty("DELETE_UPLOAD_STORAGE") != null) {
+				logger.info("Deleting upload storage.");
 				storageService.deleteAll();
 			}
 
@@ -85,8 +85,10 @@ public class KikirikiiApp {
 	}
 
 
-	private void createSuperUser() {
-		if (!userService.findByUsername(superUserProps.getUsername()).isPresent()) {
+	private void createSuperUser(String superuser) {
+		logger.info("Creating default superuser " + superuser);
+
+		if (!userService.findByUsername(superuser).isPresent()) {
 			User user = User.of(superUserProps.getEmail(),
 					superUserProps.getUsername(),
 					superUserProps.getFirstname(),
@@ -105,10 +107,12 @@ public class KikirikiiApp {
 									superUserProps.getCity(),
 									superUserProps.getCountry())
 					));
+			userService.createUser(user);
 
 			userService.addRole(user, Role.of(Role.Type.SUPERUSER));
-			userService.createUser(user);
 			userService.createPublicSpaces(user);
+
+			logger.info("Superuser " + superuser + " and home and public spaces created successfully.");
 		}
 	}
 }

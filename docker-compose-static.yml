@@ -19,8 +19,8 @@ version: '3.7'
 services:
 
   kikirikii-svr:
-    image: kikirikii-svr-dynagroup
-#    image: blazerdocker/kikirikii-svr
+#    image: kikirikii-svr-dynagroup
+    image: blazerdocker/kikirikii-svr
     ports:
       - 8080:8080
     depends_on:

@@ -2,7 +2,7 @@
 # BUILD kikirii container
 # Dependencies: postgres and nginx running containers
 #
-# docker build -t kikirikii-svr-base -f build-base.docker .
+# docker build -t blazerdocker/kikirikii-svr-base -f build-base.docker .
 # docker run -d --name kikirikii-svr_1 -p 8080:8080 kikirikii-svr
 #
 # docker start kikirikii-svr_1
