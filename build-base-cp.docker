@@ -1,0 +1,28 @@
+###########################################################################
+# BUILD kikirii container
+# Dependencies: postgres and nginx running containers
+#
+# docker build -t blazerdocker/kikirikii-svr-base-cp -f build-base-cp.docker .
+# docker run -d --name kikirikii-svr_1 -p 8080:8080 kikirikii-svr
+#
+# docker start kikirikii-svr_1
+# docker stop kikirikii-svr_1
+#
+# docker logs kikirikii-svr_1
+#
+# docker exec -it kikirikii-svr_1 bash
+###########################################################################
+
+FROM openjdk:8-jdk-alpine
+
+RUN mkdir /public-properties
+RUN chmod 777 /public-properties
+COPY ./build/libs/kikirikii-0.1.0.jar /public-properties
+
+# uncomment for building container for production
+# CMD java -jar -Dspring.profiles.active=prod kikirikii-0.1.0.jar
+
+# Add bash
+RUN apk add --no-cache bash
+
+CMD java -jar -classpath *:/public-properties/*:/public-properties -Dspring.datasource.url=$DATASOURCE_URL -Dspring.datasource.user=$DATASOURCE_USER -Dspring.datasource.password=$DATASOURCE_PASSWORD kikirikii-0.1.0.jar --bootstrap.superuser=dynagroup --create
