@@ -1,8 +1,14 @@
 ###########################################################################
-# BUILD kikirii container
-# Dependencies: postgres and nginx running containers
+# BUILD base kikirii container
+# This container cannot run alone and is meant basically to act as a wrapper for externalizing the main jar file
+# In particular, the custom properties and java starter command are suppssed to be completed on a second custom
+# container.
+#
+# Dependencies: custom conatiner with properties, postgres and nginx running containers
 #
 # docker build -t blazerdocker/kikirikii-svr-base -f build-base.docker .
+#
+# @deprecated:
 # docker run -d --name kikirikii-svr_1 -p 8080:8080 kikirikii-svr
 #
 # docker start kikirikii-svr_1
@@ -13,13 +19,18 @@
 # docker exec -it kikirikii-svr_1 bash
 ###########################################################################
 
+# build from alpine distribution with java 8 installed
+
 FROM openjdk:8-jdk-alpine
-COPY ./build/libs/kikirikii-0.1.0.jar /
+
+# copy base kikirikii distribution file
+COPY ../../build/libs/kikirikii-0.1.0.jar /
 
 # uncomment for building container for production
 # CMD java -jar -Dspring.profiles.active=prod kikirikii-0.1.0.jar
 
-# Add bash
+# Optional, add bash
 RUN apk add --no-cache bash
 
+# disabled - see next custom conatiner with properties included
 #CMD java -jar -Dspring.datasource.url=$DATASOURCE_URL -Dspring.datasource.user=$DATASOURCE_USER -Dspring.datasource.password=$DATASOURCE_PASSWORD kikirikii-0.1.0.jar --bootstrap.superuser=dynagroup --create

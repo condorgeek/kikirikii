@@ -1,6 +1,7 @@
 ###########################################################################
 # BUILD kikirii container
-# Dependencies: postgres and nginx running containers
+# Dependencies: base kikii container, postgres and nginx running containers
+# This container basically provides customized properties and starts the application
 #
 # docker build -t kikirikii-svr-dynagroup -f build-dynagroup.docker .
 # docker run -d --name kikirikii-svr_1 -p 8080:8080 kikirikii-svr
@@ -14,7 +15,10 @@
 ###########################################################################
 
 FROM blazerdocker/kikirikii-svr-base
+
+# copy custom properties files
 COPY dynagroup.properties /application.properties
 COPY dynagroup.site.properties /site.properties
 
+# start app
 CMD java -jar -Dspring.datasource.url=$DATASOURCE_URL -Dspring.datasource.user=$DATASOURCE_USER -Dspring.datasource.password=$DATASOURCE_PASSWORD kikirikii-0.1.0.jar --bootstrap.superuser=dynagroup --create

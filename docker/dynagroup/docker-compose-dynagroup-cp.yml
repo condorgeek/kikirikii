@@ -1,3 +1,6 @@
+#
+# not working - some problems with the path !!
+
 # ##############################################################################
 #
 # alternative use
@@ -9,7 +12,7 @@
 #      -Dstorage.location.root=/Users/amaru/Sandbox/public-upload
 #      -Dspring.profiles.active=prod
 #
-# start with: docker-compose -f docker-compose-static.yml up -d
+# start with: docker-compose -f docker-compose-dynagroup-cp.yml up -d
 # stop with: docker-compose down
 # jump into a container with bash: docker exec -it kikirikii_kikirikii-web_1 bash
 # logs: docker logs kikirikii_kikirikii-web_1 > logs
@@ -19,26 +22,24 @@ version: '3.7'
 services:
 
   kikirikii-svr:
-#    image: kikirikii-svr-dynagroup
-    image: blazerdocker/kikirikii-svr
+    image: blazerdocker/kikirikii-svr-base-cp
     ports:
       - 8080:8080
     depends_on:
       - kikirikii-database
     environment:
-      - DATASOURCE_URL=jdbc:postgresql://kikirikii-database/kikirikii-01
+      - DATASOURCE_URL=jdbc:postgresql://kikirikii-database/dynagroup-db
       - DATASOURCE_USER=postgres
-      - DATASOURCE_PASSWORD=mysecretpassword
-#      - CREATE_SUPERUSER_DEFAULT
+      - DATASOURCE_PASSWORD=password
+      - CREATE_SUPERUSER_DEFAULT=true
 
     networks:
       kikirikii-network:
         aliases:
           - kikirikii-svr
     volumes:
-      - /Users/amaru/Sandbox/public-upload:/Users/amaru/Sandbox/public-upload
-#      - /Users/amaru/Sandbox/public-properties:/build/libs
-#      - /Users/amaru/Sandbox/public-properties:/user/app
+      - /Users/amaru/Sandbox/dynagroup/public-upload:/Users/amaru/Sandbox/dynagroup/public-upload
+      - /Users/amaru/Sandbox/dynagroup/public-properties:/public-properties
 
   kikirikii-database:
     image: postgres:10-alpine
@@ -50,10 +51,10 @@ services:
         aliases:
           - kikirikii-database
     environment:
-      - POSTGRES_DB=kikirikii-01
-      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=dynagroup-db
+      - POSTGRES_PASSWORD=password
     volumes:
-      - /Users/amaru/Sandbox/database:/var/lib/postgresql/data
+      - /Users/amaru/Sandbox/dynagroup/database:/var/lib/postgresql/data
 
 #  kikirikii-web-ssl:
 #    image: kikirikii-web-ssl
@@ -96,8 +97,7 @@ services:
         aliases:
           - kikirikii-static
     volumes:
-      #      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html:ro
-      - /Users/amaru/Sandbox:/usr/share/nginx/html:ro
+      - /Users/amaru/Sandbox/dynagroup:/usr/share/nginx/html:ro
 
 networks:
   kikirikii-network:

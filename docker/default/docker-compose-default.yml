@@ -1,0 +1,105 @@
+# ##############################################################################
+#
+# alternative use
+# environment:
+#    - JAVA_OPTS=
+#      -DSPRING.DATASOURCE.URL=jdbc:postgresql://kikirikii-database/kikirikii-01
+#      -DSPRING.DATASOURCE.USER=postgres
+#      -DSPRING.DATASOURCE.PASSWORD=mysecretpassword
+#      -Dstorage.location.root=/Users/amaru/Sandbox/public-upload
+#      -Dspring.profiles.active=prod
+#
+# start with: docker-compose -f docker-compose-default.yml up -d
+# stop with: docker-compose -f docker-compose-default.yml down
+# jump into a container with bash: docker exec -it kikirikii_kikirikii-web_1 bash
+# logs: docker logs kikirikii_kikirikii-web_1 > logs
+# remove dangling images: docker rmi $(docker images -f 'dangling=true' -q)
+#
+# Default location is relative to home directory (directories must exist) as in
+#   ~/Kirikii/default
+#       ~/Kirikii/default/database and
+#       ~/Kirikii/default/public-upload
+#
+# ##############################################################################
+version: '3.7'
+services:
+
+  kikirikii-svr:
+    image: blazerdocker/kikirikii-svr-default
+    ports:
+      - 8080:8080
+    depends_on:
+      - kikirikii-database
+    environment:
+      - DATASOURCE_URL=jdbc:postgresql://kikirikii-database/kikirikii-db
+      - DATASOURCE_USER=postgres
+      - DATASOURCE_PASSWORD=password
+      - CREATE_SUPERUSER_DEFAULT=true
+
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-svr
+    volumes:
+      - ~/Kikirikii/default/public-upload:/Users/amaru/Kikirikii/default/public-upload
+
+  kikirikii-database:
+    image: postgres:10-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-database
+    environment:
+      - POSTGRES_DB=kikirikii-db
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ~/Kikirikii/default/database:/var/lib/postgresql/data
+
+#  kikirikii-web-ssl:
+#    image: kikirikii-web-ssl
+#    ports:
+#      - 80:80
+#      - 443:443
+#    depends_on:
+#      - kikirikii-svr
+#    networks:
+#      kikirikii-network:
+#        aliases:
+#          - kikirikii-web-ssl
+#
+##   Achtung! These values override the entries in env-config.js
+#    environment:
+##      - REACT_APP_ROOT_SERVER_URL=http://localhost:8080
+##      - REACT_APP_STOMP_SERVER=http://localhost:8080/stomp/websocket/test
+##      - REACT_APP_ROOT_STATIC_URL=http://localhost:9000
+##      - REACT_APP_ROOT_CLIENT_URL=http://localhost:3000
+#
+#      - REACT_APP_ROOT_SERVER_URL=
+#      - REACT_APP_SERVER_SECURE_URL=/user
+#      - REACT_APP_SERVER_PUBLIC_URL=/public
+#      - REACT_APP_PUBLIC_USER=institut.med
+#      - REACT_APP_STOMP_SERVER=/stomp/websocket/test
+#      - REACT_APP_ROOT_STATIC_URL=/public-upload
+#      - REACT_APP_ROOT_CLIENT_URL=
+#
+#    volumes:
+##      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html:ro
+##      - /Users/amaru/Sandbox/public-upload:/usr/share/nginx/html/public-upload:ro
+#      - /Users/amaru/Sandbox/react-redux-demo/test-05/build:/usr/share/nginx/html:ro
+
+  kikirikii-static:
+    image: nginx:alpine
+    ports:
+      - 9000:80
+    networks:
+      kikirikii-network:
+        aliases:
+          - kikirikii-static
+    volumes:
+      - ~/Kikirikii/default:/usr/share/nginx/html:ro
+
+networks:
+  kikirikii-network:

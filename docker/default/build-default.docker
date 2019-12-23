@@ -1,0 +1,23 @@
+###########################################################################
+# BUILD kikirii container
+# Dependencies: base kikii container, postgres and nginx running containers
+# This container basically provides customized properties and starts the application
+#
+# docker build -t blazerdocker/kikirikii-svr-default -f build-default.docker .
+# docker run -d --name kikirikii-svr_1 -p 8080:8080 kikirikii-svr
+#
+# docker start kikirikii-svr_1
+# docker stop kikirikii-svr_1
+#
+# docker logs kikirikii-svr_1
+#
+# docker exec -it kikirikii-svr_1 bash
+###########################################################################
+
+FROM blazerdocker/kikirikii-svr-base
+
+# copy custom properties files
+COPY default.properties /application.properties
+
+# start app
+CMD java -jar -Dspring.datasource.url=$DATASOURCE_URL -Dspring.datasource.user=$DATASOURCE_USER -Dspring.datasource.password=$DATASOURCE_PASSWORD kikirikii-0.1.0.jar
