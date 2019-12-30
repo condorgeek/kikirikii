@@ -9,7 +9,10 @@
 #      -Dstorage.location.root=/Users/amaru/Sandbox/public-upload
 #      -Dspring.profiles.active=prod
 #
+#
 # start with: docker-compose -f docker-compose-default.yml up -d
+# stop with: docker-compose -f docker-compose-default.yml down
+#
 # stop with: docker-compose -f docker-compose-default.yml down
 # jump into a container with bash: docker exec -it kikirikii_kikirikii-web_1 bash
 # logs: docker logs kikirikii_kikirikii-web_1 > logs
