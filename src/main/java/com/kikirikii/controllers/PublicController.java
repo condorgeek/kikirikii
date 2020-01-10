@@ -14,6 +14,7 @@
 package com.kikirikii.controllers;
 
 import com.kikirikii.exceptions.InvalidResourceException;
+import com.kikirikii.exceptions.NotFoundException;
 import com.kikirikii.model.*;
 import com.kikirikii.services.*;
 import com.kikirikii.storage.SiteProperties;
@@ -311,7 +312,7 @@ public class PublicController {
                     userService.getUser(username);
 
         } catch(Exception e) {
-            throw new InvalidResourceException("A public user is not defined for this site.");
+            throw new NotFoundException("User invalid (public) or page does not exist.");
         }
     }
 

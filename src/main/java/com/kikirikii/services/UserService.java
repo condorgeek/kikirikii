@@ -13,10 +13,7 @@
 
 package com.kikirikii.services;
 
-import com.kikirikii.exceptions.DuplicateResourceException;
-import com.kikirikii.exceptions.InvalidAuthorizationException;
-import com.kikirikii.exceptions.InvalidResourceException;
-import com.kikirikii.exceptions.OpNotAllowedException;
+import com.kikirikii.exceptions.*;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.PasswordRequest;
 import com.kikirikii.model.dto.UserRequest;
@@ -72,7 +69,7 @@ public class UserService {
             return user.get();
         }
 
-        throw new InvalidResourceException("User " + username + " is invalid.");
+        throw new NotFoundException("User " + username + " is invalid.");
     }
 
     public User getUser(Long userId) {
@@ -80,7 +77,7 @@ public class UserService {
         if (user.isPresent()) {
             return user.get();
         }
-        throw new InvalidResourceException("User with id " + userId + " is invalid.");
+        throw new NotFoundException("User with id " + userId + " is invalid.");
     }
 
     public Optional<User> findByUsername(String username) {
