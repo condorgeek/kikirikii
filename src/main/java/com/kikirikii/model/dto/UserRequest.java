@@ -49,12 +49,11 @@ public class UserRequest {
 
     // address
     private String street;
+    private String number;
+    private String areacode;
+    private String optional;
     private String city;
     private String country;
-    private String areacode;
-
-    private String number;
-    private String optional;
 
     public String getEmail() {
         return email;
@@ -277,18 +276,45 @@ public class UserRequest {
         return user;
     }
 
-    private Address updateAddress(Address address) {
+    public User updateAccount(User user) {
+        if(this.firstname != null) user.setFirstname(this.firstname);
+        if(this.lastname != null) user.setLastname(this.lastname);
+        if(this.email != null) user.setEmail(this.email);
+        return user;
+    }
+
+    public User updateUserData(User user) {
+        UserData userData = user.getUserData();
+
+        userData.setAboutYou(this.aboutYou);
+        userData.setPolitics(this.politics);
+        userData.setReligion(this.religion);
+        userData.setWork(this.work);
+        userData.setStudies(this.studies);
+        userData.setInterests(this.interests);
+        userData.setWeb(this.web);
+
+        if(this.gender != null) userData.setGender(this.gender);
+        if(this.interest != null) userData.setInterest(this.interest);
+        if(this.marital != null) userData.setMarital(this.marital);
+        if(this.birthday != null) userData.setBirthday(asLocalDate.apply(this.birthday));
+
+        return user;
+    }
+
+    public Address updateAddress(Address address) {
         if(address == null) {
             return Address.of(this.street, this.number, this.optional, this.areacode,
                     this.city, this.country);
         }
         if(this.street != null) address.setStreet(this.street);
-        if(this.number != null) address.setStreet(this.number);
-        if(this.optional != null) address.setStreet(this.optional);
-        if(this.areacode != null) address.setStreet(this.areacode);
-        if(this.city != null) address.setStreet(this.city);
-        if(this.country != null) address.setStreet(this.country);
-        return  address;
+        if(this.number != null) address.setNumber(this.number);
+        if(this.optional != null) address.setOptional(this.optional);
+        if(this.areacode != null) address.setAreacode(this.areacode);
+        if(this.city != null) address.setCity(this.city);
+        if(this.country != null) address.setCountry(this.country);
+
+        return address;
     }
 
     private Function<String, LocalDate> asLocalDate = birthday ->  LocalDate.parse(birthday, DateTimeFormatter.ofPattern("dd/MM/yyyy"));

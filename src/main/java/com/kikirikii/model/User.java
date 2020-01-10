@@ -33,7 +33,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @JsonIgnore
     @NotNull
     @Column(name = "email", unique = true)
     private String email;

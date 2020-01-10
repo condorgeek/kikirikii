@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.PasswordRequest;
 import com.kikirikii.model.dto.PostRequest;
 import com.kikirikii.model.dto.Topic;
 import com.kikirikii.model.dto.UserRequest;
@@ -180,13 +181,7 @@ public class UserController {
                 postRequest.getMediaAsList());
     }
 
-    @Secured("ROLE_USER")
-    @RequestMapping(value = "/userdata/update", method = RequestMethod.POST)
-    public UserData updateUserData(@PathVariable String userName, @RequestBody UserRequest userRequest) {
-        User user = userService.getUser(userName);
 
-        return userService.updateUser(user, userRequest).getUserData();
-    }
 
     @RequestMapping(value = "/user/friends", method = RequestMethod.GET)
     public List<User> getUserFriends(@PathVariable String userName) {
@@ -446,16 +441,49 @@ public class UserController {
     }
 
     @Secured("ROLE_USER")
+    @RequestMapping(value = "/userdata/update", method = RequestMethod.POST)
+    public UserData updateUserData(@PathVariable String userName, @RequestBody UserRequest userRequest) {
+        User user = userService.getUser(userName);
+
+        return userService.updateUser(user, userRequest).getUserData();
+    }
+
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/userdata/avatar", method = RequestMethod.PUT)
     public Map<String, Object> updateUserAvatar(@PathVariable String userName, @RequestBody Map<String, String> values) {
         User user = userService.getUser(userName);
         user.setAvatar(values.get("path"));
         user = userService.updateUser(user);
 
+        /* assigning userdata because it is marked as @JsonIgnore in the User entity */
         Map<String, Object> data = new HashMap<>();
         data.put("user", user);
         data.put("userdata", user.getUserData());
         return data;
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/userdata/account", method = RequestMethod.PUT)
+    public User updateUserAccount(@PathVariable String userName, @RequestBody UserRequest userRequest) {
+        User user = userService.getUser(userName);
+
+        return userService.updateAccount(user, userRequest);
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/userdata/password", method = RequestMethod.PUT)
+    public User updateUserPassword(@PathVariable String userName, @RequestBody PasswordRequest passwordRequest) {
+        User user = userService.getUser(userName);
+
+        return userService.updatePassword(user, passwordRequest);
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/userdata/address", method = RequestMethod.PUT)
+    public UserData updateUserAddress(@PathVariable String userName, @RequestBody UserRequest userRequest) {
+        User user = userService.getUser(userName);
+
+        return userService.updateAddress(user, userRequest).getUserData();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

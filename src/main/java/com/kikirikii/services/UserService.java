@@ -18,6 +18,7 @@ import com.kikirikii.exceptions.InvalidAuthorizationException;
 import com.kikirikii.exceptions.InvalidResourceException;
 import com.kikirikii.exceptions.OpNotAllowedException;
 import com.kikirikii.model.*;
+import com.kikirikii.model.dto.PasswordRequest;
 import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.model.enums.State;
 import com.kikirikii.repos.*;
@@ -150,6 +151,29 @@ public class UserService {
     public User updateUser(User user, UserRequest request) {
         User updated = request.updateUser(user);
         return userRepository.save(updated);
+    }
+
+    public User updateAccount(User user, UserRequest request) {
+        User updated = request.updateAccount(user);
+        return userRepository.save(updated);
+    }
+
+    public User updatePassword(User user, PasswordRequest request) {
+
+        if(user.verifyPassword(request.getPassword())) {
+            if(request.getNewPassword().equals(request.getConfirmPassword())) {
+                user.setPassword(request.getNewPassword());
+                return userRepository.save(user);
+            }
+        }
+        throw new InvalidAuthorizationException("Cannot update password. Current password invalid or new passwords not equal.");
+    }
+
+    public User updateAddress(User user, UserRequest request) {
+        UserData userData = user.getUserData();
+        userData.setAddress(request.updateAddress(userData.getAddress()));
+
+        return userRepository.save(user);
     }
 
     public User updateUser(User user) {
