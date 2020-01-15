@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface UserRepository extends CrudRepository<User, Long> {
+    @Query("select u from User u where u.username = :username and u.state != 'DELETED'")
     Optional<User> findByUsername(String username);
 
     @Query("select u from User u where u.username = :username and u.state = 'ACTIVE'")
@@ -32,6 +33,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select u from User u where u.id = :userId and u.state = 'ACTIVE'")
     Optional<User> findActiveByUserId(Long userId);
 
+    @Query("select u from User u where u.email = :email and u.state != 'DELETED'")
     Optional<User> findByEmail(String email);
 
     @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")

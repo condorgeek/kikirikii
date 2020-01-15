@@ -61,12 +61,12 @@ public class UserService {
     private RoleRepository roleRepository;
 
     public UserService() {
-        logger.info("Initialized");
+        logger.info("User Service Initialized");
     }
 
     public User getUser(String username) {
         Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent() && user.get().getState() != State.DELETED) {
+        if (user.isPresent()) {
             return user.get();
         }
         throw new NotFoundException("User " + username + " is invalid.");
