@@ -16,6 +16,7 @@ package com.kikirikii.controllers;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kikirikii.exceptions.InvalidResourceException;
+import com.kikirikii.exceptions.OpNotAllowedException;
 import com.kikirikii.model.*;
 import com.kikirikii.model.dto.PasswordRequest;
 import com.kikirikii.model.dto.PostRequest;
@@ -23,24 +24,32 @@ import com.kikirikii.model.dto.Topic;
 import com.kikirikii.model.dto.UserRequest;
 import com.kikirikii.model.enums.Event;
 import com.kikirikii.model.enums.MediaType;
+import com.kikirikii.security.authorization.JwtAuthorizationToken;
+import com.kikirikii.security.model.UserContext;
 import com.kikirikii.services.ChatService;
 import com.kikirikii.services.SpaceService;
 import com.kikirikii.services.UserService;
 import com.kikirikii.services.WebsocketService;
+import com.sun.org.apache.bcel.internal.generic.PUTFIELD;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = {"*"})
+//@CrossOrigin(origins = {"*"})
 @RequestMapping("/user/{userName}")
 public class UserController {
+    Logger logger = Logger.getLogger("UserController");
 
     @Autowired
     private UserService userService;
@@ -304,6 +313,58 @@ public class UserController {
         return friends[REQUEST];
     }
 
+    /* userName is the user to be deleted and is not the id of the authorized user, as implicit
+     * for other requests. Further, Principal is always an instance of JwtAuthorizationToken  */
+    @Secured("ROLE_SUPERUSER")
+    @RequestMapping(value = "/user/block", method = RequestMethod.PUT)
+    public User blockUser(Principal principal, @PathVariable String userName) {
+
+        if(userName.equals(getPrincipalUsername.apply(principal))) {
+            throw new OpNotAllowedException("Blocking yourself is not allowed.");
+        }
+
+        User user = userService.getUser(userName);
+        return userService.forceBlockUser(user);
+    }
+
+    /* userName is the user to be deleted and is not the id of the authorized user, as implicit
+     * for other requests. Further, Principal is always an instance of JwtAuthorizationToken  */
+    @Secured("ROLE_SUPERUSER")
+    @RequestMapping(value = "/user/activate", method = RequestMethod.PUT)
+    public User activateUser(Principal principal, @PathVariable String userName) {
+
+        if(userName.equals(getPrincipalUsername.apply(principal))) {
+            throw new OpNotAllowedException("Activating yourself is not allowed.");
+        }
+
+        User user = userService.getUser(userName);
+        return userService.forceActivateUser(user);
+    }
+
+    @Secured("ROLE_SUPERUSER")
+    @RequestMapping(value = "/user/delete", method = RequestMethod.PUT)
+    public User deleteUser(Principal principal, @PathVariable String userName) {
+
+        if(userName.equals(getPrincipalUsername.apply(principal))) {
+            throw new OpNotAllowedException("Deleting yourself is not allowed.");
+        }
+
+        User user = userService.getUser(userName);
+        return userService.forceDeleteUser(user);
+    }
+
+    @RequestMapping(value = "/account/delete", method = RequestMethod.PUT)
+    public User cancelAccount(Principal principal, @PathVariable String userName) {
+
+        if(userName.equals(getPrincipalUsername.apply(principal))) {
+            User user = userService.getUser(userName);
+            return userService.deleteUser(user);
+        }
+
+        throw new OpNotAllowedException("Account principal mismatch.");
+    }
+
+
     @Secured("ROLE_USER")
     @RequestMapping(value = "/friend/unblock", method = RequestMethod.PUT)
     public Friend unblockFriend(@PathVariable String userName, @RequestBody Map<String, String> values) {
@@ -534,4 +595,9 @@ public class UserController {
         } catch (Exception e) {}
         return null;
     };
+
+    private Function<Principal, UserContext> getUserContext =  principal -> ((JwtAuthorizationToken) principal).getUserContext();
+    private Function<Principal, String> getPrincipalUsername =  principal -> ((JwtAuthorizationToken) principal).getUserContext().getUsername();
+
 }
+

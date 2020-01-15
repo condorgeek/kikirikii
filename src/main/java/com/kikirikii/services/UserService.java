@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,16 +66,15 @@ public class UserService {
 
     public User getUser(String username) {
         Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent()) {
+        if (user.isPresent() && user.get().getState() != State.DELETED) {
             return user.get();
         }
-
         throw new NotFoundException("User " + username + " is invalid.");
     }
 
     public User getUser(Long userId) {
         Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
+        if (user.isPresent() && user.get().getState() != State.DELETED) {
             return user.get();
         }
         throw new NotFoundException("User with id " + userId + " is invalid.");
@@ -111,33 +111,55 @@ public class UserService {
 
     /* Achtung - must delete associated entities ie. posts, comments, likes etc before this call */
     public User deleteUser(User user) {
-
         if(postRepository.countActiveByUserId(user.getId()) > 0) {
             throw new OpNotAllowedException(user.getUsername() + " has post entries active. Delete those first.");
         }
 
-        userRepository.findHomeSpaceById(user.getId()).ifPresent(home -> {
-            home.setState(State.DELETED);
-            spaceRepository.save(home);
-        });
+        return forceDeleteUser(user);
+    }
 
-        userRepository.findGlobalSpaceById(user.getId()).ifPresent(global -> {
-            global.setState(State.DELETED);
-            spaceRepository.save(global);
-        });
+    /* leaving potential tangling post entries for deleted user */
+    public User forceDeleteUser(User user) {
 
-        user.getRoles().forEach(role -> {
-            role.setState(State.DELETED);
-        });
+        try {
+            userRepository.findHomeSpaceById(user.getId()).ifPresent(home -> {
+                home.setState(State.DELETED);
+                spaceRepository.save(home);
+            });
 
-        user.getUserData().setState(State.DELETED);
+            userRepository.findGlobalSpaceById(user.getId()).ifPresent(global -> {
+                global.setState(State.DELETED);
+                spaceRepository.save(global);
+            });
 
-        spaceRepository.findActiveByUserId(user.getId()).forEach(space -> {
-            space.setState(State.DELETED);
-            spaceRepository.save(space);
-        });
+            user.getRoles().forEach(role -> {
+                role.setState(State.DELETED);
+            });
+
+            user.getUserData().setState(State.DELETED);
+
+            spaceRepository.findActiveByUserId(user.getId()).forEach(space -> {
+                space.setState(State.DELETED);
+                spaceRepository.save(space);
+            });
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Cannot delete all of user's resources: " + user.getUsername(), e);
+        }
 
         user.setState(State.DELETED);
+        return userRepository.save(user);
+    }
+
+    /* forcefully activate user without any further checks*/
+    public User forceActivateUser(User user) {
+        user.setState(State.ACTIVE);
+        return userRepository.save(user);
+    }
+
+    /* forcefully blocking user without any further checks*/
+    public User forceBlockUser(User user) {
+        user.setState(State.BLOCKED);
         return userRepository.save(user);
     }
 

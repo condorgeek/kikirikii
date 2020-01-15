@@ -14,6 +14,7 @@
 package com.kikirikii.services;
 
 import com.kikirikii.model.Space;
+import com.kikirikii.model.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,25 +41,29 @@ public class SearchService {
         Stream<Map<String, Object>> s1 = spaceService.searchByTermAsStream(term, size)
                 .filter(space -> space.getType() != Space.Type.HOME && space.getType() != Space.Type.GLOBAL)
                 .map(space -> {
-            String url = "/" + space.getUser().getUsername() + "/space/" + space.getId();
-            return asSearchResult(space.getName(), "", url, space.getCover(), "SPACE");
-        });
+                    String url = "/" + space.getUser().getUsername() + "/space/" + space.getId();
+                    return asSearchResult(space.getName(), "", url, space.getCover(), "SPACE",
+                            space.getState());
+                });
 
         Stream<Map<String, Object>> s2 = userService.searchByTermAsStream(term, size).map(user -> {
             String url = "/" + user.getUsername() + "/home";
-            return asSearchResult(user.getFullname(), user.getUsername(), url, user.getAvatar(), "USER");
+            return asSearchResult(user.getFullname(), user.getUsername(), url, user.getAvatar(), "USER",
+                    user.getState());
         });
 
         return Stream.concat(s1, s2).collect(Collectors.toList());
     }
 
-    Map<String, Object> asSearchResult(String name, String username, String url, String avatar, String type) {
+    Map<String, Object> asSearchResult(String name, String username, String url, String avatar, String type,
+                                       State state) {
         Map<String, Object> data = new HashMap<>();
         data.put("name", name);
         data.put("username", username);
         data.put("url", url);
         data.put("avatar", avatar);
         data.put("type", type);
+        data.put("state", state.name());
 
         return data;
     }

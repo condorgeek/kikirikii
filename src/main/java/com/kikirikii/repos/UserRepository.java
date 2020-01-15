@@ -37,16 +37,16 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME'")
     Optional<Space> findHomeSpace(@Param("userId") Long userId);
 
-    @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL' and state = 'ACTIVE'")
+    @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL' and s.state = 'ACTIVE'")
     Optional<Space> findGlobalSpace(@Param("userId") Long userId);
 
-    @Query("select s from Space s where s.user.username = :username and s.type = 'HOME' and state='ACTIVE'")
+    @Query("select s from Space s where s.user.username = :username and s.type = 'HOME' and s.state='ACTIVE'")
     Optional<Space> findHomeSpaceByName(@Param("username") String username);
 
-    @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME' and state = 'ACTIVE'")
+    @Query("select s from Space s where s.user.id = :userId and s.type = 'HOME' and s.state = 'ACTIVE'")
     Optional<Space> findHomeSpaceById(@Param("userId") Long userId);
 
-    @Query("select s from Space s where s.user.username = :username and s.type = 'GLOBAL' and state = 'ACTIVE'")
+    @Query("select s from Space s where s.user.username = :username and s.type = 'GLOBAL' and s.state = 'ACTIVE'")
     Optional<Space> findGlobalSpaceByName(@Param("username") String username);
 
     @Query("select s from Space s where s.user.id = :userId and s.type = 'GLOBAL'")
